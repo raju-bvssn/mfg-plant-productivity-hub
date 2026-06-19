@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Requires_Quality_Review__c</fullName>
+    <defaultValue>false</defaultValue>
+    <label>Requires Quality Review</label>
+    <trackTrending>false</trackTrending>
+    <type>Checkbox</type>
+</CustomField>

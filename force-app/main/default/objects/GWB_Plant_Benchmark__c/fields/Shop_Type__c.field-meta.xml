@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Shop_Type__c</fullName>
+    <label>Shop Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Assembly</fullName>
+                <default>false</default>
+                <label>Assembly</label>
+            </value>
+            <value>
+                <fullName>Body</fullName>
+                <default>false</default>
+                <label>Body</label>
+            </value>
+            <value>
+                <fullName>Paint</fullName>
+                <default>false</default>
+                <label>Paint</label>
+            </value>
+            <value>
+                <fullName>Stamping</fullName>
+                <default>false</default>
+                <label>Stamping</label>
+            </value>
+            <value>
+                <fullName>Powertrain</fullName>
+                <default>false</default>
+                <label>Powertrain</label>
+            </value>
+            <value>
+                <fullName>General</fullName>
+                <default>false</default>
+                <label>General</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

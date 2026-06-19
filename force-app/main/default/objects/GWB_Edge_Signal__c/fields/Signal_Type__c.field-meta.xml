@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Signal_Type__c</fullName>
+    <label>Signal Type</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Micro-Stoppage</fullName>
+                <default>false</default>
+                <label>Micro-Stoppage</label>
+            </value>
+            <value>
+                <fullName>Bin-Depletion</fullName>
+                <default>false</default>
+                <label>Bin-Depletion</label>
+            </value>
+            <value>
+                <fullName>Idle-Time</fullName>
+                <default>false</default>
+                <label>Idle-Time</label>
+            </value>
+            <value>
+                <fullName>Overproduction</fullName>
+                <default>false</default>
+                <label>Overproduction</label>
+            </value>
+            <value>
+                <fullName>Quality-Defect</fullName>
+                <default>false</default>
+                <label>Quality-Defect</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

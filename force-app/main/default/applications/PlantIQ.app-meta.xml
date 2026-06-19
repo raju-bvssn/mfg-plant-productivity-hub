@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomApplication xmlns="http://soap.sforce.com/2006/04/metadata">
+    <defaultLandingTab>GWB_Productivity_Idea__c</defaultLandingTab>
+    <description>PlantIQ Productivity Advisor — AI-powered manufacturing productivity system</description>
+    <formFactors>Large</formFactors>
+    <isNavAutoTempTabsDisabled>false</isNavAutoTempTabsDisabled>
+    <isNavPersonalizationDisabled>false</isNavPersonalizationDisabled>
+    <isNavTabPersistenceDisabled>false</isNavTabPersistenceDisabled>
+    <isOmniPinnedViewEnabled>false</isOmniPinnedViewEnabled>
+    <label>PlantIQ</label>
+    <navType>Standard</navType>
+    <tabs>GWB_Productivity_Idea__c</tabs>
+    <tabs>GWB_Edge_Signal__c</tabs>
+    <tabs>GWB_HQ_Target__c</tabs>
+    <tabs>GWB_Idea_Library__c</tabs>
+    <tabs>GWB_Plant_Benchmark__c</tabs>
+    <tabs>GWB_Plant__c</tabs>
+    <tabs>GWB_Plant_Shop__c</tabs>
+    <tabs>GWB_Plant_Function__c</tabs>
+    <uiType>Lightning</uiType>
+</CustomApplication>

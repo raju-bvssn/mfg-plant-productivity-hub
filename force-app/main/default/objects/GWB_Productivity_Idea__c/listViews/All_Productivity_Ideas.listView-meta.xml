@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Productivity_Ideas</fullName>
+    <label>All Productivity Ideas</label>
+    <filterScope>Everything</filterScope>
+    <columns>NAME</columns>
+    <columns>Plant_Function__c</columns>
+    <columns>Status__c</columns>
+    <columns>Idea_Type__c</columns>
+    <columns>FTE_Impact__c</columns>
+    <columns>Dollar_Impact__c</columns>
+    <columns>Confidence_Score__c</columns>
+    <columns>Effort__c</columns>
+    <columns>AI_Generated__c</columns>
+    <sharedTo><allInternalUsers/></sharedTo>
+</ListView>

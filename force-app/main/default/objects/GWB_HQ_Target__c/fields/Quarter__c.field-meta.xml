@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Quarter__c</fullName>
+    <label>Quarter</label>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value><fullName>Q1 2026</fullName><label>Q1 2026</label><default>false</default></value>
+            <value><fullName>Q2 2026</fullName><label>Q2 2026</label><default>false</default></value>
+            <value><fullName>Q3 2026</fullName><label>Q3 2026</label><default>false</default></value>
+            <value><fullName>Q4 2026</fullName><label>Q4 2026</label><default>false</default></value>
+        </valueSetDefinition>
+    </valueSet>
+    <required>false</required>
+</CustomField>

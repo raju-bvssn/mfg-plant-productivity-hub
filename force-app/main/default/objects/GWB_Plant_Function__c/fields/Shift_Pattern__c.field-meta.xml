@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Shift_Pattern__c</fullName>
+    <label>Shift Pattern</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>1-Shift</fullName>
+                <default>false</default>
+                <label>1-Shift</label>
+            </value>
+            <value>
+                <fullName>2-Shift</fullName>
+                <default>false</default>
+                <label>2-Shift</label>
+            </value>
+            <value>
+                <fullName>3-Shift</fullName>
+                <default>false</default>
+                <label>3-Shift</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plant_Shop__c</fullName>
+    <label>Plant Shop</label>
+    <type>Lookup</type>
+    <referenceTo>GWB_Plant_Shop__c</referenceTo>
+    <relationshipName>Shop_HQ_Targets</relationshipName>
+    <relationshipLabel>HQ Targets</relationshipLabel>
+    <required>false</required>
+</CustomField>

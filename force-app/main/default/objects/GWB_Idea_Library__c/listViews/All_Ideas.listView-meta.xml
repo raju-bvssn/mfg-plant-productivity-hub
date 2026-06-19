@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Ideas</fullName>
+    <label>All Ideas</label>
+    <filterScope>Everything</filterScope>
+    <columns>NAME</columns>
+    <columns>Idea_Category__c</columns>
+    <columns>Applicable_Signal_Types__c</columns>
+    <columns>Typical_FTE_Min__c</columns>
+    <columns>Typical_FTE_Max__c</columns>
+    <columns>Typical_Effort__c</columns>
+    <sharedTo><allInternalUsers/></sharedTo>
+</ListView>

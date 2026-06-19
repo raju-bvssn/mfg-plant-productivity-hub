@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_HQ_Targets</fullName>
+    <label>All HQ Targets</label>
+    <filterScope>Everything</filterScope>
+    <columns>NAME</columns>
+    <columns>Plant__c</columns>
+    <columns>Plant_Shop__c</columns>
+    <columns>Quarter__c</columns>
+    <columns>Target_FTE__c</columns>
+    <columns>Approved_FTE_Coverage__c</columns>
+    <columns>Gap_To_Target__c</columns>
+    <sharedTo><allInternalUsers/></sharedTo>
+</ListView>

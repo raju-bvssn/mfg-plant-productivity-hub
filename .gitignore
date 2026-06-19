@@ -1,0 +1,23 @@
+# Salesforce
+.sf/
+.sfdx/
+*.lock
+
+# Jira / GWB source data — never commit
+PR*.csv
+PR*.json
+*.csv
+
+# Exclude loose JSON files at root (Jira exports etc.) but keep project config
+/*.json
+!sfdx-project.json
+
+# macOS
+.DS_Store
+
+# Environment / secrets
+.env
+*.env.*
+
+# Node
+node_modules/

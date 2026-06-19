@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Functions</fullName>
+    <label>All Functions</label>
+    <filterScope>Everything</filterScope>
+    <columns>NAME</columns>
+    <columns>Plant_Shop__c</columns>
+    <columns>Station__c</columns>
+    <columns>Auth_Positions__c</columns>
+    <columns>Current_Headcount__c</columns>
+    <columns>Shift_Pattern__c</columns>
+    <columns>Active__c</columns>
+    <sharedTo><allInternalUsers/></sharedTo>
+</ListView>

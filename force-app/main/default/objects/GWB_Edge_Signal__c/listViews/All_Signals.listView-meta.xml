@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Signals</fullName>
+    <label>All Signals</label>
+    <filterScope>Everything</filterScope>
+    <columns>NAME</columns>
+    <columns>Plant_Function__c</columns>
+    <columns>Station__c</columns>
+    <columns>Signal_Type__c</columns>
+    <columns>Risk__c</columns>
+    <columns>Current_Level__c</columns>
+    <columns>Minutes_To_Empty__c</columns>
+    <columns>Processed__c</columns>
+    <sharedTo><allInternalUsers/></sharedTo>
+</ListView>

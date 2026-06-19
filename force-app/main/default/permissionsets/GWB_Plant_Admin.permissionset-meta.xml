@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>GWB Plant Admin</label>
+    <description>Plant user — reviews AI-generated productivity ideas, acts on edge signals, reads HQ targets</description>
+
+    <applicationVisibilities><application>PlantIQ</application><visible>true</visible></applicationVisibilities>
+
+    <!-- All fieldPermissions grouped and sorted alphabetically by field -->
+    <fieldPermissions><editable>true</editable><field>GWB_Edge_Signal__c.Current_Level__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Edge_Signal__c.Image_URL__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Edge_Signal__c.Minutes_To_Empty__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Edge_Signal__c.Plant_Function__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Edge_Signal__c.Processed__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Edge_Signal__c.Raw_JSON__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Edge_Signal__c.Risk__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Edge_Signal__c.Signal_Type__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Edge_Signal__c.Station__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_HQ_Target__c.Approved_FTE_Coverage__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_HQ_Target__c.Gap_To_Target__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_HQ_Target__c.Plant_Shop__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_HQ_Target__c.Production_Context__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_HQ_Target__c.Quarter__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Applicable_Signal_Types__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Description__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Idea_Category__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Preconditions__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Requires_Finance_Approval__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Requires_Quality_Review__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Requires_Safety_Review__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Typical_Effort__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Typical_FTE_Max__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Idea_Library__c.Typical_FTE_Min__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant__c.Active__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant__c.Location__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Benchmark__c.Achieved_FTE__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Benchmark__c.Notes__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Benchmark__c.Plant__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Benchmark__c.Production_Context__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Benchmark__c.Quarter__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Benchmark__c.Shop_Type__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Function__c.Active__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Function__c.Auth_Positions__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Function__c.Current_Headcount__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Function__c.Shift_Pattern__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Function__c.Station__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Shop__c.Active__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>false</editable><field>GWB_Plant_Shop__c.Shop_Type__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.AI_Generated__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Assumptions__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Benchmark_Evidence__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Confidence_Score__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Dollar_Impact__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Edge_Signal__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Effort__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.End_Date__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.FTE_Impact__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Idea_Library__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Idea_Type__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Plant_Function__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Required_Validations__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Risk_Notes__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Slack_Message_TS__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Start_Date__c</field><readable>true</readable></fieldPermissions>
+    <fieldPermissions><editable>true</editable><field>GWB_Productivity_Idea__c.Status__c</field><readable>true</readable></fieldPermissions>
+
+    <!-- All objectPermissions grouped alphabetically -->
+    <objectPermissions><allowCreate>true</allowCreate><allowDelete>false</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><viewAllRecords>true</viewAllRecords><object>GWB_Edge_Signal__c</object></objectPermissions>
+    <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><viewAllRecords>true</viewAllRecords><object>GWB_HQ_Target__c</object></objectPermissions>
+    <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><object>GWB_Idea_Library__c</object></objectPermissions>
+    <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><object>GWB_Plant__c</object></objectPermissions>
+    <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><object>GWB_Plant_Benchmark__c</object></objectPermissions>
+    <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><object>GWB_Plant_Function__c</object></objectPermissions>
+    <objectPermissions><allowCreate>false</allowCreate><allowDelete>false</allowDelete><allowEdit>false</allowEdit><allowRead>true</allowRead><object>GWB_Plant_Shop__c</object></objectPermissions>
+    <objectPermissions><allowCreate>true</allowCreate><allowDelete>false</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><viewAllRecords>true</viewAllRecords><object>GWB_Productivity_Idea__c</object></objectPermissions>
+
+    <tabSettings><tab>GWB_Edge_Signal__c</tab><visibility>Available</visibility></tabSettings>
+    <tabSettings><tab>GWB_HQ_Target__c</tab><visibility>Available</visibility></tabSettings>
+    <tabSettings><tab>GWB_Idea_Library__c</tab><visibility>Available</visibility></tabSettings>
+    <tabSettings><tab>GWB_Plant__c</tab><visibility>Available</visibility></tabSettings>
+    <tabSettings><tab>GWB_Plant_Benchmark__c</tab><visibility>Available</visibility></tabSettings>
+    <tabSettings><tab>GWB_Plant_Function__c</tab><visibility>Available</visibility></tabSettings>
+    <tabSettings><tab>GWB_Plant_Shop__c</tab><visibility>Available</visibility></tabSettings>
+    <tabSettings><tab>GWB_Productivity_Idea__c</tab><visibility>Available</visibility></tabSettings>
+</PermissionSet>
