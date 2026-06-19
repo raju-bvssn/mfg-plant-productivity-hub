@@ -10,6 +10,10 @@ Manufacturing plants operating under HQ-mandated FTE reduction targets have no s
 
 ## Architecture Overview
 
+Two AI patterns run in parallel on a shared Salesforce data layer.
+
+### Pattern 1 — IoT Data Pipeline + HQ-Triggered Recommendation (Event-Driven)
+
 ```
 Raspberry Pi Camera
        │ HTTPS POST (JSON)
@@ -21,12 +25,17 @@ MuleSoft Integration Flow (Anypoint Code Builder)
        │ HTTPS POST OAuth2
        ▼
 Salesforce Apex REST (IngestEdgeSignalController)
-       │ Record insert
+       │ Record insert — stored as evidence, no Slack trigger
        ▼
-Record-Triggered Flow (Process_Edge_Signal)
+GWB_Edge_Signal__c (data at rest — enriches recommendations)
+
+HQ Admin creates / updates GWB_HQ_Target__c
+       │ After Insert / After Update
+       ▼
+Record-Triggered Flow (Process_HQ_Target)
        │ Invocable Apex chain
        ▼
-Agentforce AI (Prompt Template + Einstein LLM)
+Agentforce AI (reads Edge Signals + Benchmarks + Library)
        │ HTTP POST
        ▼
 Slack #plant-productivity (Block Kit card)
@@ -36,6 +45,27 @@ SlackCallbackController → Status update in Salesforce
        │
        ▼
 Reports & Dashboard (Gap-to-Target live coverage)
+```
+
+### Pattern 2 — Conversational Q&A via Slack (Headless Salesforce)
+
+```
+Plant / HQ user types question in Slack
+       │ Slack Events API
+       ▼
+MuleSoft Agent Fabric (Anypoint Code Builder)
+       │ Agent reasoning loop
+       ▼
+plantiq-salesforce-mcp (Node.js MCP server)
+       │ Salesforce REST API — OAuth 2.0
+       ▼
+Salesforce data layer (headless — no UI required)
+       │ query results
+       ▼
+MuleSoft Agent Fabric composes answer
+       │ Slack Bot API
+       ▼
+Slack thread reply in #plant-productivity
 ```
 
 ---
@@ -129,6 +159,8 @@ output application/json
 
 ### 4. Salesforce — Edge Signal Ingestion
 
+Edge signals are stored as evidence for Agentforce to query when building recommendations. They do **not** trigger the recommendation flow directly.
+
 **Apex REST endpoint:** `IngestEdgeSignalController`
 - URL mapping: `/services/apexrest/edge-signal/`
 - Method: `@HttpPost`
@@ -145,7 +177,7 @@ output application/json
 { "error": "Invalid JSON: <message>" }
 ```
 
-**`GWB_Edge_Signal__c` record created:**
+**`GWB_Edge_Signal__c` record created (stored evidence — no downstream trigger):**
 | Field | Value |
 |---|---|
 | Name (AutoNumber) | SIG-0007 |
@@ -161,21 +193,22 @@ output application/json
 
 ---
 
-### 5. Salesforce — Record-Triggered Flow (`Process_Edge_Signal`)
+### 5. Salesforce — Record-Triggered Flow (`Process_HQ_Target`)
 
-- **Object:** `GWB_Edge_Signal__c`
-- **Trigger:** After Insert, entry criteria: `Processed__c = false`
+- **Object:** `GWB_HQ_Target__c`
+- **Trigger:** After Insert and After Update, entry criteria: `Target_FTE__c > 0`
 - **Run mode:** System context
+- **Business logic:** When HQ sets or revises a productivity target for a shop, Agentforce immediately surfaces the best AI-backed ideas to close the gap and posts them to Slack for plant manager action.
 
 **Step 1 → `RetrievePlantContextAction` (Invocable Apex)**
-- Input: `{ signalId: recordId }`
-- Queries signal → plant function → shop → plant → HQ Target for same shop
+- Input: `{ targetId: recordId }`
+- Queries HQ Target → plant shop → plant → plant functions for that shop → most recent Edge Signals for those functions (evidence enrichment)
 - Output:
 ```
 plantName, plantCode, shopName, shopType,
 functionName, station, authPositions, currentHeadcount,
 targetFTE, approvedFTECoverage, gapToTarget,
-productionContext, quarter, signalType, riskLevel
+productionContext, quarter, recentSignalTypes, riskLevel
 ```
 
 **Step 2 → `MatchIdeaLibraryAction` (Invocable Apex)**
@@ -246,7 +279,7 @@ productionContext, quarter, signalType, riskLevel
 
 ---
 
-### 6. Agentforce / Agent Fabric
+### 6. Agentforce — Recommendation Engine (Pattern 1)
 
 **Prompt Template (`PlantIQ_Recommendation.promptTemplate`)**
 - Built in Salesforce Prompt Builder (Setup → Prompt Builder)
@@ -255,25 +288,49 @@ productionContext, quarter, signalType, riskLevel
 - Enforces grounding: LLM can only select from provided scored ideas — cannot hallucinate new categories
 - Test in Prompt Builder preview before wiring into `BuildRecommendationAction`
 
-**Agentforce Agent (interactive mode)**
-- Topic: "Productivity Idea Recommendation"
-- Available actions: all 5 invocable Apex classes registered as Agent Actions
-- Used by Plant Admin for conversational queries: "What ideas do I have for Station 12?"
-- Channel: Einstein Copilot panel embedded in PlantIQ Lightning app
-
-**MCP Servers (Model Context Protocol)**
-- **`plantiq-salesforce-mcp`** (Node.js): exposes SOQL read tools to agent
-  - `query_hq_targets` — returns targets by plant/quarter
-  - `query_productivity_ideas` — returns ideas by status/plant
-  - `query_benchmarks` — returns benchmarks by idea/shop type
-- **`plantiq-slack-mcp`** (Node.js): wraps Slack API
-  - `post_message` — post to channel
-  - `get_thread_replies` — read thread context by `message_ts`
-- Both registered in Agent Fabric MCP configuration
+**Agentforce fires automatically** when HQ Target is created/updated — no user interaction required. Output: Slack card with Approve/Reject/More Info buttons.
 
 ---
 
-### 7. Slack Approval Loop
+### 7. MuleSoft Agent Fabric + MCP — Conversational Q&A (Pattern 2)
+
+Plant managers and HQ users ask natural language questions in Slack. MuleSoft Agent Fabric receives the question, reasons about which tools to call, queries Salesforce headlessly, and replies in the Slack thread — no Salesforce UI required.
+
+**Slack Bot App setup:**
+- Create a Slack App with **Events API** enabled (or Socket Mode for dev)
+- Subscribe to `message.channels` event in `#plant-productivity`
+- Bot Token Scopes: `chat:write`, `channels:history`, `channels:read`
+- Request URL: MuleSoft Agent Fabric inbound endpoint
+
+**MuleSoft Agent Fabric flow (`plantiq-conversational-flow`):**
+- **Source:** HTTP Listener receiving Slack Events API POST
+- **Step 1:** Verify Slack request signature (HMAC-SHA256 with Signing Secret)
+- **Step 2:** Ignore bot messages (prevent loops) — check `event.bot_id`
+- **Step 3:** Pass user question to Agent Fabric reasoning engine with system prompt and registered MCP tools
+- **Step 4:** Agent Fabric calls `plantiq-salesforce-mcp` tools as needed
+- **Step 5:** Post composed answer back to Slack thread via Bot API
+
+**`plantiq-salesforce-mcp` (Node.js MCP Server):**
+- Authenticates to Salesforce via OAuth 2.0 Client Credentials
+- Exposes 3 read-only tools to Agent Fabric:
+
+| Tool | Input | SOQL / Logic | Example answer |
+|---|---|---|---|
+| `query_hq_targets` | plant, quarter | SELECT Target_FTE__c, Approved_FTE_Coverage__c, Gap_To_Target__c FROM GWB_HQ_Target__c WHERE Plant__r.Plant_Code__c = :plant | "SHA Assembly: 5 FTE target, 2.3 covered, 2.7 gap" |
+| `query_productivity_ideas` | plant, status | SELECT Name, FTE_Impact__c, Dollar_Impact__c, Status__c FROM GWB_Productivity_Idea__c WHERE Plant_Function__r.Plant_Shop__r.Plant__r.Plant_Code__c = :plant | "12 approved ideas, $1.1M total value" |
+| `query_benchmarks` | shop_type, idea_name | SELECT Achieved_FTE__c, Quarter__c, Notes__c FROM GWB_Plant_Benchmark__c WHERE Shop_Type__c = :shopType | "Spring Hill Q3 2025: 1.1 FTE with bin redesign" |
+
+**Agent Fabric system prompt (key instructions):**
+- "You are PlantIQ, a manufacturing productivity assistant. You have access to Salesforce plant data. Answer questions concisely using only data returned by your tools. Never invent FTE numbers or targets."
+
+**Example Slack interactions:**
+- *"How close is SHA Assembly to its Q2 target?"* → calls `query_hq_targets` → "SHA Assembly is 2.7 FTE short of its 5.0 FTE Q2 target. 2.3 FTE covered by 12 approved ideas."
+- *"Which ideas are pending approval?"* → calls `query_productivity_ideas(status=Pending Approval)` → lists pending ideas with FTE impact
+- *"What evidence do we have for bin replenishment ideas?"* → calls `query_benchmarks` → returns cross-plant evidence
+
+---
+
+### 8. Slack Approval Loop
 
 **Incoming Slack interaction payload (POST to `SlackCallbackController`):**
 - Content-Type: `application/x-www-form-urlencoded`
@@ -302,7 +359,7 @@ productionContext, quarter, signalType, riskLevel
 
 ---
 
-### 8. Reports and Dashboards
+### 9. Reports and Dashboards
 
 **Reports (PlantIQ Reports folder):**
 
@@ -330,18 +387,28 @@ productionContext, quarter, signalType, riskLevel
 
 ---
 
-### 9. Integration Points Summary
+### 10. Integration Points Summary
+
+**Pattern 1 — IoT Pipeline + HQ-Triggered Recommendation:**
 
 | From | To | Protocol | Auth |
 |---|---|---|---|
 | Raspberry Pi | Anypoint MQ | HTTPS POST (REST) | Client Credentials |
 | Anypoint MQ | MuleSoft Flow | MQ Connector (internal) | MQ Client ID/Secret |
-| MuleSoft | Salesforce Apex REST | HTTPS POST | OAuth 2.0 Client Credentials |
-| SF Record-Triggered Flow | Apex Invocable Actions | Internal Apex | System context |
+| MuleSoft | Salesforce Apex REST (`IngestEdgeSignalController`) | HTTPS POST | OAuth 2.0 Client Credentials |
+| `GWB_HQ_Target__c` insert/update | Record-Triggered Flow (`Process_HQ_Target`) | Internal Salesforce | System context |
+| Flow → Apex Invocable Actions | Agentforce / Einstein LLM | Internal Apex | System context |
 | `PostToSlackAction` | Slack Incoming Webhook | HTTPS POST | Webhook URL (secret in CMT) |
-| Slack Interactive | `SlackCallbackController` | HTTPS POST | Slack Signing Secret (HMAC-SHA256) |
-| Agent Fabric MCP | Salesforce REST API | HTTPS | OAuth 2.0 |
-| Agent Fabric MCP | Slack API | HTTPS | Slack Bot Token |
+| Slack Interactive buttons | `SlackCallbackController` | HTTPS POST | Slack Signing Secret (HMAC-SHA256) |
+
+**Pattern 2 — Conversational Q&A (Headless Salesforce):**
+
+| From | To | Protocol | Auth |
+|---|---|---|---|
+| Slack user message | MuleSoft Agent Fabric | HTTPS POST (Events API) | Slack Signing Secret (HMAC-SHA256) |
+| MuleSoft Agent Fabric | `plantiq-salesforce-mcp` (Node.js) | MCP over HTTPS | OAuth 2.0 Client Credentials |
+| `plantiq-salesforce-mcp` | Salesforce REST API | HTTPS | OAuth 2.0 |
+| MuleSoft Agent Fabric | Slack Bot API | HTTPS POST | Slack Bot Token |
 
 ---
 
