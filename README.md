@@ -10,6 +10,8 @@ Manufacturing plants operating under HQ-mandated FTE reduction targets have no s
 
 ## Architecture Overview
 
+> 📐 **Visual diagrams:** See [ARCHITECTURE.md](ARCHITECTURE.md) for system map, sequence diagrams, data model, and role diagrams (renders on GitHub).
+
 Two AI patterns run in parallel on a shared Salesforce data layer.
 
 ### Pattern 1 — IoT Data Pipeline + HQ-Triggered Recommendation (Event-Driven)
