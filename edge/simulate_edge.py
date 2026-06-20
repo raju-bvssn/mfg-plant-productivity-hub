@@ -1,12 +1,10 @@
 #!/usr/bin/env python3
 """
 PlantIQ Edge Signal Publisher
-Runs on Raspberry Pi to publish IoT signals to Anypoint MQ.
+Runs on Raspberry Pi — sends all 3 demo signals in one call.
 
 Usage:
-    python simulate_edge.py --key hacksst --plant SHA --station "Station 4" --signal Bin-Depletion --risk High --level 8.0 --minutes 12
-    python simulate_edge.py --key hacksst --plant SHA --station "Station 7" --signal Micro-Stoppage --risk Medium --stoppages 4
-    python simulate_edge.py --key hacksst --plant FZ  --station "Station 3" --signal Idle-Time     --risk Low
+    python simulate_edge.py --key hacksst
 
 Requirements:
     pip install requests cryptography
@@ -43,8 +41,38 @@ AMQ_BROKER_URL = f"https://mq-{AMQ_REGION}.anypoint.mulesoft.com/api/v1"
 ENC_CLIENT_ID     = "gAAAAABqNw3G2i7w1KQSzyR_E3fo-iqUABBtSIHUlBvPOV3iJgSFJ3CI7aab4I8nf8g8YMgkkeg8dewa_w_kPm9oR19wKwLI0q7fLdzp27I_a3Nu0YmBe3SJuuMySqTTUV51zCoWuOFF"
 ENC_CLIENT_SECRET = "gAAAAABqNw3GG78nafDzlRUDLJ_LAyGtqMwNtcneEcJRupeaw1fTKkSPN_PAIulXE3NWq-s-_cZdcfIjnYaE4GDSBxGpCsyp34zvoWPTQZ3nw_dl-Dd_clYYSfwzd52voXOnI8ultodS"
 
-SIGNAL_TYPES = ["Bin-Depletion", "Micro-Stoppage", "Idle-Time"]
-RISK_LEVELS  = ["Low", "Medium", "High"]
+SIGNALS = [
+    {
+        "plant_code":         "SHA",
+        "station":            "Station 4",
+        "signal_type":        "Bin-Depletion",
+        "risk":               "High",
+        "current_level":      8.0,
+        "minutes_to_empty":   12,
+        "stoppages_per_hour": None,
+        "image_url":          None,
+    },
+    {
+        "plant_code":         "SHA",
+        "station":            "Station 7",
+        "signal_type":        "Micro-Stoppage",
+        "risk":               "Medium",
+        "current_level":      None,
+        "minutes_to_empty":   None,
+        "stoppages_per_hour": 4.0,
+        "image_url":          None,
+    },
+    {
+        "plant_code":         "FZ",
+        "station":            "Station 3",
+        "signal_type":        "Idle-Time",
+        "risk":               "Low",
+        "current_level":      None,
+        "minutes_to_empty":   None,
+        "stoppages_per_hour": None,
+        "image_url":          None,
+    },
+]
 
 
 # ---------------------------------------------------------------------------
@@ -144,57 +172,40 @@ class EdgeSignalPublisher:
 # ---------------------------------------------------------------------------
 # Payload builder
 # ---------------------------------------------------------------------------
-def build_payload(args) -> dict:
+def build_payload(signal: dict) -> dict:
     return {
-        "plant_code":         args.plant,
-        "station":            args.station,
-        "signal_type":        args.signal,
-        "risk":               args.risk,
-        "current_level":      args.level,
-        "minutes_to_empty":   args.minutes,
-        "stoppages_per_hour": args.stoppages,
-        "image_url":          args.image_url,
-        "device_id":          DEVICE_ID,
-        "captured_at":        datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        **signal,
+        "device_id":   DEVICE_ID,
+        "captured_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
     }
 
 
 # ---------------------------------------------------------------------------
 # CLI
 # ---------------------------------------------------------------------------
-def parse_args():
-    parser = argparse.ArgumentParser(description="PlantIQ edge signal publisher for Raspberry Pi")
-
-    parser.add_argument("--key",       required=True,                       help="Decryption key for credentials")
-    parser.add_argument("--plant",     required=True,                       help="Plant code e.g. SHA, FZ")
-    parser.add_argument("--station",   required=True,                       help='Station name e.g. "Station 4"')
-    parser.add_argument("--signal",    required=True, choices=SIGNAL_TYPES, help="Signal type")
-    parser.add_argument("--risk",      required=True, choices=RISK_LEVELS,  help="Risk level")
-    parser.add_argument("--level",     type=float,    default=None,         help="Current bin fill level (%%)")
-    parser.add_argument("--minutes",   type=int,      default=None,         help="Minutes to empty (Bin-Depletion)")
-    parser.add_argument("--stoppages", type=float,    default=None,         help="Stoppages per hour (Micro-Stoppage)")
-    parser.add_argument("--image-url", default=None,                        help="S3 image URL (optional)")
-
-    return parser.parse_args()
-
-
 def main():
-    args = parse_args()
+    parser = argparse.ArgumentParser(description="PlantIQ edge signal publisher for Raspberry Pi")
+    parser.add_argument("--key", required=True, help="Decryption key for credentials")
+    args = parser.parse_args()
 
     client_id, client_secret = decrypt_credentials(args.key)
 
     token_cache = TokenCache(client_id, client_secret)
     publisher   = EdgeSignalPublisher(token_cache)
-    payload     = build_payload(args)
 
-    print(f"[signal]  {payload['signal_type']} | {payload['plant_code']} {payload['station']} | risk={payload['risk']}")
-    print(f"[payload] {json.dumps(payload, indent=2)}")
+    success = 0
+    for signal in SIGNALS:
+        payload = build_payload(signal)
+        print(f"\n[signal]  {payload['signal_type']} | {payload['plant_code']} {payload['station']} | risk={payload['risk']}")
+        try:
+            message_id = publisher.publish(payload)
+            print(f"[published] message_id={message_id} → queue={QUEUE_NAME}")
+            success += 1
+        except Exception as e:
+            print(f"[error] publish failed: {e}")
 
-    try:
-        message_id = publisher.publish(payload)
-        print(f"[published] message_id={message_id} → queue={QUEUE_NAME}")
-    except Exception as e:
-        print(f"[error] publish failed: {e}")
+    print(f"\n[done] {success}/{len(SIGNALS)} signals published to {QUEUE_NAME}")
+    if success < len(SIGNALS):
         sys.exit(1)
 
 
