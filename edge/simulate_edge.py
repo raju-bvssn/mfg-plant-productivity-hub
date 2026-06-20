@@ -43,7 +43,7 @@ ENC_CLIENT_SECRET = "gAAAAABqNw3GG78nafDzlRUDLJ_LAyGtqMwNtcneEcJRupeaw1fTKkSPN_P
 
 SIGNALS = [
     {
-        "plant_code":         "SHA",
+        "plant_code":         "FZ",
         "station":            "Station 4",
         "signal_type":        "Bin-Depletion",
         "risk":               "High",
@@ -53,7 +53,7 @@ SIGNALS = [
         "image_url":          None,
     },
     {
-        "plant_code":         "SHA",
+        "plant_code":         "FZ",
         "station":            "Station 7",
         "signal_type":        "Micro-Stoppage",
         "risk":               "Medium",
