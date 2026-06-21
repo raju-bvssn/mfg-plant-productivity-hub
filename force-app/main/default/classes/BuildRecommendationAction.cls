@@ -110,7 +110,7 @@ public with sharing class BuildRecommendationAction {
             Map<String, ConnectApi.WrappedValue> inputParams = new Map<String, ConnectApi.WrappedValue>();
             inputParams.put('Input:Target_Context',    wrappedString(targetContext));
             inputParams.put('Input:Production_Context', wrappedString(productionContext));
-            inputParams.put('Input:Scored_Ideas_Json',  wrappedString(scoredIdeasJson));
+            inputParams.put('Input:Scored_Ideas_JSON',  wrappedString(scoredIdeasJson));
             inputParams.put('Input:Benchmark_Evidence', wrappedString(benchmarkEvidence));
             inputParams.put('Input:Guardrails',         wrappedString(guardrails));
 
