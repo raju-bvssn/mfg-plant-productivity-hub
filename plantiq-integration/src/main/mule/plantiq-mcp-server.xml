@@ -657,12 +657,9 @@
                 <set-variable variableName="ideaRecord" value="#[payload[0]]"/>
 
                 <!-- Update status to Approved -->
+                <set-payload value="#[[{ Id: vars.ideaId, Status__c: 'Approved' }]]"/>
                 <salesforce:update type="GWB_Productivity_Idea__c" config-ref="Salesforce_Config">
-                    <salesforce:records><![CDATA[
-                        %dw 2.0 output application/java
-                        ---
-                        [{ Id: vars.ideaId, Status__c: "Approved" }]
-                    ]]></salesforce:records>
+                    <salesforce:records>#[payload]</salesforce:records>
                 </salesforce:update>
 
                 <ee:transform>

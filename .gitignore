@@ -23,6 +23,10 @@ PR*.json
 # Node
 node_modules/
 
+# MuleSoft application config (contains credentials — never commit)
+plantiq-integration/src/main/resources/application.properties
+plantiq-integration/src/main/resources/application-*.properties
+
 # Anypoint Studio IDE files
 plantiq-integration/.project
 plantiq-integration/.classpath
