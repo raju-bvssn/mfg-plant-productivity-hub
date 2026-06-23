@@ -2,13 +2,13 @@ anypoint:
   mq:
     url: "https://mq-us-east-1.anypoint.mulesoft.com/api/v1/organizations/364ee0be-9e1b-4b19-aa99-356dc3e65f9d/environments/b1dde627-2fcb-43d5-bc27-6369b2c2031b"
     clientId: "e918df404907439e86908c943e30a673"
-    clientSecret: "![FRnT5Y6rzRD+mzrhvjHrbmGOvEMqEg672JyZUWWsKUUbMn0FHk5RCp/FcqM5LZfhJ6jTwgy42XzpzH3KTBk5nQ==]"
+    clientSecret: "5578022847f44f21a3779e4ABa7C66f6"
 
 salesforce:
-  consumerKey: "![DuTf4mzSxV7LOMuoMG8zby4IWYTQoM4HXZOBb8cHDk+ich5cJXY8mNOPyBqEvk4mjr4ohaVNkrzLuEEC0aUTrklQ3zcW9qSFDpwvZCLt8KTT/Fz1XvEVrxtd4lKIPf+G/NjiscBeWu3ZH4xDuATXRA==]"
+  consumerKey: "3MVG9OGq41FnYVsH2CBCnt.MO9oIDgh9yWRN_CL47MS1N1ODSOkpPGYWzHsWCdkevWKH3iYP98jIG9kMLn6fA"
   username: "vbolisetti.fd61c459bf@salesforce.com"
   tokenEndpoint: "https://login.salesforce.com/services/oauth2/token"
   keystore:
     path: "${mule.home}/conf/plantiq-keystore.p12"
-    password: "![PjQSv/Kx73WtRES+L3a1ysyuFDDOSlDHocIChpwbVnw=]"
+    password: "plantiq123"
     alias: "plantiq"

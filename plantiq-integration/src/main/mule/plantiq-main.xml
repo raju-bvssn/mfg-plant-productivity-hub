@@ -58,7 +58,7 @@
         doc:name="Secure Properties Config">
         <secure-properties:encrypt algorithm="AES" mode="CBC"/>
     </secure-properties:config>
-    <flow name="plantiq-recommendation-flow">
+	<flow name="plantiq-recommendation-flow">
 
         <!-- HTTP trigger: POST /plantiq/recommend
              Body: { "targetId": "...", "plantCode": "...", "shopName": "...", "quarter": "..." }
