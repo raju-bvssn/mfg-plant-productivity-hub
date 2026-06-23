@@ -1,0 +1,650 @@
+openapi: "3.0.3"
+
+info:
+  title: HQ Target Experience API
+  version: "1.0.0"
+  description: |
+    Experience API that exposes `GWB_HQ_Target__c` Salesforce records for
+    consumption by the PlantIQ MCP server, Agentforce tools, and the Slack
+    conversational interface.
+
+    Supports full CRUD on HQ Targets with optional inline embedding of the
+    related Plant and Plant Shop. Pagination is cursor-based to support large
+    plant portfolios.
+
+    ## Authentication
+    OAuth 2.0 Client Credentials (JWT Bearer) — same Connected App used by
+    the MuleSoft process layer.
+
+    ## Base URL
+    `https://api.plantiq.internal/v1`
+
+servers:
+  - url: https://api.plantiq.internal/v1
+    description: Production
+
+tags:
+  - name: HQ Targets
+    description: CRUD operations on GWB_HQ_Target__c records
+  - name: Health
+    description: Liveness / readiness probes
+
+# ─────────────────────────────────────────────────────────────
+# PATHS
+# ─────────────────────────────────────────────────────────────
+paths:
+
+  # ── GET /hq-targets ──────────────────────────────────────
+  /hq-targets:
+    get:
+      tags: [HQ Targets]
+      operationId: listHqTargets
+      summary: List HQ Targets
+      description: |
+        Returns a paginated list of `GWB_HQ_Target__c` records. Supports
+        filtering by plant code, shop type, and quarter. Response optionally
+        includes inline `plant` and `plantShop` sub-objects.
+      parameters:
+        - $ref: '#/components/parameters/plantCode'
+        - $ref: '#/components/parameters/quarter'
+        - $ref: '#/components/parameters/shopType'
+        - $ref: '#/components/parameters/embed'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/pageToken'
+      responses:
+        "200":
+          description: Paginated list of HQ Targets
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HqTargetPage'
+              example:
+                data:
+                  - id: "a0X5g000003ABCDEF"
+                    name: "SHA Assembly Q2 2026"
+                    quarter: "Q2 2026"
+                    targetFte: 5.0
+                    approvedFteCoverage: 2.3
+                    gapToTarget: 2.7
+                    productionContext: "New model ramp — 3-crew pattern"
+                    plant:
+                      id: "a0Y5g000003XYZABC"
+                      name: "SHA Plant"
+                      plantCode: "SHA"
+                      location: "Detroit, MI"
+                      active: true
+                    plantShop:
+                      id: "a0Z5g000003LMNDEF"
+                      name: "SHA Assembly Shop"
+                      shopType: "Assembly"
+                      active: true
+                    createdDate: "2026-04-01T09:00:00Z"
+                    lastModifiedDate: "2026-06-15T14:32:00Z"
+                nextPageToken: "eyJvZmZzZXQiOjI1fQ=="
+                totalCount: 42
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+    post:
+      tags: [HQ Targets]
+      operationId: createHqTarget
+      summary: Create an HQ Target
+      description: |
+        Creates a new `GWB_HQ_Target__c` record. The `plant` field is
+        required; `plantShop` scopes the target to a specific shop.
+        `gapToTarget` is auto-calculated by Salesforce and should not be
+        supplied in the request body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HqTargetCreate'
+            example:
+              name: "FLN Body Q3 2026"
+              quarter: "Q3 2026"
+              plantCode: "FLN"
+              plantShopId: "a0Z5g000003LMNDEF"
+              targetFte: 3.5
+              productionContext: "Pre-launch manpower review"
+      responses:
+        "201":
+          description: HQ Target created
+          headers:
+            Location:
+              description: URL of the created resource
+              schema:
+                type: string
+                example: /v1/hq-targets/a0X5g000003ABCDEF
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HqTarget'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+  # ── /hq-targets/{id} ─────────────────────────────────────
+  /hq-targets/{id}:
+    parameters:
+      - $ref: '#/components/parameters/id'
+
+    get:
+      tags: [HQ Targets]
+      operationId: getHqTarget
+      summary: Get a single HQ Target
+      description: |
+        Returns a single `GWB_HQ_Target__c` by its Salesforce record ID.
+        Use `embed=plant,plantShop` to include related object detail inline.
+      parameters:
+        - $ref: '#/components/parameters/embed'
+      responses:
+        "200":
+          description: HQ Target found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HqTarget'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+    patch:
+      tags: [HQ Targets]
+      operationId: updateHqTarget
+      summary: Partially update an HQ Target
+      description: |
+        Updates one or more writable fields on a `GWB_HQ_Target__c` record.
+        Only supply fields you want to change; omitted fields are left
+        unchanged. `gapToTarget` is read-only (formula).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/HqTargetUpdate'
+            example:
+              targetFte: 6.0
+              productionContext: "Updated after headcount audit"
+      responses:
+        "200":
+          description: HQ Target updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HqTarget'
+        "400":
+          $ref: '#/components/responses/BadRequest'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "422":
+          $ref: '#/components/responses/UnprocessableEntity'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+    delete:
+      tags: [HQ Targets]
+      operationId: deleteHqTarget
+      summary: Delete an HQ Target
+      description: Hard-deletes the `GWB_HQ_Target__c` record from Salesforce.
+      responses:
+        "204":
+          description: Deleted — no content
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+  # ── GET /hq-targets/by-plant/{plantCode} ─────────────────
+  /hq-targets/by-plant/{plantCode}:
+    get:
+      tags: [HQ Targets]
+      operationId: listHqTargetsByPlant
+      summary: List HQ Targets for a plant
+      description: |
+        Convenience endpoint used by MCP tool `query_hq_targets`. Returns
+        all targets for the given plant code, optionally filtered by quarter.
+        Equivalent to `GET /hq-targets?plantCode={plantCode}` but avoids
+        query-string encoding for tool callers.
+      parameters:
+        - name: plantCode
+          in: path
+          required: true
+          description: "Short plant code (e.g. SHA, FLN)"
+          schema:
+            type: string
+            example: SHA
+        - $ref: '#/components/parameters/quarter'
+        - $ref: '#/components/parameters/embed'
+      responses:
+        "200":
+          description: List of HQ Targets for the plant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HqTargetPage'
+        "401":
+          $ref: '#/components/responses/Unauthorized'
+        "404":
+          $ref: '#/components/responses/NotFound'
+        "500":
+          $ref: '#/components/responses/InternalError'
+
+  # ── GET /health ───────────────────────────────────────────
+  /health:
+    get:
+      tags: [Health]
+      operationId: healthCheck
+      summary: Liveness probe
+      security: []
+      responses:
+        "200":
+          description: API is alive
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                    enum: [ok]
+                  version:
+                    type: string
+              example:
+                status: ok
+                version: "1.0.0"
+
+# ─────────────────────────────────────────────────────────────
+# COMPONENTS
+# ─────────────────────────────────────────────────────────────
+components:
+
+  # ── Security ─────────────────────────────────────────────
+  securitySchemes:
+    oAuth2ClientCredentials:
+      type: oauth2
+      flows:
+        clientCredentials:
+          tokenUrl: https://login.salesforce.com/services/oauth2/token
+          scopes:
+            api: Full Salesforce API access
+
+  security:
+    - oAuth2ClientCredentials: [api]
+
+  # ── Parameters ───────────────────────────────────────────
+  parameters:
+    id:
+      name: id
+      in: path
+      required: true
+      description: Salesforce record ID (18-char)
+      schema:
+        type: string
+        pattern: '^[a-zA-Z0-9]{15,18}$'
+        example: a0X5g000003ABCDEF
+
+    plantCode:
+      name: plantCode
+      in: query
+      required: false
+      description: Filter by plant code (e.g. SHA, FLN)
+      schema:
+        type: string
+        maxLength: 10
+        example: SHA
+
+    quarter:
+      name: quarter
+      in: query
+      required: false
+      description: Filter by fiscal quarter
+      schema:
+        $ref: '#/components/schemas/Quarter'
+
+    shopType:
+      name: shopType
+      in: query
+      required: false
+      description: Filter by plant shop type
+      schema:
+        $ref: '#/components/schemas/ShopType'
+
+    embed:
+      name: embed
+      in: query
+      required: false
+      description: Comma-separated list of related objects to inline
+      schema:
+        type: string
+        example: "plant,plantShop"
+
+    pageSize:
+      name: pageSize
+      in: query
+      required: false
+      description: Records per page (default 25, max 200)
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 200
+        default: 25
+
+    pageToken:
+      name: pageToken
+      in: query
+      required: false
+      description: Opaque cursor returned by the previous page
+      schema:
+        type: string
+
+  # ── Schemas ──────────────────────────────────────────────
+  schemas:
+
+    # ---- Enumerations ----
+    Quarter:
+      type: string
+      enum:
+        - Q1 2026
+        - Q2 2026
+        - Q3 2026
+        - Q4 2026
+      description: Fiscal quarter matching the GWB_HQ_Target__c picklist values
+
+    ShopType:
+      type: string
+      enum:
+        - Assembly
+        - Body
+        - Paint
+        - Stamping
+        - Powertrain
+        - General
+      description: Plant shop type matching the GWB_Plant_Shop__c.Shop_Type__c picklist
+
+    # ---- Embedded related objects ----
+    PlantEmbed:
+      type: object
+      description: Abbreviated GWB_Plant__c record
+      properties:
+        id:
+          type: string
+          description: Salesforce record ID
+          example: a0Y5g000003XYZABC
+        name:
+          type: string
+          description: Plant name (Name field)
+          example: SHA Plant
+        plantCode:
+          type: string
+          description: GWB_Plant__c.Plant_Code__c
+          example: SHA
+        location:
+          type: string
+          description: GWB_Plant__c.Location__c
+          example: Detroit, MI
+        active:
+          type: boolean
+          description: GWB_Plant__c.Active__c
+          example: true
+
+    PlantShopEmbed:
+      type: object
+      description: Abbreviated GWB_Plant_Shop__c record
+      properties:
+        id:
+          type: string
+          description: Salesforce record ID
+          example: a0Z5g000003LMNDEF
+        name:
+          type: string
+          description: Plant shop name (Name field)
+          example: SHA Assembly Shop
+        shopType:
+          $ref: '#/components/schemas/ShopType'
+        active:
+          type: boolean
+          description: GWB_Plant_Shop__c.Active__c
+          example: true
+
+    # ---- Core HQ Target ----
+    HqTarget:
+      type: object
+      description: Full representation of a GWB_HQ_Target__c record
+      required:
+        - id
+        - name
+        - targetFte
+      properties:
+        id:
+          type: string
+          description: Salesforce record ID (18-char)
+          example: a0X5g000003ABCDEF
+        name:
+          type: string
+          description: Target Name (Name field)
+          example: SHA Assembly Q2 2026
+        quarter:
+          $ref: '#/components/schemas/Quarter'
+        targetFte:
+          type: number
+          format: double
+          description: "GWB_HQ_Target__c.Target_FTE__c — mandated FTE reduction goal"
+          example: 5.0
+          minimum: 0
+        approvedFteCoverage:
+          type: number
+          format: double
+          description: "GWB_HQ_Target__c.Approved_FTE_Coverage__c — FTE covered by approved Productivity Ideas"
+          example: 2.3
+          minimum: 0
+          default: 0.0
+        gapToTarget:
+          type: number
+          format: double
+          readOnly: true
+          description: "GWB_HQ_Target__c.Gap_To_Target__c — formula: Target_FTE__c minus Approved_FTE_Coverage__c"
+          example: 2.7
+        productionContext:
+          type: string
+          description: "GWB_HQ_Target__c.Production_Context__c — free-text notes from HQ admin"
+          example: "New model ramp — 3-crew pattern"
+          nullable: true
+        plantId:
+          type: string
+          description: Salesforce ID of the related GWB_Plant__c
+          example: a0Y5g000003XYZABC
+        plantShopId:
+          type: string
+          description: Salesforce ID of the related GWB_Plant_Shop__c (optional)
+          example: a0Z5g000003LMNDEF
+          nullable: true
+        plant:
+          $ref: '#/components/schemas/PlantEmbed'
+          description: Populated when embed=plant is requested
+          nullable: true
+        plantShop:
+          $ref: '#/components/schemas/PlantShopEmbed'
+          description: Populated when embed=plantShop is requested
+          nullable: true
+        createdDate:
+          type: string
+          format: date-time
+          readOnly: true
+          example: "2026-04-01T09:00:00Z"
+        lastModifiedDate:
+          type: string
+          format: date-time
+          readOnly: true
+          example: "2026-06-15T14:32:00Z"
+
+    HqTargetCreate:
+      type: object
+      description: Request body for creating a GWB_HQ_Target__c record
+      required:
+        - name
+        - plantCode
+        - targetFte
+      properties:
+        name:
+          type: string
+          description: Target name (displayed in Salesforce and Slack)
+          example: FLN Body Q3 2026
+        quarter:
+          $ref: '#/components/schemas/Quarter'
+        plantCode:
+          type: string
+          description: Plant_Code__c of the target plant — used to resolve Plant__c lookup
+          example: FLN
+        plantShopId:
+          type: string
+          description: Salesforce ID of GWB_Plant_Shop__c (optional — omit for plant-level targets)
+          example: a0Z5g000003LMNDEF
+          nullable: true
+        targetFte:
+          type: number
+          format: double
+          description: Mandated FTE reduction goal
+          example: 3.5
+          minimum: 0.1
+        approvedFteCoverage:
+          type: number
+          format: double
+          description: Initial approved FTE coverage (defaults to 0)
+          example: 0.0
+          default: 0.0
+          minimum: 0
+        productionContext:
+          type: string
+          description: Free-text notes to give Agentforce context when generating recommendations
+          example: "Pre-launch manpower review"
+          nullable: true
+
+    HqTargetUpdate:
+      type: object
+      description: |
+        Request body for PATCH — all fields optional. Only supplied fields
+        are modified. `gapToTarget` is read-only and will be ignored.
+      properties:
+        name:
+          type: string
+          example: SHA Assembly Q2 2026 (Revised)
+        quarter:
+          $ref: '#/components/schemas/Quarter'
+        targetFte:
+          type: number
+          format: double
+          example: 6.0
+          minimum: 0.1
+        approvedFteCoverage:
+          type: number
+          format: double
+          example: 3.1
+          minimum: 0
+        productionContext:
+          type: string
+          example: "Updated after headcount audit"
+          nullable: true
+
+    # ---- Pagination wrapper ----
+    HqTargetPage:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/HqTarget'
+        nextPageToken:
+          type: string
+          description: Pass as pageToken on the next request; absent when on the last page
+          nullable: true
+          example: "eyJvZmZzZXQiOjI1fQ=="
+        totalCount:
+          type: integer
+          description: Total matching records (ignores pagination)
+          example: 42
+
+    # ---- Errors ----
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          example: INVALID_PARAMETER
+        message:
+          type: string
+          example: "Quarter must be one of: Q1 2026, Q2 2026, Q3 2026, Q4 2026"
+        details:
+          type: array
+          items:
+            type: string
+          example: ["quarter: invalid value 'Q5 2026'"]
+
+  # ── Responses ─────────────────────────────────────────────
+  responses:
+    BadRequest:
+      description: Invalid request parameters
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: BAD_REQUEST
+            message: "targetFte must be greater than 0"
+
+    Unauthorized:
+      description: Missing or invalid OAuth token
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: UNAUTHORIZED
+            message: "Bearer token is missing or expired"
+
+    NotFound:
+      description: Record not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: NOT_FOUND
+            message: "HQ Target a0X5g000003ABCDEF not found"
+
+    UnprocessableEntity:
+      description: Business rule validation failure
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: UNPROCESSABLE_ENTITY
+            message: "Plant FLN does not exist or is inactive"
+
+    InternalError:
+      description: Unexpected server error
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: INTERNAL_ERROR
+            message: "Upstream Salesforce query failed"
