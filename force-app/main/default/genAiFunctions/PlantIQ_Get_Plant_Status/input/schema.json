@@ -1,0 +1,14 @@
+{
+  "required": ["plant_code"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "plant_code": {
+      "title": "plant_code",
+      "description": "The plant code to retrieve status for, e.g. FLINT-1",
+      "lightning:type": "lightning__textType",
+      "lightning:isPII": false,
+      "copilotAction:isUserInput": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

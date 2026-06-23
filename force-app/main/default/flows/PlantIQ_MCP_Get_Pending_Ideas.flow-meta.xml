@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>62.0</apiVersion>
+    <label>PlantIQ MCP Get Pending Ideas</label>
+    <description>Agentforce invocation target for plantiq_get_pending_ideas MCP tool.</description>
+    <status>Active</status>
+    <processType>AutoLaunchedFlow</processType>
+    <interviewLabel>PlantIQ MCP Get Pending Ideas {!$Flow.CurrentDateTime}</interviewLabel>
+
+    <variables>
+        <name>plant_code</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+    <variables>
+        <name>pending_ideas_json</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>false</isInput>
+        <isOutput>true</isOutput>
+    </variables>
+
+    <start>
+        <locationX>176</locationX>
+        <locationY>50</locationY>
+        <connector>
+            <targetReference>Call_MCP_Tool</targetReference>
+        </connector>
+    </start>
+
+    <actionCalls>
+        <name>Call_MCP_Tool</name>
+        <label>Call PlantIQ MCP Tool</label>
+        <locationX>176</locationX>
+        <locationY>200</locationY>
+        <actionName>PlantIQMCPBridge</actionName>
+        <actionType>apex</actionType>
+        <inputParameters>
+            <name>toolName</name>
+            <value>
+                <stringValue>plantiq_get_pending_ideas</stringValue>
+            </value>
+        </inputParameters>
+        <inputParameters>
+            <name>plantCode</name>
+            <value>
+                <elementReference>plant_code</elementReference>
+            </value>
+        </inputParameters>
+        <outputParameters>
+            <assignToReference>pending_ideas_json</assignToReference>
+            <name>resultJson</name>
+        </outputParameters>
+    </actionCalls>
+
+</Flow>

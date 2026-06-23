@@ -1,0 +1,14 @@
+{
+  "required" : [ "verification_code" ],
+  "unevaluatedProperties" : false,
+  "properties" : {
+    "verification_code" : {
+      "title" : "verification_code",
+      "description" : "This is the verification code the user provided",
+      "lightning:type" : "lightning__textType",
+      "lightning:isPII" : false,
+      "copilotAction:isUserInput" : false
+    }
+  },
+  "lightning:type" : "lightning__objectType"
+}

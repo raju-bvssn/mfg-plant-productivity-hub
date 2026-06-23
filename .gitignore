@@ -22,3 +22,11 @@ PR*.json
 
 # Node
 node_modules/
+
+# Anypoint Studio IDE files
+plantiq-integration/.project
+plantiq-integration/.classpath
+plantiq-integration/.settings/
+plantiq-integration/target/
+plantiq-integration/**/.mule/
+plantiq-integration/**/ehcache-disk-store.*

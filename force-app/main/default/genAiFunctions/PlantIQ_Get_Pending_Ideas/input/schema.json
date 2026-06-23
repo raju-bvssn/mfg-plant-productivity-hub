@@ -1,0 +1,13 @@
+{
+  "unevaluatedProperties": false,
+  "properties": {
+    "plant_code": {
+      "title": "plant_code",
+      "description": "Optional plant code to filter pending ideas. Leave empty to return all pending ideas across all plants.",
+      "lightning:type": "lightning__textType",
+      "lightning:isPII": false,
+      "copilotAction:isUserInput": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

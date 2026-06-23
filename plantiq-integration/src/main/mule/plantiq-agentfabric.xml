@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core     https://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/ee/core  https://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/http     https://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+
+    <!--
+        PlantIQ AgentFabric — Governance and Observability Layer
+
+        AgentFabric wraps both agents in this application:
+          1. Autonomous Agent   — plantiq-recommendation-flow (Platform Event → orchestration)
+          2. Interactive Agent  — plantiq-mcp-server (Agentforce/Slack → tool calls)
+
+        This file provides:
+          - Audit logging for every agent interaction (tool call / orchestration run)
+          - Guardrails enforcement (input/output validation)
+          - Observability metrics published to Anypoint Monitoring
+          - AgentFabric agent registration endpoints (imported into Anypoint Platform)
+
+        AgentFabric admin console: https://anypoint.mulesoft.com/agentfabric
+        To register agents: import agentfabric/agent-definitions.yaml into the console.
+    -->
+
+    <!-- HTTP listener for AgentFabric management API (internal only) -->
+    <http:listener-config name="AgentFabric_HTTP_Config">
+        <http:listener-connection host="${http.listener.host}" port="${agentfabric.listener.port}"/>
+    </http:listener-config>
+
+    <!-- =========================================================
+         AUTONOMOUS AGENT AUDIT INTERCEPTOR
+         Intercepts plantiq-recommendation-flow execution events.
+         Called at start/end of the orchestration via flow-ref.
+    ========================================================== -->
+
+    <sub-flow name="agentfabric-audit-start-subflow">
+        <set-variable variableName="af_runId"
+            value="#[java!java::util::UUID::randomUUID() as String]"/>
+        <set-variable variableName="af_startTime"
+            value="#[now()]"/>
+
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    ---
+                    {
+                        runId:      vars.af_runId,
+                        agentName:  "PlantIQ-Autonomous",
+                        agentType:  "orchestration",
+                        event:      "start",
+                        timestamp:  vars.af_startTime,
+                        'input': {
+                            targetId:  vars.targetId default null,
+                            plantCode: vars.plantCode default null,
+                            shopName:  vars.shopName  default null,
+                            quarter:   vars.quarter   default null
+                        }
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <logger level="INFO"
+            message="#['[AgentFabric] Autonomous agent run started: ' ++ vars.af_runId]"/>
+    </sub-flow>
+
+    <sub-flow name="agentfabric-audit-end-subflow">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    var durationMs = (now() - vars.af_startTime) as Number {unit: "milliseconds"}
+                    ---
+                    {
+                        runId:       vars.af_runId,
+                        agentName:   "PlantIQ-Autonomous",
+                        agentType:   "orchestration",
+                        event:       "complete",
+                        timestamp:   now(),
+                        durationMs:  durationMs,
+                        'output': {
+                            ideaId:        vars.ideaId default null,
+                            ideaName:      vars.recommendation.selectedIdeaName default null,
+                            fteImpact:     vars.recommendation.fteImpact default null,
+                            confidence:    vars.recommendation.confidenceScore default null
+                        },
+                        steps: {
+                            plantContextMs:  null,
+                            ideaMatchMs:     null,
+                            scoringMs:       null,
+                            llmCallMs:       null,
+                            createIdeaMs:    null,
+                            slackPostMs:     null
+                        }
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <logger level="INFO"
+            message="#['[AgentFabric] Autonomous agent run complete: ' ++ vars.af_runId ++ ' | idea=' ++ (vars.ideaId default 'none')]"/>
+    </sub-flow>
+
+    <sub-flow name="agentfabric-audit-error-subflow">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    ---
+                    {
+                        runId:      vars.af_runId default "unknown",
+                        agentName:  "PlantIQ-Autonomous",
+                        agentType:  "orchestration",
+                        event:      "error",
+                        timestamp:  now(),
+                        error: {
+                            'type':      error.errorType.identifier,
+                            description: error.description,
+                            targetId:    vars.targetId default null
+                        }
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <logger level="ERROR"
+            message="#['[AgentFabric] Autonomous agent run FAILED: ' ++ (vars.af_runId default 'unknown') ++ ' | ' ++ error.description]"/>
+    </sub-flow>
+
+    <!-- =========================================================
+         INTERACTIVE AGENT AUDIT INTERCEPTOR
+         Logs every MCP tool call — who called, which tool, latency, result.
+    ========================================================== -->
+
+    <sub-flow name="agentfabric-mcp-audit-subflow">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    ---
+                    {
+                        agentName:  "PlantIQ-Interactive",
+                        agentType:  "mcp-server",
+                        event:      "tool_call",
+                        timestamp:  now(),
+                        tool:       vars.toolName default "unknown",
+                        args:       vars.toolArgs  default {},
+                        mcpId:      vars.mcpId     default null,
+                        success:    true
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <logger level="INFO"
+            message="#['[AgentFabric] MCP tool called: ' ++ (vars.toolName default '?') ++ ' | id=' ++ (vars.mcpId as String default 'null')]"/>
+    </sub-flow>
+
+    <!-- =========================================================
+         GUARDRAILS — Input validation for write tools
+         Called before tool-approve-idea-subflow and tool-trigger-recommendation-subflow.
+    ========================================================== -->
+
+    <sub-flow name="agentfabric-guardrail-write-subflow">
+        <!-- Guardrail 1: idea_id / target_id must be a valid Salesforce ID format -->
+        <choice>
+            <when expression="#[vars.toolName == 'plantiq_approve_idea' and (vars.toolArgs.idea_id == null or sizeOf(vars.toolArgs.idea_id) != 18)]">
+                <raise-error type="MULE:VALIDATION"
+                    description="Guardrail violation: idea_id must be an 18-character Salesforce ID"/>
+            </when>
+            <when expression="#[vars.toolName == 'plantiq_trigger_recommendation' and (vars.toolArgs.target_id == null or sizeOf(vars.toolArgs.target_id) != 18)]">
+                <raise-error type="MULE:VALIDATION"
+                    description="Guardrail violation: target_id must be an 18-character Salesforce ID"/>
+            </when>
+        </choice>
+
+        <!-- Guardrail 2: approver_name must not be empty for approve_idea -->
+        <choice>
+            <when expression="#[vars.toolName == 'plantiq_approve_idea' and (vars.toolArgs.approver_name == null or vars.toolArgs.approver_name == '')]">
+                <raise-error type="MULE:VALIDATION"
+                    description="Guardrail violation: approver_name is required to approve an idea"/>
+            </when>
+        </choice>
+
+        <logger level="INFO"
+            message="#['[AgentFabric] Guardrail passed for write tool: ' ++ vars.toolName]"/>
+    </sub-flow>
+
+    <!-- =========================================================
+         AGENTFABRIC MANAGEMENT API
+         Exposes agent status and audit log for Anypoint console.
+    ========================================================== -->
+
+    <flow name="agentfabric-status-flow">
+        <http:listener path="/agentfabric/status" method="GET" config-ref="AgentFabric_HTTP_Config"/>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    ---
+                    {
+                        agents: [
+                            {
+                                name:        "PlantIQ-Autonomous",
+                                'type':      "orchestration",
+                                description: "Subscribes to PlantIQ_Target_Set__e Platform Event, runs 6-step recommendation chain, creates GWB_Productivity_Idea__c, posts to Slack",
+                                status:      "active",
+                                trigger:     "platform-event",
+                                steps:       ["retrieve-plant-context", "match-idea-library", "score-benchmarks", "call-einstein-llm", "create-productivity-idea", "post-to-slack"]
+                            },
+                            {
+                                name:        "PlantIQ-Interactive",
+                                'type':      "mcp-server",
+                                description: "Serves MCP JSON-RPC 2.0 protocol for Agentforce/Slack Q&A. 6 tools: get_gap_summary, get_plant_status, get_pending_ideas, get_benchmark_evidence, approve_idea, trigger_recommendation",
+                                status:      "active",
+                                trigger:     "http-mcp",
+                                endpoint:    "/mcp/v1",
+                                tools:       ["plantiq_get_gap_summary", "plantiq_get_plant_status", "plantiq_get_pending_ideas", "plantiq_get_benchmark_evidence", "plantiq_approve_idea", "plantiq_trigger_recommendation"]
+                            }
+                        ],
+                        guardrails: [
+                            "Approve tool requires 18-char Salesforce ID and non-empty approver name",
+                            "Trigger tool requires 18-char Salesforce ID",
+                            "All write tools validate record existence and state before executing",
+                            "API key required on all MCP requests (x-api-key header)"
+                        ]
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+
+</mule>

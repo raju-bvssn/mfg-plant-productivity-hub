@@ -1,5 +1,16 @@
 public with sharing class PlantIQRecommendationOrchestrator {
 
+    // Called from PlantIQQueueable (Queueable runs as the triggering user, not Automated Process)
+    public static void run(Id targetId) {
+        try {
+            processTarget(targetId);
+        } catch (Exception e) {
+            System.debug(LoggingLevel.ERROR,
+                '[PlantIQ] Orchestrator error for target ' + targetId + ': ' + e.getMessage());
+        }
+    }
+
+    // Kept for backward compatibility with the Platform Event trigger if still active
     public static void run(List<PlantIQ_Target_Set__e> events) {
         for (PlantIQ_Target_Set__e evt : events) {
             try {
@@ -105,29 +116,20 @@ public with sharing class PlantIQRecommendationOrchestrator {
         Id ideaId = ideaList[0].ideaId;
         System.debug('[PlantIQ] Created idea record: ' + ideaId);
 
-        // Step 6 — Post to Slack
-        PostToSlackAction.SlackRequest slackReq = new PostToSlackAction.SlackRequest();
-        slackReq.ideaId          = ideaId;
-        slackReq.plantName       = ctx.plantName;
-        slackReq.shopName        = ctx.shopName;
-        slackReq.gapToTarget     = ctx.gapToTarget;
-        slackReq.quarter         = ctx.quarter;
-        slackReq.ideaTitle       = ideaTitle;
-        slackReq.fteImpact       = rec.fteImpact;
-        slackReq.dollarImpact    = rec.dollarImpact;
-        slackReq.confidenceScore = rec.confidenceScore;
-        slackReq.effort          = ideaReq.effort;
-        slackReq.benchmarkEvidence = scored.topBenchmarkEvidence;
-
-        List<PostToSlackAction.SlackResponse> slackList =
-            PostToSlackAction.postToSlack(
-                new List<PostToSlackAction.SlackRequest>{ slackReq });
-
-        if (!slackList.isEmpty() && slackList[0].success) {
-            System.debug('[PlantIQ] Slack notification posted: ' + slackList[0].messageTs);
-        } else {
-            System.debug('[PlantIQ] Slack post failed: ' +
-                (!slackList.isEmpty() ? slackList[0].errorMessage : 'no response'));
-        }
+        // Step 6 — Post to Slack via @future to avoid DML-before-callout governor error
+        PostToSlackAction.postAsync(
+            ideaId,
+            ctx.plantName,
+            ctx.shopName,
+            ctx.gapToTarget,
+            ctx.quarter,
+            ideaTitle,
+            rec.fteImpact,
+            rec.dollarImpact,
+            rec.confidenceScore,
+            ideaReq.effort,
+            scored.topBenchmarkEvidence
+        );
+        System.debug('[PlantIQ] Slack post queued via @future for idea: ' + ideaId);
     }
 }

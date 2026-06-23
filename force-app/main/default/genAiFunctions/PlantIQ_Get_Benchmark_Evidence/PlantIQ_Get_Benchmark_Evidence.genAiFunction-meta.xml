@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Returns benchmark evidence records that support a specific Productivity Idea, including plants that achieved similar improvements and their FTE results. Use this when the user asks &quot;what is the evidence for this idea?&quot; or needs justification data.</description>
+    <invocationTarget>PlantIQ_MCP_Get_Benchmark_Evidence</invocationTarget>
+    <invocationTargetType>flow</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <masterLabel>PlantIQ Get Benchmark Evidence</masterLabel>
+</GenAiFunction>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Triggers the PlantIQ AI recommendation engine for a specific HQ Target. This publishes a Platform Event that initiates the full MuleSoft orchestration chain. Only call this after the user has explicitly requested a recommendation run.</description>
+    <invocationTarget>PlantIQ_MCP_Trigger_Recommendation</invocationTarget>
+    <invocationTargetType>flow</invocationTargetType>
+    <isConfirmationRequired>true</isConfirmationRequired>
+    <masterLabel>PlantIQ Trigger Recommendation</masterLabel>
+</GenAiFunction>

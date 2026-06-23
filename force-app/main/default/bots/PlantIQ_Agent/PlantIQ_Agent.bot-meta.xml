@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Bot xmlns="http://soap.sforce.com/2006/04/metadata">
+    <agentType>AgentforceEmployeeAgent</agentType>
+    <botMlDomain>
+        <label>PlantIQ Agent</label>
+        <name>PlantIQ_Agent</name>
+    </botMlDomain>
+    <contextVariables>
+        <contextVariableMappings>
+            <SObjectType>MessagingSession</SObjectType>
+            <fieldName>MessagingSession.ChannelType</fieldName>
+            <messageType>EmbeddedMessaging</messageType>
+        </contextVariableMappings>
+        <dataType>Text</dataType>
+        <developerName>ChannelType</developerName>
+        <label>Channel Type</label>
+    </contextVariables>
+    <description>PlantIQ manufacturing productivity recommendation agent. Helps manufacturing leaders understand FTE gaps, review AI-generated productivity ideas, and trigger recommendation runs via MuleSoft. #DisableURLRedaction#</description>
+    <label>PlantIQ Agent</label>
+    <logPrivateConversationData>false</logPrivateConversationData>
+    <richContentEnabled>true</richContentEnabled>
+    <sessionTimeout>0</sessionTimeout>
+    <type>InternalCopilot</type>
+</Bot>

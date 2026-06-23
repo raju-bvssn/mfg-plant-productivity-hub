@@ -1,0 +1,14 @@
+{
+  "required": ["quarter"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "quarter": {
+      "title": "quarter",
+      "description": "The quarter to retrieve gap summary for, e.g. Q1-2025",
+      "lightning:type": "lightning__textType",
+      "lightning:isPII": false,
+      "copilotAction:isUserInput": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

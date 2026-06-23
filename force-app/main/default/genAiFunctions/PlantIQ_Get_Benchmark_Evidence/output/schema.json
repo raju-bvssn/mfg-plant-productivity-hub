@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "benchmark_evidence_json": {
+      "title": "benchmark_evidence_json",
+      "description": "JSON string containing benchmark records supporting the productivity idea",
+      "lightning:type": "lightning__textType",
+      "copilotAction:isDisplayable": true,
+      "copilotAction:isUsedByPlanner": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

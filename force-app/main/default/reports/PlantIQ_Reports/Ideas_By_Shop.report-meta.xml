@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <name>Ideas by Shop with FTE and Dollar Impact</name>
+    <description>FTE and dollar impact grouped by status for dashboard bar chart.</description>
+    <format>Summary</format>
+    <reportType>PlantIQ_Productivity_Ideas__c</reportType>
+
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>GWB_Productivity_Idea__c$Status__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+
+    <columns>
+        <field>GWB_Productivity_Idea__c$Name</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>GWB_Productivity_Idea__c$FTE_Impact__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>GWB_Productivity_Idea__c$Dollar_Impact__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Average</aggregateTypes>
+        <field>GWB_Productivity_Idea__c$Confidence_Score__c</field>
+    </columns>
+
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+</Report>

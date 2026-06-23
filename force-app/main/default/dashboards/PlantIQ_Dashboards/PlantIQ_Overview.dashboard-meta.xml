@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Dashboard xmlns="http://soap.sforce.com/2006/04/metadata">
+    <backgroundEndColor>#FFFFFF</backgroundEndColor>
+    <backgroundFadeDirection>Diagonal</backgroundFadeDirection>
+    <backgroundStartColor>#FFFFFF</backgroundStartColor>
+    <dashboardType>SpecifiedUser</dashboardType>
+    <description>PlantIQ Overview — Ideas submitted, pipeline value, approvals, and realized savings.</description>
+    <isGridLayout>false</isGridLayout>
+    <textColor>#000000</textColor>
+    <title>PlantIQ Overview</title>
+    <titleColor>#000000</titleColor>
+    <titleSize>12</titleSize>
+    <runningUser>vbolisetti.fd61c459bf@salesforce.com</runningUser>
+
+    <leftSection>
+        <columnSize>Medium</columnSize>
+
+        <components>
+            <componentType>Metric</componentType>
+            <footer>All statuses</footer>
+            <header>Ideas Submitted</header>
+            <indicatorHighColor>#54698D</indicatorHighColor>
+            <indicatorLowColor>#54698D</indicatorLowColor>
+            <indicatorMiddleColor>#54698D</indicatorMiddleColor>
+            <report>PlantIQ_Reports/Ideas_By_Status</report>
+            <useReportChart>false</useReportChart>
+        </components>
+
+        <components>
+            <componentType>Metric</componentType>
+            <footer>Approved and Pending ideas</footer>
+            <header>Ideas in Pipeline</header>
+            <indicatorHighColor>#04844B</indicatorHighColor>
+            <indicatorLowColor>#C23934</indicatorLowColor>
+            <indicatorMiddleColor>#FFB75D</indicatorMiddleColor>
+            <report>PlantIQ_Reports/Approved_Ideas_Pipeline</report>
+            <useReportChart>false</useReportChart>
+        </components>
+
+        <components>
+            <chartAxisRange>Auto</chartAxisRange>
+            <componentType>Donut</componentType>
+            <displayUnits>Auto</displayUnits>
+            <footer>All ideas</footer>
+            <header>Ideas by Status</header>
+            <report>PlantIQ_Reports/Ideas_By_Status</report>
+            <showPercentage>true</showPercentage>
+            <showTotal>true</showTotal>
+            <showValues>true</showValues>
+            <sortBy>RowLabelAscending</sortBy>
+            <useReportChart>true</useReportChart>
+        </components>
+
+    </leftSection>
+
+    <rightSection>
+        <columnSize>Medium</columnSize>
+
+        <components>
+            <componentType>Metric</componentType>
+            <footer>Pending + Approved ideas</footer>
+            <header>Pipeline Value ($)</header>
+            <indicatorHighColor>#04844B</indicatorHighColor>
+            <indicatorLowColor>#04844B</indicatorLowColor>
+            <indicatorMiddleColor>#04844B</indicatorMiddleColor>
+            <report>PlantIQ_Reports/Approved_Ideas_Pipeline</report>
+            <useReportChart>false</useReportChart>
+        </components>
+
+        <components>
+            <componentType>Metric</componentType>
+            <footer>Sum across all targets</footer>
+            <header>Total FTE Gap</header>
+            <indicatorHighColor>#C23934</indicatorHighColor>
+            <indicatorLowColor>#04844B</indicatorLowColor>
+            <indicatorMiddleColor>#FFB75D</indicatorMiddleColor>
+            <report>PlantIQ_Reports/Gap_To_Target_Summary</report>
+            <useReportChart>false</useReportChart>
+        </components>
+
+        <components>
+            <chartAxisRange>Auto</chartAxisRange>
+            <componentType>Bar</componentType>
+            <displayUnits>Auto</displayUnits>
+            <footer>FTE impact by status</footer>
+            <header>FTE Impact by Status</header>
+            <report>PlantIQ_Reports/Ideas_By_Shop</report>
+            <showPercentage>false</showPercentage>
+            <showTotal>false</showTotal>
+            <showValues>true</showValues>
+            <sortBy>RowLabelAscending</sortBy>
+            <useReportChart>true</useReportChart>
+        </components>
+
+    </rightSection>
+
+</Dashboard>

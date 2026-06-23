@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "approval_result": {
+      "title": "approval_result",
+      "description": "Confirmation message indicating whether the idea was successfully approved",
+      "lightning:type": "lightning__textType",
+      "copilotAction:isDisplayable": true,
+      "copilotAction:isUsedByPlanner": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

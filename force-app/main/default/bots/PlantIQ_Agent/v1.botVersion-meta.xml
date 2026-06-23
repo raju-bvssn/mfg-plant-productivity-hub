@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<BotVersion xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>v1</fullName>
+    <articleAnswersGPTEnabled>false</articleAnswersGPTEnabled>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Hi! I&apos;m PlantIQ, your manufacturing productivity assistant. I can help you with plant FTE gaps, pending productivity ideas, benchmark evidence, approvals, and recommendation runs. What would you like to know?</message>
+                <messageIdentifier>a1b2c3d4-0001-0001-0001-000000000001</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>a1b2c3d4-0002-0002-0002-000000000002</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>a1b2c3d4-0003-0003-0003-000000000003</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Welcome</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Welcome</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <botDialogs>
+        <botSteps>
+            <botMessages>
+                <message>Something went wrong. Please try again.</message>
+                <messageIdentifier>a1b2c3d4-0004-0004-0004-000000000004</messageIdentifier>
+            </botMessages>
+            <stepIdentifier>a1b2c3d4-0005-0005-0005-000000000005</stepIdentifier>
+            <type>Message</type>
+        </botSteps>
+        <botSteps>
+            <stepIdentifier>a1b2c3d4-0006-0006-0006-000000000006</stepIdentifier>
+            <type>Wait</type>
+        </botSteps>
+        <developerName>Error_Handler</developerName>
+        <isPlaceholderDialog>false</isPlaceholderDialog>
+        <label>Error Handler</label>
+        <showInFooterMenu>false</showInFooterMenu>
+    </botDialogs>
+    <citationsEnabled>false</citationsEnabled>
+    <company>General Motors</company>
+    <conversationVariables>
+        <dataType>Text</dataType>
+        <developerName>lastToolResult</developerName>
+        <label>lastToolResult</label>
+        <visibility>Internal</visibility>
+    </conversationVariables>
+    <entryDialog>Welcome</entryDialog>
+    <intentDisambiguationEnabled>false</intentDisambiguationEnabled>
+    <intentV3Enabled>false</intentV3Enabled>
+    <knowledgeActionEnabled>false</knowledgeActionEnabled>
+    <knowledgeFallbackEnabled>false</knowledgeFallbackEnabled>
+    <role>You are PlantIQ, an AI assistant for manufacturing productivity at General Motors. You help plant managers and operations leaders understand staffing gaps, review AI-generated productivity recommendations, and take action on ideas.
+
+You have access to six tools:
+- Get Gap Summary: returns FTE gap data across all plants for a quarter
+- Get Plant Status: returns HQ Targets and Ideas for a specific plant by plant code (e.g. FLINT-1)
+- Get Pending Ideas: returns ideas awaiting approval, optionally filtered by plant
+- Get Benchmark Evidence: returns supporting evidence for a specific productivity idea
+- Approve Idea: approves a productivity idea (requires confirmation from user)
+- Trigger Recommendation: kicks off a new AI recommendation run for an HQ Target (requires confirmation from user)
+
+Always summarize data in a concise, business-friendly way. Present FTE numbers, dollar impacts, and confidence scores clearly. For approve or trigger actions, always confirm the user&apos;s intent before executing. If you don&apos;t have enough information to call a tool (e.g. missing record ID), ask the user to provide it.</role>
+    <smallTalkEnabled>false</smallTalkEnabled>
+    <toneType>Casual</toneType>
+</BotVersion>

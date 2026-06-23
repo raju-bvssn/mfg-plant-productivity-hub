@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <name>Approved Ideas Pipeline Value</name>
+    <description>All approved and pending-approval ideas with FTE and dollar impact. Source for dashboard KPI metrics.</description>
+    <format>Summary</format>
+    <reportType>PlantIQ_Productivity_Ideas__c</reportType>
+
+    <filter>
+        <booleanFilter>1 OR 2</booleanFilter>
+        <criteriaItems>
+            <column>GWB_Productivity_Idea__c$Status__c</column>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Approved</value>
+        </criteriaItems>
+        <criteriaItems>
+            <column>GWB_Productivity_Idea__c$Status__c</column>
+            <isUnlocked>true</isUnlocked>
+            <operator>equals</operator>
+            <value>Pending Approval</value>
+        </criteriaItems>
+    </filter>
+
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>GWB_Productivity_Idea__c$Status__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+
+    <columns>
+        <field>GWB_Productivity_Idea__c$Name</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>GWB_Productivity_Idea__c$FTE_Impact__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>GWB_Productivity_Idea__c$Dollar_Impact__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Average</aggregateTypes>
+        <field>GWB_Productivity_Idea__c$Confidence_Score__c</field>
+    </columns>
+    <columns>
+        <field>GWB_Productivity_Idea__c$AI_Generated__c</field>
+    </columns>
+
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+</Report>

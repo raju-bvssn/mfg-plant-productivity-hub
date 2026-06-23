@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ReportType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>PlantIQ HQ Targets</label>
+    <description>HQ Targets with Target FTE, Approved FTE Coverage, Gap to Target, and Production Context</description>
+    <baseObject>GWB_HQ_Target__c</baseObject>
+    <category>other</category>
+    <deployed>true</deployed>
+    <sections>
+        <columns>
+            <field>Name</field>
+            <table>GWB_HQ_Target__c</table>
+        </columns>
+        <columns>
+            <field>Quarter__c</field>
+            <table>GWB_HQ_Target__c</table>
+        </columns>
+        <columns>
+            <field>Target_FTE__c</field>
+            <table>GWB_HQ_Target__c</table>
+        </columns>
+        <columns>
+            <field>Approved_FTE_Coverage__c</field>
+            <table>GWB_HQ_Target__c</table>
+        </columns>
+        <columns>
+            <field>Gap_To_Target__c</field>
+            <table>GWB_HQ_Target__c</table>
+        </columns>
+        <columns>
+            <field>Production_Context__c</field>
+            <table>GWB_HQ_Target__c</table>
+        </columns>
+        <masterLabel>PlantIQ HQ Targets</masterLabel>
+    </sections>
+</ReportType>

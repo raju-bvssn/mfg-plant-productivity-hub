@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "plant_status_json": {
+      "title": "plant_status_json",
+      "description": "JSON string containing HQ Targets and Productivity Ideas for the plant",
+      "lightning:type": "lightning__textType",
+      "copilotAction:isDisplayable": true,
+      "copilotAction:isUsedByPlanner": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

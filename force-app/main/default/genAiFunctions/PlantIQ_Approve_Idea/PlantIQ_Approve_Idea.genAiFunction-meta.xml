@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Approves a Productivity Idea that is in Pending Approval status. Requires the Salesforce record ID of the idea and the name of the approver. Only call this after the user has explicitly confirmed they want to approve.</description>
+    <invocationTarget>PlantIQ_MCP_Approve_Idea</invocationTarget>
+    <invocationTargetType>flow</invocationTargetType>
+    <isConfirmationRequired>true</isConfirmationRequired>
+    <masterLabel>PlantIQ Approve Idea</masterLabel>
+</GenAiFunction>

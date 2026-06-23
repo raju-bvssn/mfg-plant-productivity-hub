@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Report xmlns="http://soap.sforce.com/2006/04/metadata">
+    <name>Gap-to-Target Summary</name>
+    <description>HQ Target FTE vs approved FTE coverage per quarter. Shows remaining gap.</description>
+    <format>Summary</format>
+    <reportType>PlantIQ_HQ_Targets__c</reportType>
+
+    <groupingsDown>
+        <dateGranularity>Day</dateGranularity>
+        <field>GWB_HQ_Target__c$Quarter__c</field>
+        <sortOrder>Asc</sortOrder>
+    </groupingsDown>
+
+    <columns>
+        <field>GWB_HQ_Target__c$Name</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>GWB_HQ_Target__c$Target_FTE__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>GWB_HQ_Target__c$Approved_FTE_Coverage__c</field>
+    </columns>
+    <columns>
+        <aggregateTypes>Sum</aggregateTypes>
+        <field>GWB_HQ_Target__c$Gap_To_Target__c</field>
+    </columns>
+    <columns>
+        <field>GWB_HQ_Target__c$Production_Context__c</field>
+    </columns>
+
+    <showDetails>true</showDetails>
+    <showGrandTotal>true</showGrandTotal>
+    <showSubTotals>true</showSubTotals>
+</Report>

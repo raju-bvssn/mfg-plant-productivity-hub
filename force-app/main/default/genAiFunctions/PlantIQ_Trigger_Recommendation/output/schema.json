@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "trigger_result": {
+      "title": "trigger_result",
+      "description": "Confirmation message indicating the recommendation engine has been triggered",
+      "lightning:type": "lightning__textType",
+      "copilotAction:isDisplayable": true,
+      "copilotAction:isUsedByPlanner": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

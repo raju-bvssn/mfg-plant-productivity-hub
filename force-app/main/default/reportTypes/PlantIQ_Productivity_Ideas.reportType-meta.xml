@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ReportType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <label>PlantIQ Productivity Ideas</label>
+    <description>Productivity Ideas with FTE, Dollar Impact, Status and Confidence Score</description>
+    <baseObject>GWB_Productivity_Idea__c</baseObject>
+    <category>other</category>
+    <deployed>true</deployed>
+    <sections>
+        <columns>
+            <field>Name</field>
+            <table>GWB_Productivity_Idea__c</table>
+        </columns>
+        <columns>
+            <field>Status__c</field>
+            <table>GWB_Productivity_Idea__c</table>
+        </columns>
+        <columns>
+            <field>Idea_Type__c</field>
+            <table>GWB_Productivity_Idea__c</table>
+        </columns>
+        <columns>
+            <field>FTE_Impact__c</field>
+            <table>GWB_Productivity_Idea__c</table>
+        </columns>
+        <columns>
+            <field>Dollar_Impact__c</field>
+            <table>GWB_Productivity_Idea__c</table>
+        </columns>
+        <columns>
+            <field>Confidence_Score__c</field>
+            <table>GWB_Productivity_Idea__c</table>
+        </columns>
+        <columns>
+            <field>Effort__c</field>
+            <table>GWB_Productivity_Idea__c</table>
+        </columns>
+        <columns>
+            <field>AI_Generated__c</field>
+            <table>GWB_Productivity_Idea__c</table>
+        </columns>
+        <columns>
+            <field>CreatedDate</field>
+            <table>GWB_Productivity_Idea__c</table>
+        </columns>
+        <masterLabel>PlantIQ Productivity Ideas</masterLabel>
+    </sections>
+</ReportType>

@@ -1,0 +1,21 @@
+{
+  "required": ["idea_id", "approver_name"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "idea_id": {
+      "title": "idea_id",
+      "description": "The Salesforce 18-character record ID of the Productivity Idea to approve",
+      "lightning:type": "lightning__textType",
+      "lightning:isPII": false,
+      "copilotAction:isUserInput": false
+    },
+    "approver_name": {
+      "title": "approver_name",
+      "description": "The name of the person approving this idea",
+      "lightning:type": "lightning__textType",
+      "lightning:isPII": false,
+      "copilotAction:isUserInput": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

@@ -1,0 +1,14 @@
+{
+  "required": ["target_id"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "target_id": {
+      "title": "target_id",
+      "description": "The Salesforce 18-character record ID of the HQ Target to run a recommendation for",
+      "lightning:type": "lightning__textType",
+      "lightning:isPII": false,
+      "copilotAction:isUserInput": false
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

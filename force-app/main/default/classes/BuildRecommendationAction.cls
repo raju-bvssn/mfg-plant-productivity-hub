@@ -105,7 +105,7 @@ public with sharing class BuildRecommendationAction {
             ConnectApi.EinsteinPromptTemplateGenerationsInput promptInput =
                 new ConnectApi.EinsteinPromptTemplateGenerationsInput();
             promptInput.additionalConfig = new ConnectApi.EinsteinLlmAdditionalConfigInput();
-            promptInput.additionalConfig.applicationName = 'PlantIQRecommendation';
+            promptInput.additionalConfig.applicationName = null;
 
             Map<String, ConnectApi.WrappedValue> inputParams = new Map<String, ConnectApi.WrappedValue>();
             inputParams.put('Input:Target_Context',    wrappedString(targetContext));
@@ -157,7 +157,15 @@ public with sharing class BuildRecommendationAction {
             } else if (line.startsWith('DOLLAR_IMPACT:')) {
                 String raw = line.substringAfter('DOLLAR_IMPACT:').trim()
                     .replace('$', '').replace(',', '').replace('K', '000').trim();
-                try { resp.dollarImpact = Decimal.valueOf(raw); } catch (Exception e) {}
+                try {
+                    if (raw.contains('-')) {
+                        Decimal lo = Decimal.valueOf(raw.substringBefore('-').trim());
+                        Decimal hi = Decimal.valueOf(raw.substringAfter('-').trim());
+                        resp.dollarImpact = ((lo + hi) / 2).setScale(0);
+                    } else {
+                        resp.dollarImpact = Decimal.valueOf(raw);
+                    }
+                } catch (Exception e) {}
 
             } else if (line.startsWith('CONFIDENCE:')) {
                 try { resp.confidenceScore = Integer.valueOf(line.substringAfter('CONFIDENCE:').trim()); } catch (Exception e) {}

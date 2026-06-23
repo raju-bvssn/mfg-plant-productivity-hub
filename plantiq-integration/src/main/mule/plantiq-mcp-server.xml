@@ -1,0 +1,783 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core      https://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/sfdc      https://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+        http://www.mulesoft.org/schema/mule/http      https://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core   https://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <!--
+        PlantIQ MCP Server — implements MCP JSON-RPC 2.0 protocol.
+
+        Endpoints:
+          POST /mcp/v1          — main JSON-RPC dispatcher
+          GET  /mcp/v1/health   — liveness probe
+
+        MCP methods handled:
+          initialize            — session handshake
+          tools/list            — returns PlantIQ tool catalog
+          tools/call            — dispatches to tool sub-flow
+
+        Tools:
+          plantiq_get_gap_summary       — cross-plant FTE gap + pipeline overview
+          plantiq_get_plant_status      — single plant gap, approved ideas, top pending
+          plantiq_get_pending_ideas     — pending ideas with scores and evidence
+          plantiq_get_benchmark_evidence — why an idea scored the way it did
+          plantiq_approve_idea          — approve a Productivity Idea
+          plantiq_trigger_recommendation — manually kick off orchestration for an HQ Target
+    -->
+
+    <!-- HTTP Listener for MCP server -->
+    <http:listener-config name="MCP_HTTP_Config">
+        <http:listener-connection host="${http.listener.host}" port="${mcp.listener.port}"/>
+    </http:listener-config>
+
+    <!-- =========================================================
+         HEALTH CHECK
+    ========================================================== -->
+
+    <flow name="mcp-health-flow">
+        <http:listener path="/mcp/v1/health" method="GET" config-ref="MCP_HTTP_Config"/>
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    ---
+                    { status: "ok", service: "plantiq-mcp-server", version: "1.0.0" }
+                ]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 200]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+    </flow>
+
+    <!-- =========================================================
+         MAIN MCP JSON-RPC DISPATCHER
+    ========================================================== -->
+
+    <flow name="mcp-dispatcher-flow">
+        <http:listener path="/mcp/v1" method="POST" config-ref="MCP_HTTP_Config"/>
+
+        <!-- Validate API key from header -->
+        <choice>
+            <when expression="#[attributes.headers['x-api-key'] != p('mcp.api.key')]">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0 output application/json
+                            ---
+                            { jsonrpc: "2.0", id: null, error: { code: -32001, message: "Unauthorized" } }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 401]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <raise-error type="MULE:SECURITY" description="Unauthorized"/>
+            </when>
+        </choice>
+
+        <set-variable variableName="mcpRequest" value="#[payload]"/>
+        <set-variable variableName="mcpMethod"  value="#[payload.method]"/>
+        <set-variable variableName="mcpId"      value="#[payload.id]"/>
+
+        <logger level="INFO"
+            message="#['[MCP] Request method=' ++ vars.mcpMethod ++ ' id=' ++ (vars.mcpId as String default 'null')]"/>
+
+        <choice>
+            <!-- initialize: session handshake -->
+            <when expression="#[vars.mcpMethod == 'initialize']">
+                <flow-ref name="mcp-initialize-subflow"/>
+            </when>
+            <!-- tools/list: return tool catalog -->
+            <when expression="#[vars.mcpMethod == 'tools/list']">
+                <flow-ref name="mcp-tools-list-subflow"/>
+            </when>
+            <!-- tools/call: dispatch to specific tool -->
+            <when expression="#[vars.mcpMethod == 'tools/call']">
+                <flow-ref name="mcp-tools-call-subflow"/>
+            </when>
+            <!-- Unknown method -->
+            <otherwise>
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0 output application/json
+                            ---
+                            {
+                                jsonrpc: "2.0",
+                                id: vars.mcpId,
+                                error: { code: -32601, message: "Method not found: " ++ vars.mcpMethod }
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </otherwise>
+        </choice>
+
+        <error-handler>
+            <on-error-continue type="ANY">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0 output application/json
+                            ---
+                            {
+                                jsonrpc: "2.0",
+                                id: vars.mcpId default null,
+                                error: { code: -32603, message: "Internal error: " ++ error.description }
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+                <logger level="ERROR"
+                    message="#['[MCP] Error processing ' ++ (vars.mcpMethod default '?') ++ ': ' ++ error.description]"/>
+            </on-error-continue>
+        </error-handler>
+    </flow>
+
+    <!-- =========================================================
+         MCP PROTOCOL SUB-FLOWS
+    ========================================================== -->
+
+    <sub-flow name="mcp-initialize-subflow">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    ---
+                    {
+                        jsonrpc: "2.0",
+                        id: vars.mcpId,
+                        result: {
+                            protocolVersion: "2024-11-05",
+                            capabilities: { tools: {} },
+                            serverInfo: {
+                                name: "plantiq-mcp-server",
+                                version: "1.0.0",
+                                description: "PlantIQ manufacturing productivity agent — GM plant FTE optimization"
+                            }
+                        }
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+
+    <sub-flow name="mcp-tools-list-subflow">
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    ---
+                    {
+                        jsonrpc: "2.0",
+                        id: vars.mcpId,
+                        result: {
+                            tools: [
+                                {
+                                    name: "plantiq_get_gap_summary",
+                                    description: "Returns a cross-plant FTE gap summary and total pipeline value for the current quarter. Use when asked for an overview, total gap, or pipeline across all plants.",
+                                    inputSchema: {
+                                        'type': "object",
+                                        properties: {
+                                            quarter: { 'type': "string", description: "Quarter in format YYYY-QN, e.g. 2025-Q3. Defaults to current quarter if omitted." }
+                                        },
+                                        required: []
+                                    }
+                                },
+                                {
+                                    name: "plantiq_get_plant_status",
+                                    description: "Returns the current status for a specific plant: FTE gap, approved FTE coverage, top pending idea, and approved ideas count. Use when asked about a specific plant.",
+                                    inputSchema: {
+                                        'type': "object",
+                                        properties: {
+                                            plant_code: { 'type': "string", description: "Plant code, e.g. FLINT-1, WARREN-3, LANSING-2" }
+                                        },
+                                        required: ["plant_code"]
+                                    }
+                                },
+                                {
+                                    name: "plantiq_get_pending_ideas",
+                                    description: "Returns pending-approval productivity ideas for a plant and optional shop, with FTE impact, confidence score, and benchmark evidence. Use when asked to list, review, or explain pending ideas.",
+                                    inputSchema: {
+                                        'type': "object",
+                                        properties: {
+                                            plant_code: { 'type': "string", description: "Plant code, e.g. FLINT-1" },
+                                            shop_name:  { 'type': "string", description: "Optional shop name filter, e.g. Body Shop" },
+                                            quarter:    { 'type': "string", description: "Optional quarter filter, e.g. 2025-Q3" }
+                                        },
+                                        required: ["plant_code"]
+                                    }
+                                },
+                                {
+                                    name: "plantiq_get_benchmark_evidence",
+                                    description: "Returns cross-plant benchmark evidence explaining why a specific idea was recommended with its confidence score. Use when asked 'why was this idea recommended' or 'what evidence supports this'.",
+                                    inputSchema: {
+                                        'type': "object",
+                                        properties: {
+                                            idea_name: { 'type': "string", description: "Name of the productivity idea" },
+                                            shop_type: { 'type': "string", description: "Shop type for benchmark filtering, e.g. Body, Trim, Paint" }
+                                        },
+                                        required: ["idea_name"]
+                                    }
+                                },
+                                {
+                                    name: "plantiq_approve_idea",
+                                    description: "Approves a PlantIQ productivity idea. Sets status to Approved in Salesforce. REQUIRES explicit user confirmation before calling. Do not call unless user has clearly said 'approve' or 'yes, approve it'.",
+                                    inputSchema: {
+                                        'type': "object",
+                                        properties: {
+                                            idea_id:       { 'type': "string", description: "Salesforce ID of the GWB_Productivity_Idea__c record" },
+                                            approver_name: { 'type': "string", description: "Name of the person approving" }
+                                        },
+                                        required: ["idea_id", "approver_name"]
+                                    }
+                                },
+                                {
+                                    name: "plantiq_trigger_recommendation",
+                                    description: "Manually triggers the PlantIQ recommendation flow for an HQ Target record, generating a new AI productivity idea. Use when asked to re-run, regenerate, or trigger a recommendation.",
+                                    inputSchema: {
+                                        'type': "object",
+                                        properties: {
+                                            target_id: { 'type': "string", description: "Salesforce ID of the GWB_HQ_Target__c record" }
+                                        },
+                                        required: ["target_id"]
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </sub-flow>
+
+    <sub-flow name="mcp-tools-call-subflow">
+        <set-variable variableName="toolName" value="#[vars.mcpRequest.params.name]"/>
+        <set-variable variableName="toolArgs" value="#[vars.mcpRequest.params.arguments default {}]"/>
+
+        <logger level="INFO"
+            message="#['[MCP] Tool call: ' ++ vars.toolName ++ ' args=' ++ write(vars.toolArgs, 'application/json')]"/>
+
+        <!-- AgentFabric guardrails for write tools -->
+        <choice>
+            <when expression="#[vars.toolName == 'plantiq_approve_idea' or vars.toolName == 'plantiq_trigger_recommendation']">
+                <flow-ref name="agentfabric-guardrail-write-subflow"/>
+            </when>
+        </choice>
+
+        <!-- AgentFabric audit: log the tool call -->
+        <flow-ref name="agentfabric-mcp-audit-subflow"/>
+
+        <choice>
+            <when expression="#[vars.toolName == 'plantiq_get_gap_summary']">
+                <flow-ref name="tool-get-gap-summary-subflow"/>
+            </when>
+            <when expression="#[vars.toolName == 'plantiq_get_plant_status']">
+                <flow-ref name="tool-get-plant-status-subflow"/>
+            </when>
+            <when expression="#[vars.toolName == 'plantiq_get_pending_ideas']">
+                <flow-ref name="tool-get-pending-ideas-subflow"/>
+            </when>
+            <when expression="#[vars.toolName == 'plantiq_get_benchmark_evidence']">
+                <flow-ref name="tool-get-benchmark-evidence-subflow"/>
+            </when>
+            <when expression="#[vars.toolName == 'plantiq_approve_idea']">
+                <flow-ref name="tool-approve-idea-subflow"/>
+            </when>
+            <when expression="#[vars.toolName == 'plantiq_trigger_recommendation']">
+                <flow-ref name="tool-trigger-recommendation-subflow"/>
+            </when>
+            <otherwise>
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0 output application/json
+                            ---
+                            {
+                                jsonrpc: "2.0",
+                                id: vars.mcpId,
+                                error: { code: -32602, message: "Unknown tool: " ++ vars.toolName }
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+    <!-- =========================================================
+         TOOL: plantiq_get_gap_summary
+    ========================================================== -->
+
+    <sub-flow name="tool-get-gap-summary-subflow">
+        <set-variable variableName="quarter"
+            value="#[vars.toolArgs.quarter default '2025-Q3']"/>
+
+        <sfdc:query config-ref="Salesforce_Config">
+            <sfdc:salesforce-query><![CDATA[
+                SELECT Plant__r.Name, Plant__r.Plant_Code__c,
+                       SUM(Target_FTE__c) totalTarget,
+                       SUM(Approved_FTE_Coverage__c) totalApproved,
+                       SUM(Gap_To_Target__c) totalGap
+                FROM GWB_HQ_Target__c
+                WHERE Quarter__c = ':vars.quarter'
+                GROUP BY Plant__r.Name, Plant__r.Plant_Code__c
+                ORDER BY Plant__r.Plant_Code__c ASC
+            ]]></sfdc:salesforce-query>
+        </sfdc:query>
+        <set-variable variableName="plantGaps" value="#[payload]"/>
+
+        <sfdc:query config-ref="Salesforce_Config">
+            <sfdc:salesforce-query><![CDATA[
+                SELECT SUM(FTE_Impact__c) totalFTE, SUM(Dollar_Impact__c) totalDollar,
+                       COUNT(Id) ideaCount
+                FROM GWB_Productivity_Idea__c
+                WHERE Status__c IN ('Pending Approval', 'Approved')
+            ]]></sfdc:salesforce-query>
+        </sfdc:query>
+
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    var pipeline = payload[0]
+                    var gaps     = vars.plantGaps
+                    ---
+                    {
+                        jsonrpc: "2.0",
+                        id: vars.mcpId,
+                        result: {
+                            content: [{
+                                'type': "text",
+                                text: write({
+                                    quarter:          vars.quarter,
+                                    totalGapFTE:      (gaps reduce ((g, acc = 0.0) -> acc + (g.totalGap default 0.0))),
+                                    totalTargetFTE:   (gaps reduce ((g, acc = 0.0) -> acc + (g.totalTarget default 0.0))),
+                                    totalApprovedFTE: (gaps reduce ((g, acc = 0.0) -> acc + (g.totalApproved default 0.0))),
+                                    pipelineIdeas:    pipeline.ideaCount default 0,
+                                    pipelineFTE:      pipeline.totalFTE default 0,
+                                    pipelineDollar:   pipeline.totalDollar default 0,
+                                    byPlant:          gaps map {
+                                        plantCode:   $.`Plant__r.Plant_Code__c`,
+                                        plantName:   $.`Plant__r.Name`,
+                                        targetFTE:   $.totalTarget default 0,
+                                        approvedFTE: $.totalApproved default 0,
+                                        gapFTE:      $.totalGap default 0
+                                    }
+                                }, "application/json")
+                            }]
+                        }
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <logger level="INFO" message="[MCP] Tool gap_summary complete"/>
+    </sub-flow>
+
+    <!-- =========================================================
+         TOOL: plantiq_get_plant_status
+    ========================================================== -->
+
+    <sub-flow name="tool-get-plant-status-subflow">
+        <set-variable variableName="plantCode" value="#[vars.toolArgs.plant_code]"/>
+
+        <sfdc:query config-ref="Salesforce_Config">
+            <sfdc:salesforce-query><![CDATA[
+                SELECT Name, Quarter__c, Target_FTE__c, Approved_FTE_Coverage__c,
+                       Gap_To_Target__c, Production_Context__c,
+                       Plant_Shop__r.Name, Plant_Shop__r.Shop_Type__c
+                FROM GWB_HQ_Target__c
+                WHERE Plant__r.Plant_Code__c = ':vars.plantCode'
+                ORDER BY Quarter__c DESC
+                LIMIT 5
+            ]]></sfdc:salesforce-query>
+        </sfdc:query>
+        <set-variable variableName="targets" value="#[payload]"/>
+
+        <sfdc:query config-ref="Salesforce_Config">
+            <sfdc:salesforce-query><![CDATA[
+                SELECT Name, Status__c, FTE_Impact__c, Dollar_Impact__c,
+                       Confidence_Score__c, Effort__c, AI_Generated__c,
+                       Plant_Function__r.Plant_Shop__r.Name
+                FROM GWB_Productivity_Idea__c
+                WHERE Plant_Function__r.Plant_Shop__r.Plant__r.Plant_Code__c = ':vars.plantCode'
+                AND Status__c IN ('Pending Approval', 'Approved')
+                ORDER BY Confidence_Score__c DESC NULLS LAST
+                LIMIT 10
+            ]]></sfdc:salesforce-query>
+        </sfdc:query>
+        <set-variable variableName="ideas" value="#[payload]"/>
+
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    var targets = vars.targets
+                    var ideas   = vars.ideas
+                    var pending = ideas filter ($.Status__c == "Pending Approval")
+                    var approved = ideas filter ($.Status__c == "Approved")
+                    var totalGap = (targets reduce ((t, acc = 0.0) -> acc + (t.Gap_To_Target__c default 0.0)))
+                    ---
+                    {
+                        jsonrpc: "2.0",
+                        id: vars.mcpId,
+                        result: {
+                            content: [{
+                                'type': "text",
+                                text: write({
+                                    plantCode:          vars.plantCode,
+                                    totalGapFTE:        totalGap,
+                                    pendingIdeasCount:  sizeOf(pending),
+                                    approvedIdeasCount: sizeOf(approved),
+                                    approvedFTE:        (approved reduce ((i, acc = 0.0) -> acc + (i.FTE_Impact__c default 0.0))),
+                                    topPendingIdea:     if (sizeOf(pending) > 0)
+                                                            { name: pending[0].Name, fteImpact: pending[0].FTE_Impact__c, confidence: pending[0].Confidence_Score__c }
+                                                        else null,
+                                    hqTargets:          targets map {
+                                        quarter:     $.Quarter__c,
+                                        shop:        $.`Plant_Shop__r.Name`,
+                                        targetFTE:   $.Target_FTE__c,
+                                        approvedFTE: $.Approved_FTE_Coverage__c,
+                                        gapFTE:      $.Gap_To_Target__c
+                                    }
+                                }, "application/json")
+                            }]
+                        }
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <logger level="INFO"
+            message="#['[MCP] Tool plant_status complete for ' ++ vars.plantCode]"/>
+    </sub-flow>
+
+    <!-- =========================================================
+         TOOL: plantiq_get_pending_ideas
+    ========================================================== -->
+
+    <sub-flow name="tool-get-pending-ideas-subflow">
+        <set-variable variableName="plantCode" value="#[vars.toolArgs.plant_code]"/>
+        <set-variable variableName="shopFilter"
+            value="#[if (vars.toolArgs.shop_name != null) ' AND Plant_Function__r.Plant_Shop__r.Name = \'' ++ vars.toolArgs.shop_name ++ '\'' else '']"/>
+        <set-variable variableName="quarterFilter"
+            value="#[if (vars.toolArgs.quarter != null) ' AND Plant_Function__r.Plant_Shop__r.Plant__r.GWB_HQ_Target__c.Quarter__c = \'' ++ vars.toolArgs.quarter ++ '\'' else '']"/>
+
+        <sfdc:query config-ref="Salesforce_Config">
+            <sfdc:salesforce-query><![CDATA[
+                SELECT Id, Name, Status__c, FTE_Impact__c, Dollar_Impact__c,
+                       Confidence_Score__c, Effort__c, AI_Generated__c,
+                       Assumptions__c, Benchmark_Evidence__c, Required_Validations__c,
+                       Plant_Function__r.Name, Plant_Function__r.Plant_Shop__r.Name,
+                       CreatedDate
+                FROM GWB_Productivity_Idea__c
+                WHERE Plant_Function__r.Plant_Shop__r.Plant__r.Plant_Code__c = ':vars.plantCode'
+                AND Status__c = 'Pending Approval'
+                ORDER BY Confidence_Score__c DESC NULLS LAST
+                LIMIT 20
+            ]]></sfdc:salesforce-query>
+        </sfdc:query>
+
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    var ideas = payload
+                    ---
+                    {
+                        jsonrpc: "2.0",
+                        id: vars.mcpId,
+                        result: {
+                            content: [{
+                                'type': "text",
+                                text: write({
+                                    plantCode:    vars.plantCode,
+                                    pendingCount: sizeOf(ideas),
+                                    ideas: ideas map {
+                                        id:           $.Id,
+                                        name:         $.Name,
+                                        shop:         $.`Plant_Function__r.Plant_Shop__r.Name`,
+                                        function:     $.`Plant_Function__r.Name`,
+                                        fteImpact:    $.FTE_Impact__c,
+                                        dollarImpact: $.Dollar_Impact__c,
+                                        confidence:   $.Confidence_Score__c,
+                                        effort:       $.Effort__c,
+                                        aiGenerated:  $.AI_Generated__c,
+                                        evidence:     $.Benchmark_Evidence__c,
+                                        validations:  $.Required_Validations__c,
+                                        reasoning:    $.Assumptions__c
+                                    }
+                                }, "application/json")
+                            }]
+                        }
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <logger level="INFO"
+            message="#['[MCP] Tool pending_ideas complete for ' ++ vars.plantCode ++ ': ' ++ (sizeOf(payload.result.content[0].text) as String) ++ ' chars']"/>
+    </sub-flow>
+
+    <!-- =========================================================
+         TOOL: plantiq_get_benchmark_evidence
+    ========================================================== -->
+
+    <sub-flow name="tool-get-benchmark-evidence-subflow">
+        <set-variable variableName="ideaName" value="#[vars.toolArgs.idea_name]"/>
+        <set-variable variableName="shopType"
+            value="#[vars.toolArgs.shop_type default '']"/>
+
+        <sfdc:query config-ref="Salesforce_Config">
+            <sfdc:salesforce-query><![CDATA[
+                SELECT Id, Name, Idea_Category__c, Description__c,
+                       Typical_FTE_Min__c, Typical_FTE_Max__c, Typical_Effort__c,
+                       Requires_Safety_Review__c, Requires_Quality_Review__c,
+                       Requires_Finance_Approval__c
+                FROM GWB_Idea_Library__c
+                WHERE Name LIKE '%:vars.ideaName%'
+                LIMIT 1
+            ]]></sfdc:salesforce-query>
+        </sfdc:query>
+        <set-variable variableName="ideaLib" value="#[payload[0] default {}]"/>
+
+        <sfdc:query config-ref="Salesforce_Config">
+            <sfdc:salesforce-query><![CDATA[
+                SELECT Plant__r.Name, Plant__r.Plant_Code__c, Shop_Type__c,
+                       Achieved_FTE__c, Quarter__c, Production_Context__c, Notes__c
+                FROM GWB_Plant_Benchmark__c
+                WHERE Idea_Library__r.Name LIKE '%:vars.ideaName%'
+                ORDER BY Achieved_FTE__c DESC NULLS LAST
+                LIMIT 10
+            ]]></sfdc:salesforce-query>
+        </sfdc:query>
+
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0 output application/json
+                    var lib        = vars.ideaLib
+                    var benchmarks = payload
+                    var avgFTE     = if (sizeOf(benchmarks) > 0)
+                                        (benchmarks reduce ((b, acc = 0.0) -> acc + (b.Achieved_FTE__c default 0.0))) / sizeOf(benchmarks)
+                                     else 0
+                    ---
+                    {
+                        jsonrpc: "2.0",
+                        id: vars.mcpId,
+                        result: {
+                            content: [{
+                                'type': "text",
+                                text: write({
+                                    ideaName:        vars.ideaName,
+                                    category:        lib.Idea_Category__c,
+                                    description:     lib.Description__c,
+                                    typicalFTERange: (lib.Typical_FTE_Min__c default 0) ++ " – " ++ (lib.Typical_FTE_Max__c default 0),
+                                    effort:          lib.Typical_Effort__c,
+                                    requiresSafety:  lib.Requires_Safety_Review__c default false,
+                                    requiresQuality: lib.Requires_Quality_Review__c default false,
+                                    requiresFinance: lib.Requires_Finance_Approval__c default false,
+                                    benchmarkCount:  sizeOf(benchmarks),
+                                    averageAchievedFTE: avgFTE,
+                                    benchmarks: benchmarks map {
+                                        plant:   $.`Plant__r.Name`,
+                                        code:    $.`Plant__r.Plant_Code__c`,
+                                        shop:    $.Shop_Type__c,
+                                        quarter: $.Quarter__c,
+                                        achieved: $.Achieved_FTE__c,
+                                        context: $.Production_Context__c,
+                                        notes:   $.Notes__c
+                                    }
+                                }, "application/json")
+                            }]
+                        }
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <logger level="INFO"
+            message="#['[MCP] Tool benchmark_evidence complete for ' ++ vars.ideaName]"/>
+    </sub-flow>
+
+    <!-- =========================================================
+         TOOL: plantiq_approve_idea  (WRITE — confirmation required)
+    ========================================================== -->
+
+    <sub-flow name="tool-approve-idea-subflow">
+        <set-variable variableName="ideaId"       value="#[vars.toolArgs.idea_id]"/>
+        <set-variable variableName="approverName" value="#[vars.toolArgs.approver_name]"/>
+
+        <!-- Guardrail: idea must exist and be in Pending Approval state -->
+        <sfdc:query config-ref="Salesforce_Config">
+            <sfdc:salesforce-query><![CDATA[
+                SELECT Id, Name, Status__c, FTE_Impact__c, Dollar_Impact__c
+                FROM GWB_Productivity_Idea__c
+                WHERE Id = ':vars.ideaId'
+                AND Status__c = 'Pending Approval'
+                LIMIT 1
+            ]]></sfdc:salesforce-query>
+        </sfdc:query>
+
+        <choice>
+            <when expression="#[sizeOf(payload) == 0]">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0 output application/json
+                            ---
+                            {
+                                jsonrpc: "2.0",
+                                id: vars.mcpId,
+                                error: {
+                                    code: -32602,
+                                    message: "Idea not found or not in Pending Approval status. ID: " ++ vars.ideaId
+                                }
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </when>
+            <otherwise>
+                <set-variable variableName="ideaRecord" value="#[payload[0]]"/>
+
+                <!-- Update status to Approved -->
+                <sfdc:update type="GWB_Productivity_Idea__c" config-ref="Salesforce_Config">
+                    <sfdc:records><![CDATA[
+                        %dw 2.0 output application/java
+                        ---
+                        [{ Id: vars.ideaId, Status__c: "Approved" }]
+                    ]]></sfdc:records>
+                </sfdc:update>
+
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0 output application/json
+                            var idea = vars.ideaRecord
+                            ---
+                            {
+                                jsonrpc: "2.0",
+                                id: vars.mcpId,
+                                result: {
+                                    content: [{
+                                        'type': "text",
+                                        text: write({
+                                            success:      true,
+                                            ideaId:       vars.ideaId,
+                                            ideaName:     idea.Name,
+                                            approvedBy:   vars.approverName,
+                                            previousStatus: "Pending Approval",
+                                            newStatus:    "Approved",
+                                            fteImpact:    idea.FTE_Impact__c,
+                                            dollarImpact: idea.Dollar_Impact__c
+                                        }, "application/json")
+                                    }]
+                                }
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <logger level="INFO"
+                    message="#['[MCP] Idea approved: ' ++ vars.ideaId ++ ' by ' ++ vars.approverName]"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+    <!-- =========================================================
+         TOOL: plantiq_trigger_recommendation
+    ========================================================== -->
+
+    <sub-flow name="tool-trigger-recommendation-subflow">
+        <set-variable variableName="triggerTargetId" value="#[vars.toolArgs.target_id]"/>
+
+        <!-- Validate target exists -->
+        <sfdc:query config-ref="Salesforce_Config">
+            <sfdc:salesforce-query><![CDATA[
+                SELECT Id, Name, Quarter__c, Target_FTE__c, Gap_To_Target__c,
+                       Plant__r.Plant_Code__c, Plant_Shop__r.Name
+                FROM GWB_HQ_Target__c
+                WHERE Id = ':vars.triggerTargetId'
+                LIMIT 1
+            ]]></sfdc:salesforce-query>
+        </sfdc:query>
+
+        <choice>
+            <when expression="#[sizeOf(payload) == 0]">
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0 output application/json
+                            ---
+                            {
+                                jsonrpc: "2.0",
+                                id: vars.mcpId,
+                                error: { code: -32602, message: "HQ Target not found: " ++ vars.triggerTargetId }
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+            </when>
+            <otherwise>
+                <set-variable variableName="triggerTarget" value="#[payload[0]]"/>
+
+                <!-- Publish Platform Event to trigger the existing orchestration flow -->
+                <sfdc:publish-event config-ref="Salesforce_Config" type="PlantIQ_Target_Set__e">
+                    <sfdc:message><![CDATA[
+                        %dw 2.0 output application/java
+                        var t = vars.triggerTarget
+                        ---
+                        {
+                            Target_Id__c:   vars.triggerTargetId,
+                            Plant_Code__c:  t.'Plant__r.Plant_Code__c',
+                            Shop_Name__c:   t.'Plant_Shop__r.Name',
+                            Quarter__c:     t.Quarter__c
+                        }
+                    ]]></sfdc:message>
+                </sfdc:publish-event>
+
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0 output application/json
+                            var t = vars.triggerTarget
+                            ---
+                            {
+                                jsonrpc: "2.0",
+                                id: vars.mcpId,
+                                result: {
+                                    content: [{
+                                        'type': "text",
+                                        text: write({
+                                            triggered:   true,
+                                            targetId:    vars.triggerTargetId,
+                                            targetName:  t.Name,
+                                            plantCode:   t.'Plant__r.Plant_Code__c',
+                                            shop:        t.'Plant_Shop__r.Name',
+                                            quarter:     t.Quarter__c,
+                                            gapFTE:      t.Gap_To_Target__c,
+                                            message:     "Recommendation orchestration triggered. A new PlantIQ idea will be created and posted to Slack."
+                                        }, "application/json")
+                                    }]
+                                }
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <logger level="INFO"
+                    message="#['[MCP] Recommendation triggered for target ' ++ vars.triggerTargetId]"/>
+            </otherwise>
+        </choice>
+    </sub-flow>
+
+</mule>

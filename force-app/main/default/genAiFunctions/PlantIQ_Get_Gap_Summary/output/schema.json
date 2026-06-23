@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "gap_summary_json": {
+      "title": "gap_summary_json",
+      "description": "JSON string containing plant-level FTE gap summary across all shops",
+      "lightning:type": "lightning__textType",
+      "copilotAction:isDisplayable": true,
+      "copilotAction:isUsedByPlanner": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

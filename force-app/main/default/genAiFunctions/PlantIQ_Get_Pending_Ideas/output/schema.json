@@ -1,0 +1,12 @@
+{
+  "properties": {
+    "pending_ideas_json": {
+      "title": "pending_ideas_json",
+      "description": "JSON string containing list of pending productivity ideas with full context",
+      "lightning:type": "lightning__textType",
+      "copilotAction:isDisplayable": true,
+      "copilotAction:isUsedByPlanner": true
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

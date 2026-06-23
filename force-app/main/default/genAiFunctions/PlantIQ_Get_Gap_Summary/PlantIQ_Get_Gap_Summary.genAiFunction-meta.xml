@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GenAiFunction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Returns the plant-level FTE gap summary across all shops for a given quarter. Use this to understand overall productivity shortfalls across manufacturing plants.</description>
+    <invocationTarget>PlantIQ_MCP_Get_Gap_Summary</invocationTarget>
+    <invocationTargetType>flow</invocationTargetType>
+    <isConfirmationRequired>false</isConfirmationRequired>
+    <masterLabel>PlantIQ Get Gap Summary</masterLabel>
+</GenAiFunction>

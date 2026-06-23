@@ -43,6 +43,29 @@ public with sharing class PostToSlackAction {
         return responses;
     }
 
+    // Called from orchestrator after DML to avoid uncommitted-work-before-callout error
+    @future(callout=true)
+    public static void postAsync(
+        Id ideaId, String plantName, String shopName, Decimal gapToTarget,
+        String quarter, String ideaTitle, Decimal fteImpact, Decimal dollarImpact,
+        Integer confidenceScore, String effort, String benchmarkEvidence
+    ) {
+        SlackRequest req = new SlackRequest();
+        req.ideaId           = ideaId;
+        req.plantName        = plantName;
+        req.shopName         = shopName;
+        req.gapToTarget      = gapToTarget;
+        req.quarter          = quarter;
+        req.ideaTitle        = ideaTitle;
+        req.fteImpact        = fteImpact;
+        req.dollarImpact     = dollarImpact;
+        req.confidenceScore  = confidenceScore;
+        req.effort           = effort;
+        req.benchmarkEvidence = benchmarkEvidence;
+        SlackResponse resp = doPost(req);
+        System.debug('[PlantIQ] Async Slack post: ' + (resp.success ? 'OK ts=' + resp.messageTs : 'FAIL ' + resp.errorMessage));
+    }
+
     private static SlackResponse doPost(SlackRequest req) {
         SlackResponse resp = new SlackResponse();
         try {

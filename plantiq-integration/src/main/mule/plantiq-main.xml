@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core           https://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/sfdc           https://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
+        http://www.mulesoft.org/schema/mule/http           https://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core        https://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+
+    <!-- =========================================================
+         GLOBAL CONFIGURATIONS
+    ========================================================== -->
+
+    <!-- Salesforce connector — OAuth username-password flow -->
+    <sfdc:sfdc-config name="Salesforce_Config">
+        <sfdc:basic-connection
+            username="${salesforce.username}"
+            password="${salesforce.password}"
+            securityToken="${salesforce.token}"/>
+    </sfdc:sfdc-config>
+
+    <!-- HTTP connector for Einstein LLM REST -->
+    <http:request-config name="Salesforce_HTTP_Config" basePath="/services/data/v62.0">
+        <http:request-connection host="${salesforce.instance}" protocol="HTTPS" port="443"/>
+    </http:request-config>
+
+    <!-- HTTP connector for Slack webhook -->
+    <http:request-config name="Slack_HTTP_Config">
+        <http:request-connection host="hooks.slack.com" protocol="HTTPS" port="443"/>
+    </http:request-config>
+
+    <!-- =========================================================
+         MAIN FLOW: Subscribe to Platform Event → Orchestrate
+    ========================================================== -->
+
+    <flow name="plantiq-recommendation-flow">
+
+        <!-- Subscribe to Salesforce Platform Event published by the Salesforce Flow -->
+        <salesforce:replay-channel-listener doc:name="Replay channel listener" doc:id="c8c723eb-604f-4dcf-908e-e7c523945672" config-ref="Salesforce_Config" streamingChannel="/event/PlantIQ_Target_Set__e" replayOption="FROM_LAST_REPLAY_ID" />
+
+        <logger level="INFO"
+            message="#['[PlantIQ] Platform Event received — Target ID: ' ++ payload.payload.Target_Id__c]"/>
+
+        <!-- Store the target ID from the event payload for use throughout the flow -->
+        <set-variable variableName="targetId"
+            value="#[payload.payload.Target_Id__c]"/>
+        <set-variable variableName="plantCode"
+            value="#[payload.payload.Plant_Code__c]"/>
+        <set-variable variableName="shopName"
+            value="#[payload.payload.Shop_Name__c]"/>
+        <set-variable variableName="quarter"
+            value="#[payload.payload.Quarter__c]"/>
+
+        <!-- AgentFabric: start audit run -->
+        <flow-ref name="agentfabric-audit-start-subflow"/>
+
+        <!-- STEP 1: Retrieve full plant context from Salesforce -->
+        <flow-ref name="retrieve-plant-context-subflow"/>
+        <set-variable variableName="plantContext" value="#[payload]"/>
+
+        <!-- STEP 2: Match Idea Library records for the signal type -->
+        <flow-ref name="match-idea-library-subflow"/>
+        <set-variable variableName="matchedIdeas" value="#[payload]"/>
+
+        <!-- STEP 3: Score benchmarks using DataWeave transform -->
+        <flow-ref name="score-benchmarks-subflow"/>
+        <set-variable variableName="scoredIdeas" value="#[payload]"/>
+
+        <!-- STEP 4: Call Einstein LLM via Salesforce REST API -->
+        <flow-ref name="call-einstein-llm-subflow"/>
+        <set-variable variableName="recommendation" value="#[payload]"/>
+
+        <!-- STEP 5: Create Productivity Idea record in Salesforce -->
+        <flow-ref name="create-productivity-idea-subflow"/>
+        <set-variable variableName="ideaId" value="#[payload.id]"/>
+
+        <!-- STEP 6: Post to Slack -->
+        <flow-ref name="post-to-slack-subflow"/>
+
+        <!-- AgentFabric: end audit run -->
+        <flow-ref name="agentfabric-audit-end-subflow"/>
+
+        <logger level="INFO"
+            message="#['[PlantIQ] Orchestration complete — Idea ID: ' ++ vars.ideaId]"/>
+
+        <error-handler>
+            <on-error-continue type="ANY">
+                <flow-ref name="agentfabric-audit-error-subflow"/>
+                <logger level="ERROR"
+                    message="#['[PlantIQ] Orchestration failed for target ' ++ vars.targetId ++ ': ' ++ error.description]"/>
+            </on-error-continue>
+        </error-handler>
+    </flow>
+
+</mule>

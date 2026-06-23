@@ -1,0 +1,14 @@
+{
+  "required": ["idea_id"],
+  "unevaluatedProperties": false,
+  "properties": {
+    "idea_id": {
+      "title": "idea_id",
+      "description": "The Salesforce 18-character record ID of the Productivity Idea to retrieve benchmark evidence for",
+      "lightning:type": "lightning__textType",
+      "lightning:isPII": false,
+      "copilotAction:isUserInput": false
+    }
+  },
+  "lightning:type": "lightning__objectType"
+}

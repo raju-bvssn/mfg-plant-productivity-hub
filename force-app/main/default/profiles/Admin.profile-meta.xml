@@ -1165,6 +1165,14 @@
     <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>GWB_Plant_Benchmark__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
     <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>GWB_Edge_Signal__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
     <objectPermissions><allowCreate>true</allowCreate><allowDelete>true</allowDelete><allowEdit>true</allowEdit><allowRead>true</allowRead><modifyAllRecords>true</modifyAllRecords><object>GWB_Productivity_Idea__c</object><viewAllRecords>true</viewAllRecords></objectPermissions>
+    <layoutAssignments><layout>GWB_HQ_Target__c-HQ Target Layout</layout></layoutAssignments>
+    <layoutAssignments><layout>GWB_Productivity_Idea__c-Productivity Idea Layout</layout></layoutAssignments>
+    <layoutAssignments><layout>GWB_Edge_Signal__c-Edge Signal Layout</layout></layoutAssignments>
+    <layoutAssignments><layout>GWB_Idea_Library__c-Idea Library Layout</layout></layoutAssignments>
+    <layoutAssignments><layout>GWB_Plant__c-Plant Layout</layout></layoutAssignments>
+    <layoutAssignments><layout>GWB_Plant_Shop__c-Plant Shop Layout</layout></layoutAssignments>
+    <layoutAssignments><layout>GWB_Plant_Function__c-Plant Function Layout</layout></layoutAssignments>
+    <layoutAssignments><layout>GWB_Plant_Benchmark__c-Plant Benchmark Layout</layout></layoutAssignments>
     <applicationVisibilities><application>PlantIQ</application><default>false</default><visible>true</visible></applicationVisibilities>
     <tabVisibilities><tab>GWB_Plant__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
     <tabVisibilities><tab>GWB_Plant_Shop__c</tab><visibility>DefaultOn</visibility></tabVisibilities>
