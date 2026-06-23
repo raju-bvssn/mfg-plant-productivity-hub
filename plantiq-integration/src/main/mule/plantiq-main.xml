@@ -4,11 +4,14 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
-      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="
-        http://www.mulesoft.org/schema/mule/core         http://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/salesforce   http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
-        http://www.mulesoft.org/schema/mule/http         http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-        http://www.mulesoft.org/schema/mule/ee/core      http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core                    http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/salesforce              http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+        http://www.mulesoft.org/schema/mule/http                    http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core                 http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/secure-properties       http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 
     <!-- =========================================================
          GLOBAL CONFIGURATIONS
@@ -49,7 +52,12 @@
          MAIN FLOW: Subscribe to Platform Event → Orchestrate
     ========================================================== -->
 
-    <configuration-properties doc:name="Configuration properties" doc:id="b2f17f4f-6539-48c2-b98e-beefee0f0a37" file="application.properties" />
+    <secure-properties:config name="Secure_Properties_Config"
+        file="application.properties"
+        key="${secure.key}"
+        doc:name="Secure Properties Config">
+        <secure-properties:encrypt algorithm="AES" mode="CBC"/>
+    </secure-properties:config>
     <flow name="plantiq-recommendation-flow">
 
         <!-- HTTP trigger: POST /plantiq/recommend

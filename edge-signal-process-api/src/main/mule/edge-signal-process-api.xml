@@ -4,6 +4,7 @@
       xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
       xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="
         http://www.mulesoft.org/schema/mule/core
@@ -13,7 +14,9 @@
         http://www.mulesoft.org/schema/mule/salesforce
           http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
         http://www.mulesoft.org/schema/mule/ee/core
-          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/secure-properties
+          http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 
     <!-- =========================================================
          Global Configurations
@@ -41,7 +44,12 @@
          Trigger  : Anypoint MQ  →  edge-signals-queue
          Target   : Salesforce   →  GWB_Edge_Signal__c
     ========================================================== -->
-    <configuration-properties doc:name="Configuration properties" doc:id="6ac13404-6a69-4062-9d92-d2b7c2c70023" file="config.yaml" />
+    <secure-properties:config name="Secure_Properties_Config"
+        file="config.yaml"
+        key="${secure.key}"
+        doc:name="Secure Properties Config">
+        <secure-properties:encrypt algorithm="AES" mode="CBC"/>
+    </secure-properties:config>
 	<flow name="edge-signal-process-api-flow">
 
         <!-- STEP 1: Consume message from Anypoint MQ (manual ack) -->
