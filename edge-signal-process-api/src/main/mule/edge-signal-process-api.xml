@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:anypoint-mq="http://www.mulesoft.org/schema/mule/anypoint-mq"
+      xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core
+          http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/anypoint-mq
+          http://www.mulesoft.org/schema/mule/anypoint-mq/current/mule-anypoint-mq.xsd
+        http://www.mulesoft.org/schema/mule/salesforce
+          http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+        http://www.mulesoft.org/schema/mule/ee/core
+          http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+
+    <!-- =========================================================
+         Global Configurations
+    ========================================================== -->
+
+    <anypoint-mq:config name="Anypoint_MQ_Config" doc:name="Anypoint MQ Config">
+        <anypoint-mq:connection
+            url="${anypoint.mq.url}"
+            clientId="${anypoint.mq.clientId}"
+            clientSecret="${anypoint.mq.clientSecret}" />
+    </anypoint-mq:config>
+
+    <salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config">
+        <salesforce:jwt-connection
+            consumerKey="${salesforce.consumerKey}"
+            keyStore="${salesforce.keystore.path}"
+            storePassword="${salesforce.keystore.password}"
+            certificateAlias="${salesforce.keystore.alias}"
+            principal="${salesforce.username}"
+            tokenEndpoint="${salesforce.tokenEndpoint}" />
+    </salesforce:sfdc-config>
+
+    <!-- =========================================================
+         Process API: Edge Signal Ingestor
+         Trigger  : Anypoint MQ  →  edge-signals-queue
+         Target   : Salesforce   →  GWB_Edge_Signal__c
+    ========================================================== -->
+    <configuration-properties doc:name="Configuration properties" doc:id="6ac13404-6a69-4062-9d92-d2b7c2c70023" file="config.yaml" />
+	<flow name="edge-signal-process-api-flow">
+
+        <!-- STEP 1: Consume message from Anypoint MQ (manual ack) -->
+        <anypoint-mq:subscriber
+            doc:name="AMQ Subscriber - edge-signals-queue"
+            config-ref="Anypoint_MQ_Config"
+            destination="plantiq-edge-signals"
+            acknowledgementMode="MANUAL">
+            <anypoint-mq:subscriber-type>
+                <anypoint-mq:polling>
+                    <scheduling-strategy>
+                        <fixed-frequency frequency="5000" timeUnit="MILLISECONDS"/>
+                    </scheduling-strategy>
+                </anypoint-mq:polling>
+            </anypoint-mq:subscriber-type>
+        </anypoint-mq:subscriber>
+
+        <!-- Save ackToken before attributes are overwritten -->
+        <set-variable
+            doc:name="Set ackToken"
+            variableName="ackToken"
+            value="#[attributes.ackToken]" />
+
+        <!-- Parse raw MQ body as JSON -->
+        <ee:transform doc:name="Parse MQ Payload">
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0
+                    output application/json
+                    ---
+                    payload
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!-- STEP 2: Initialise variables -->
+        <set-variable
+            doc:name="Set plantCode"
+            variableName="plantCode"
+            value="#[payload.plant_code]" />
+        <set-variable
+            doc:name="Set station"
+            variableName="station"
+            value="#[payload.station]" />
+        <set-variable
+            doc:name="Set originalPayload"
+            variableName="originalPayload"
+            value="#[payload]" />
+
+        <!-- STEP 3: Salesforce SOQL lookup for Plant_Function__c ID -->
+        <salesforce:query
+            doc:name="SF Query - GWB_Plant_Function__c"
+            config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[
+                SELECT Id
+                FROM   GWB_Plant_Function__c
+                WHERE  Plant_Shop__r.Plant__r.Plant_Code__c = :plantCode
+                AND    Station__c = :station
+                LIMIT  1
+            ]]></salesforce:salesforce-query>
+            <salesforce:parameters><![CDATA[#[{
+plantCode : "'" ++ vars.plantCode ++ "'",
+station   : "'" ++ vars.station ++ "'"
+}]]]></salesforce:parameters>
+        </salesforce:query>
+
+        <!-- STEP 4: Store resolved Plant_Function__c ID -->
+        <set-variable
+            doc:name="Set plantFunctionId"
+            variableName="plantFunctionId"
+            value="#[payload[0].Id default null]" />
+
+        <!-- STEP 5: DataWeave transformation → GWB_Edge_Signal__c -->
+        <ee:transform doc:name="Map to GWB_Edge_Signal__c">
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0
+                    output application/java
+                    var msg = vars.originalPayload
+                    ---
+                    [{
+                        Signal_Type__c:       msg.signal_type,
+                        Station__c:           msg.station,
+                        Risk__c:              msg.risk,
+                        Current_Level__c:     msg.current_level    default null,
+                        Minutes_To_Empty__c:  msg.minutes_to_empty default null,
+                        Image_URL__c:         msg.image_url        default null,
+                        Raw_JSON__c:          write(msg, "application/json"),
+                        Processed__c:         false,
+                        Plant_Function__c:    vars.plantFunctionId
+                    }]
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!-- STEP 6: Create record in Salesforce -->
+        <salesforce:create
+            doc:name="SF Create - GWB_Edge_Signal__c"
+            config-ref="Salesforce_Config"
+            type="GWB_Edge_Signal__c" />
+
+        <!-- Manual ACK — only reached on success -->
+        <anypoint-mq:ack
+            doc:name="AMQ ACK"
+            config-ref="Anypoint_MQ_Config"
+            ackToken="#[vars.ackToken]" />
+
+        <logger
+            doc:name="Success Logger"
+            level="INFO"
+            message='#["Edge signal created successfully for plant=" ++ vars.plantCode ++ " station=" ++ vars.station]' />
+
+        <error-handler>
+            <on-error-propagate
+                doc:name="On Error Propagate"
+                type="ANY"
+                logException="true">
+
+                <anypoint-mq:nack
+                    doc:name="AMQ NACK"
+                    config-ref="Anypoint_MQ_Config"
+                    ackToken="#[vars.ackToken]" />
+
+                <logger
+                    doc:name="Error Logger"
+                    level="ERROR"
+                    message='#[%dw 2.0 output application/java --- "Edge signal processing failed for plant=" ++ (vars.plantCode default "UNKNOWN") ++ " | Error: " ++ (error.description default "" as String)]' />
+
+            </on-error-propagate>
+        </error-handler>
+
+    </flow>
+
+</mule>

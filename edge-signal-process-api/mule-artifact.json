@@ -1,0 +1,8 @@
+{
+    "classLoaderModelLoaderDescriptor": {
+        "attributes": {"exportedResources": []},
+        "id": "mule"
+    },
+    "minMuleVersion": "4.9.0",
+    "javaSpecificationVersions": ["17"]
+}
