@@ -23,6 +23,9 @@ servers:
   - url: https://api.plantiq.internal/v1
     description: Production
 
+security:
+  - oAuth2ClientCredentials: [api]
+
 tags:
   - name: HQ Targets
     description: CRUD operations on GWB_HQ_Target__c records
@@ -284,9 +287,6 @@ components:
           tokenUrl: https://login.salesforce.com/services/oauth2/token
           scopes:
             api: Full Salesforce API access
-
-  security:
-    - oAuth2ClientCredentials: [api]
 
   # ── Parameters ───────────────────────────────────────────
   parameters:
