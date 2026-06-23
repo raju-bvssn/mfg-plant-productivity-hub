@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Assembly_Headcount</fullName>
+    <columns>Sector__c</columns>
+    <columns>Category__c</columns>
+    <columns>Parameter_Driver__c</columns>
+    <columns>Source_Value__c</columns>
+    <columns>Classification__c</columns>
+    <columns>UI_Line_Type__c</columns>
+    <columns>UI_Sequence__c</columns>
+    <columns>Source_Type__c</columns>
+    <columns>Source_Section__c</columns>
+    <columns>Internal_Key__c</columns>
+    <columns>Is_Editable__c</columns>
+    <columns>Formula_Tooltip__c</columns>
+    <columns>Formula_Key__c</columns>
+    <columns>Fill_Forward_On_Edit__c</columns>
+    <columns>Value_Type__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Sector__c</field>
+        <operation>equals</operation>
+        <value>Assembly</value>
+    </filters>
+    <filters>
+        <field>Category__c</field>
+        <operation>equals</operation>
+        <value>Headcount</value>
+    </filters>
+    <label>Assembly - Headcount</label>
+    <language>en_US</language>
+</ListView>

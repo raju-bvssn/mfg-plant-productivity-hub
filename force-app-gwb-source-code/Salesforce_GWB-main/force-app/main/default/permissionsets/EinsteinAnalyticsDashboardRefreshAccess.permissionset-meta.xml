@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>CRM Analytics dashboard viewer with Data Manager access to trigger SFDC_LOCAL on-demand refresh. Note: platform limitation allows recipe and dataflow editing in Data Manager. No dashboard editing or admin CRM Analytics access.</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>CRM Analytics Dashboard Refresh Access</label>
+    <license>EinsteinAnalyticsPlusPsl</license>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>InsightsAppEltEditor</name>
+    </userPermissions>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>InsightsAppUser</name>
+    </userPermissions>
+</PermissionSet>

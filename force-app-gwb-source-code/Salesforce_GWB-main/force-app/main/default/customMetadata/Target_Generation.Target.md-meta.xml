@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Target</label>
+    <protected>false</protected>
+    <values>
+        <field>Exclude_End_Month__c</field>
+        <value xsi:type="xsd:string">April</value>
+    </values>
+    <values>
+        <field>Exclude_Start_Month__c</field>
+        <value xsi:type="xsd:string">February</value>
+    </values>
+    <values>
+        <field>Generation_End_Month__c</field>
+        <value xsi:type="xsd:string">January</value>
+    </values>
+    <values>
+        <field>Generation_Start_Month__c</field>
+        <value xsi:type="xsd:string">May</value>
+    </values>
+</CustomMetadata>

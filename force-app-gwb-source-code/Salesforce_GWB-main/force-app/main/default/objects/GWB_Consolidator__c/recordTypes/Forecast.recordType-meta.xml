@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Forecast</fullName>
+    <active>true</active>
+    <label>Forecast</label>
+    <picklistValues>
+        <picklist>Base_Supp__c</picklist>
+        <values>
+            <fullName>Base</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Supp</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+    <picklistValues>
+        <picklist>Classification__c</picklist>
+        <values>
+            <fullName>OTS</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Salaried</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Skilled</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

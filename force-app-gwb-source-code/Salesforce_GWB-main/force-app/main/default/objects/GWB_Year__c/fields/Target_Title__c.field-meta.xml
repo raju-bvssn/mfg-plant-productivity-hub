@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Target_Title__c</fullName>
+    <description>PR1064302-565 - Field will be used on the lightning page header for Target records</description>
+    <externalId>false</externalId>
+    <formula>IF(
+    TEXT(Sector__c) = &quot;GPS&quot;,
+    BLANKVALUE(Plant__r.Name, &quot;&quot;) &amp;
+    IF(
+        NOT(ISBLANK(Plant_Program__r.Product_Type__c)),
+        &quot; - &quot; &amp; Plant_Program__r.Product_Type__c,
+        &quot;&quot;
+    ) &amp;
+    IF(
+        NOT(ISBLANK(Plant_Program__r.Name)),
+        &quot; - &quot; &amp; Plant_Program__r.Name,
+        &quot;&quot;
+    ) &amp;
+    IF(
+        NOT(ISBLANK(Functional_Area__c)),
+        &quot; - &quot; &amp; Functional_Area__c,
+        IF(
+            NOT(ISBLANK(Plant_Sector__r.Part_Type__c)),
+            &quot; - &quot; &amp; Plant_Sector__r.Part_Type__c,
+            &quot;&quot;
+        )
+    ) &amp;
+    IF(
+        NOT(ISBLANK(Version__c)),
+        &quot; &quot; &amp; Version__c,
+        &quot;&quot;
+    ),
+    BLANKVALUE(Plant__r.Name, &quot;&quot;) &amp;
+    IF(
+        NOT(ISBLANK(Version__c)),
+        &quot; - &quot; &amp; Version__c,
+        &quot;&quot;
+    )
+)</formula>
+    <label>Target Title</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

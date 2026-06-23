@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plant_Program_Code__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Plant Program Code</label>
+    <referenceTo>Program_Master__c</referenceTo>
+    <relationshipLabel>Plant Volumes</relationshipLabel>
+    <relationshipName>Plant_Volumes</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

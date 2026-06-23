@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plant_Name_cannot_be_modified</fullName>
+    <active>true</active>
+    <description>Prevents modification of the Auth Plant Name field once it has been populated.</description>
+    <errorConditionFormula>AND(
+    NOT(ISBLANK(PRIORVALUE(Name))),
+    ISCHANGED(Name))</errorConditionFormula>
+    <errorDisplayField>Name</errorDisplayField>
+    <errorMessage>Auth Plant Name cannot be modified once it has been populated.</errorMessage>
+</ValidationRule>

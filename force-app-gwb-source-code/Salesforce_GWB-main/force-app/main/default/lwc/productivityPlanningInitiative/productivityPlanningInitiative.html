@@ -1,0 +1,209 @@
+<template>
+    <template if:true={showCreateError}>
+        <div class="slds-notify slds-notify_alert slds-alert_error slds-theme_error" role="alert">
+            <span class="slds-assistive-text">Error</span>
+            <h2>{createErrorMessage}</h2>
+        </div>
+    </template>
+    <lightning-card class="custom-initiative-card">
+        <div slot="title" class="card-title-wrap">
+            <lightning-icon icon-name="standard:solution" size="small" class="card-title-icon"></lightning-icon>
+            <div class="card-title">{cardTitle}</div>
+        </div>
+        <lightning-input
+            slot="actions"
+            class="mismatch-values-toggle"
+            type="toggle"
+            label="Mismatches values"
+            checked={showMismatchOnly}
+            message-toggle-active=""
+            message-toggle-inactive=""
+            onchange={handleMismatchValuesToggle}>
+        </lightning-input>
+        <template if:true={canShowAddButton}>
+            <button
+                slot="actions"
+                class="add-pill-button"
+                onclick={handleCreateInitiative}
+                title="Add"
+                aria-label="Add">
+                + Add
+            </button>
+        </template>
+        <button
+            slot="actions"
+            class="refresh-circle-button slds-m-left_x-small"
+            onclick={handleRefresh}
+            title="Refresh"
+            aria-label="Refresh">
+            <lightning-icon icon-name="utility:refresh" size="x-small" class="refresh-icon"></lightning-icon>
+        </button>
+        <div class="slds-p-around_medium">
+            <div class="table-container">
+            <template if:true={isLoading}>
+                <div class="table-spinner-overlay">
+                    <lightning-spinner alternative-text="Loading initiatives" size="medium"></lightning-spinner>
+                </div>
+            </template>
+            <div class="scroll-host">
+            <div class="scroll-content">
+            <div class="slds-p-left_medium sticky-header-wrap">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered table-layout-fixed header-table">
+                    <colgroup>
+                        <col style="width:120px;" />
+                        <col style="width:120px;" />
+                        <col style="width:196px;" />
+                        <col style="width:120px;" />
+                        <col style="width:130px;" />
+                        <col style="width:120px;" />
+                        <col style="width:120px;" />
+                        <col style="width:140px;" />
+                        <col style="width:130px;" />
+                        <col style="width:150px;" />
+                        <col style="width:120px;" />
+                        <col style="width:120px;" />
+                        <col style="width:120px;" />
+                    </colgroup>
+                    <thead>
+                        <tr class="slds-line-height_reset">
+                            <th scope="col"><div class="slds-truncate" title="Month">Month</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Record Id">Initiative</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Initiative Description">Initiative Description</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Driver">Driver</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Initiative Status">Initiative Status</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Effective Date">Effective Date</div></th>
+                            <th scope="col"><div class="slds-truncate" title="End Date">End Date</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Exclude from GWB">Exclude from GWB</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Position Adjustments">Position Adjustments</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Shop">Shop</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Classification">Classification</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Base/Supp">Base/Supp</div></th>
+                            <th scope="col"><div class="slds-truncate" title="Initiative Type">Initiative Type</div></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+
+            <template for:each={visibleGroupedByMonth} for:item="monthGroup">
+                <table key={monthGroup.monthName} class="slds-table slds-table_cell-buffer table-layout-fixed records-table month-section-table">
+                    <colgroup>
+                        <col style="width:120px;" />
+                        <col style="width:120px;" />
+                        <col style="width:196px;" />
+                        <col style="width:120px;" />
+                        <col style="width:130px;" />
+                        <col style="width:120px;" />
+                        <col style="width:120px;" />
+                        <col style="width:140px;" />
+                        <col style="width:130px;" />
+                        <col style="width:150px;" />
+                        <col style="width:120px;" />
+                        <col style="width:120px;" />
+                        <col style="width:120px;" />
+                    </colgroup>
+                    <tbody>
+                        <tr class="month-toggle-row" data-month={monthGroup.monthName} onclick={handleToggleMonth}>
+                            <td>
+                                <lightning-icon icon-name={monthGroup.chevronIcon} size="xx-small" class="slds-m-right_x-small"></lightning-icon>
+                                <span>{monthGroup.monthName}</span>
+                            </td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td><strong>{monthGroup.positionAdjustmentTotal}</strong></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                            <td></td>
+                        </tr>
+                        <template lwc:if={monthGroup.isOpen}>
+                            <template lwc:if={monthGroup.items.length}>
+                                <template for:each={monthGroup.items} for:item="record">
+                                    <tr key={record.uniqueKey}>
+                                        <td></td>
+                                        <td>
+                                            <a href={record.recordUrl} data-record-id={record.Id} onclick={handleRecordLinkClick}>{record.Name}</a>
+                                        </td>
+                                        <td><div class="description-cell" title={record.Description__c}>{record.Description__c}</div></td>
+                                        <td><div class="slds-truncate" title={record.Driver__c}>{record.Driver__c}</div></td>
+                                        <td><div class="slds-truncate" title={record.Status__c}>{record.Status__c}</div></td>
+                                        <td><div class="slds-truncate" title={record.effectiveDateDisplay}>{record.effectiveDateDisplay}</div></td>
+                                        <td><div class="slds-truncate" title={record.endDateDisplay}>{record.endDateDisplay}</div></td>
+                                        <td>
+                                            <lightning-input
+                                                type="checkbox"
+                                                checked={record.Exclude_From_GWB__c}
+                                                disabled
+                                                variant="label-hidden">
+                                            </lightning-input>
+                                        </td>
+                                        <td><div class="slds-truncate" title={record.initiativeTypeDisplay}>{record.initiativeTypeDisplay}</div></td>
+                                        <td class={record.positionAdjustmentCellClass}>
+                                            <div class="position-adjustment-cell" title={record.Position_Adjustment__c}>
+                                                <template if:true={record.positionAdjustmentMismatch}>
+                                                    <span
+                                                        class="position-adjustment-mismatch-wrapper"
+                                                        tabindex="0"
+                                                        aria-label={record.positionAdjustmentMismatchTooltip}>
+                                                        <lightning-icon
+                                                            class="position-adjustment-mismatch-icon"
+                                                            icon-name="utility:error"
+                                                            size="xx-small"
+                                                            variant="error"
+                                                            alternative-text={record.positionAdjustmentMismatchTooltip}>
+                                                        </lightning-icon>
+                                                        <div class="slds-popover slds-popover_tooltip slds-nubbin_bottom-left position-adjustment-tooltip" role="tooltip">
+                                                            <div class="slds-popover__body">
+                                                                {record.positionAdjustmentMismatchTooltip}
+                                                            </div>
+                                                        </div>
+                                                    </span>
+                                                </template>
+                                                <span class="slds-truncate">{record.Position_Adjustment__c}</span>
+                                            </div>
+                                        </td>
+                                        <td><div class="slds-truncate" title={record.Shop_Manager_View__c}>{record.Shop_Manager_View__c}</div></td>
+                                        <td><div class="slds-truncate" title={record.Classification__c}>{record.Classification__c}</div></td>
+                                        <td><div class="slds-truncate" title={record.Headcount_Type__c}>{record.Headcount_Type__c}</div></td>
+                                        <td><div class="slds-truncate" title={record.initiativeTypeDisplay}>{record.initiativeTypeDisplay}</div></td>
+                                    </tr>
+                                </template>
+                            </template>
+                            <template lwc:else>
+                                
+                            </template>
+                        </template>
+                    </tbody>
+                </table>
+            </template>
+            </div>
+            </div>
+            </div>
+        </div>
+    </lightning-card>
+
+    <template if:true={showCreateInitiativeModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-label="Create Initiative" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container slds-modal_large">
+                    <button class="slds-button slds-button_icon slds-modal__close" title="Close" onclick={handleCloseCreateInitiativeModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                    </button>
+                <div class="slds-modal__header create-initiative-modal-header">
+                    <h2 class="slds-text-heading_medium create-initiative-modal-title">New Initiative</h2>
+                </div>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-flow
+                        flow-api-name="Create_Initiative"
+                        flow-input-variables={flowInputVariables}
+                        onstatuschange={handleFlowStatusChange}>
+                    </lightning-flow>
+                </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+</template>

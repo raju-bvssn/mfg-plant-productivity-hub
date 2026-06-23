@@ -1,0 +1,740 @@
+<template>
+    <section class="screen-shell">
+        <template if:false={embedded}>
+            <div class="record-header">
+                <div class="record-header__title">
+                    <div class="record-header__identity">
+                        <span class="record-header__mark" aria-hidden="true"></span>
+                        <div>
+                            <div class="record-header__eyebrow">Target</div>
+                            <h1>{targetName}</h1>
+                        </div>
+                    </div>
+                </div>
+                <template if:true={showCompletionButton}>
+                    <lightning-button
+                        label={completionButtonLabel}
+                        variant="outline-brand"
+                        onclick={handleOpenCompletionModal}
+                        disabled={completionButtonDisabled}>
+                    </lightning-button>
+                </template>
+            </div>
+
+            <div class="record-summary">
+                <div class="summary-item">
+                    <span class="summary-item__label">Region</span>
+                    <span class="summary-item__value">{regionName}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-item__label">Plant</span>
+                    <span class="summary-item__value">{plantName}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-item__label">M Schedule</span>
+                    <span class="summary-item__value">{scheduleLabel}</span>
+                </div>
+                <div class="summary-item">
+                    <span class="summary-item__label">Target Status</span>
+                    <span class={targetStatusClass}>
+                        <span class="target-status__dot" aria-hidden="true"></span>
+                        {targetStatus}
+                    </span>
+                </div>
+            </div>
+
+            <div class="tabs-strip">
+                <button class="tab-button" type="button">Input</button>
+                <button class="tab-button" type="button">Summary</button>
+                <button class="tab-button tab-button_active" type="button">Adjustments</button>
+            </div>
+        </template>
+
+        <template if:true={hasCompletionValidationError}>
+            <section class="completion-alert" role="alert" aria-live="assertive">
+                <div class="completion-alert__icon-wrap" aria-hidden="true">
+                    <lightning-icon
+                        icon-name="utility:ban"
+                        size="small"
+                        class="completion-alert__icon"
+                        alternative-text="Mismatched adjustments">
+                    </lightning-icon>
+                </div>
+                <div class="completion-alert__content">
+                    <h2 class="completion-alert__title">{completionValidationError.title}</h2>
+                    <p class="completion-alert__message">{completionValidationError.message}</p>
+                </div>
+                <button
+                    type="button"
+                    class="completion-alert__dismiss"
+                    onclick={handleDismissCompletionValidationError}
+                    aria-label="Dismiss validation message">
+                    <lightning-icon
+                        icon-name="utility:close"
+                        size="x-small"
+                        class="completion-alert__dismiss-icon"
+                        alternative-text="Dismiss">
+                    </lightning-icon>
+                </button>
+            </section>
+        </template>
+
+        <section class={adjustmentsCardClass}>
+            <div class="adjustments-card__header">
+                <div class="section-identity">
+                    <span class="section-identity__mark" aria-hidden="true"></span>
+                    <div>
+                        <div class="adjustments-card__eyebrow">Plant Position Adjustments</div>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <template if:true={embedded}>
+                        <template if:true={showCompletionButton}>
+                        <lightning-button
+                            label={completionButtonLabel}
+                            variant="outline-brand"
+                            class="header-actions__primary"
+                            onclick={handleOpenCompletionModal}
+                            disabled={completionButtonDisabled}>
+                        </lightning-button>
+                        </template>
+                    </template>
+                    <template if:true={showExpandAllButtons}>
+                        <lightning-button-group class="header-actions__group">
+                            <lightning-button
+                                label="Expand All"
+                                icon-name="utility:expand_alt"
+                                icon-position="left"
+                                variant="outline-brand"
+                                onclick={handleExpandAll}
+                                disabled={disableExpandAll}>
+                            </lightning-button>
+                            <lightning-button
+                                label="Collapse All"
+                                icon-name="utility:contract_alt"
+                                icon-position="left"
+                                variant="outline-brand"
+                                onclick={handleCollapseAll}
+                                disabled={disableCollapseAll}>
+                            </lightning-button>
+                        </lightning-button-group>
+                    </template>
+                    <template if:false={showExpandAllButtons}>
+                        <lightning-button
+                            label={expandButtonLabel}
+                            icon-name="utility:expand_alt"
+                            icon-position="left"
+                            variant="outline-brand"
+                            class="header-actions__primary"
+                            onclick={handleToggleExpandedTable}
+                            disabled={expandButtonDisabled}>
+                        </lightning-button>
+                    </template>
+                    <lightning-button
+                        label={editButtonLabel}
+                        icon-name="utility:edit"
+                        icon-position="left"
+                        variant="outline-brand"
+                        class="header-actions__primary"
+                        onclick={handleToggleEditMode}
+                        disabled={editButtonDisabled}>
+                    </lightning-button>
+                </div>
+            </div>
+
+            <div class="adjustments-card__filters">
+                <c-gwb-plant-position-adjustment-filters
+                    month-options={monthOptions}
+                    classification-options={classificationOptions}
+                    driver-options={driverOptions}
+                    balance-status-options={balanceStatusOptions}
+                    selected-month={selectedMonth}
+                    selected-classification={selectedClassification}
+                    selected-driver={selectedDriver}
+                    selected-balance-status={selectedBalanceStatus}
+                    show-balance-status-filter={showBalanceStatusFilter}
+                    disabled={filterControlsDisabled}
+                    onfilterschange={handleFiltersChange}
+                    onresetfilters={handleResetFilters}>
+                </c-gwb-plant-position-adjustment-filters>
+            </div>
+
+            <template if:true={showActionBusyOverlay}>
+                <div class="action-busy-overlay" aria-live="polite" aria-busy="true">
+                    <div class="action-busy-overlay__content">
+                        <lightning-spinner alternative-text={actionBusyOverlayLabel} size="medium"></lightning-spinner>
+                        <span>{actionBusyOverlayLabel}</span>
+                    </div>
+                </div>
+            </template>
+
+            <template if:true={isLoading}>
+                <div class="slds-p-vertical_large slds-align_absolute-center">
+                    <lightning-spinner alternative-text="Loading plant shop target adjustments" size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <template if:true={hasLoadError}>
+                <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error slds-m-bottom_small" role="alert">
+                    <span class="slds-assistive-text">Error</span>
+                    <h2>{loadError}</h2>
+                </div>
+            </template>
+
+            <template if:false={isLoading}>
+            <template if:true={showNoData}>
+                <div class="adjustments-card__no-data slds-box slds-theme_shade slds-text-align_center slds-text-color_weak">
+                    No split data is available for the selected month, classification, and driver.
+                </div>
+            </template>
+
+            <template if:false={showNoData}>
+                <div class={tableContainerClass} onscroll={handleTableScroll}>
+                    <template for:each={visibleSections} for:item="section">
+                        <section key={section.id} class="section-block">
+                            <!-- <div class="section-table-head">
+                                <table class="adjustment-table adjustment-table_head">
+                                    <colgroup>
+                                        <col class="col-number" />
+                                        <col class="col-shop" />
+                                        <col class="col-master" />
+                                        <col class="col-record" />
+                                        <col class="col-program" />
+                                        <col class="col-panel-gap" />
+                                        <col class="col-crew" />
+                                        <col class="col-crew" />
+                                        <col class="col-crew" />
+                                        <col class="col-total" />
+                                    </colgroup>
+                                    
+                                </table>
+                            </div> -->
+                            <div class="section-table-body" onwheel={handleSectionBodyWheel}>
+                                <table class="adjustment-table adjustment-table_body">
+                                    <colgroup>
+                                        <col class="col-number" />
+                                        <col class="col-shop" />
+                                        <col class="col-master" />
+                                        <col class="col-record" />
+                                        <col class="col-program" />
+                                        <col class="col-panel-gap" />
+                                        <col class="col-crew" />
+                                        <col class="col-crew" />
+                                        <col class="col-crew" />
+                                        <col class="col-total" />
+                                    </colgroup>
+                                    <thead class="table-header" onwheel={handleSectionHeaderWheel}>
+                                        <tr>
+                                            <th colspan="5" class="month-band">{section.monthBandLabel}</th>
+                                            <th colspan="5" class="breakdown-band breakdown-band_panel">Adjustment Breakdown</th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="5" class={section.classificationBandClass}>{section.classification}</th>
+                                            <th colspan="5" class="panel-start breakdown-grid-head">
+                                                <div class="breakdown-grid">
+                                                    <div class="breakdown-grid__cell breakdown-grid__cell_head">Total Changes Needed</div>
+                                                    <div class="breakdown-grid__cell breakdown-grid__cell_head">Total Changes Made</div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="5" class="driver-band">{section.driver}</th>
+                                            <th colspan="5" class="panel-start breakdown-grid-value-cell">
+                                                <div class="breakdown-grid">
+                                                    <div class="breakdown-grid__cell breakdown-grid__cell_value breakdown-grid__cell_value-needed">
+                                                        {section.totalChangesNeededDisplay}
+                                                    </div>
+                                                    <div class="breakdown-grid__cell breakdown-grid__cell_value">
+                                                        <div class={section.breakdownClass}>
+                                                            <div class="breakdown-summary">
+                                                                <lightning-icon
+                                                                    icon-name={section.balanceIconName}
+                                                                    size="x-small"
+                                                                    class={section.balanceIconClass}
+                                                                    alternative-text="Balance status">
+                                                                </lightning-icon>
+                                                                <span>{section.totalChangesMadeDisplay}</span>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </th>
+                                        </tr>
+                                        <tr class="column-heads">
+                                            <th class="number-col">#</th>
+                                            <th class="type-col">Plant Shop</th>
+                                            <template if:true={showFunctionColumns}>
+                                                <th class="master-col">Function</th>
+                                                <th class="record-col">Record ID</th>
+                                                <th class="program-col">Plant Program</th>
+                                                <th class="panel-spacer-head panel-start"></th>
+                                                <th class="value-col panel-col-head">Crew 1</th>
+                                                <th class="value-col panel-col-head">Crew 2</th>
+                                                <th class="value-col panel-col-head">Crew 3</th>
+                                                <th class="value-col panel-col-head">Total</th>
+                                            </template>
+                                            <template if:false={showFunctionColumns}>
+                                                <th class="summary-spacer-col" colspan="3"></th>
+                                                <th class="shop-target-head panel-start" colspan="5"></th>
+                                            </template>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="table-body">
+                                        <template for:each={section.rows} for:item="row">
+                                            <tr key={row.id} class={row.rowClass}>
+                                                <td class="number-col">{row.lineNumber}</td>
+                                                <td class="type-col">
+                                                    <template if:true={row.isShop}>
+                                                        <div class="shop-label">
+                                                            <lightning-button-icon
+                                                                class="shop-action-button"
+                                                                icon-name="utility:add"
+                                                                variant="bare"
+                                                                size="small"
+                                                                alternative-text="Add Plant Functions"
+                                                                title="Add Plant Functions"
+                                                                data-section-id={row.sectionId}
+                                                                data-shop-id={row.shopId}
+                                                                data-shop-name={row.shopName}
+                                                                disabled={disablePlantFunctionAddAction}
+                                                                onclick={handleOpenAddFunctionsModal}>
+                                                            </lightning-button-icon>
+                                                            <div class="icon-with-text">
+                                                            <lightning-button-icon
+                                                                class="shop-decorative-icon"
+                                                                icon-name="utility:store"
+                                                                variant="bare"
+                                                                size="small"
+                                                                alternative-text="Plant shop"
+                                                                title="Plant shop"
+                                                                disabled>
+                                                            </lightning-button-icon>
+                                                            <template if:true={row.hasFunctions}>
+                                                                <lightning-button-icon
+                                                                    class="shop-action-button"
+                                                                    icon-name={row.toggleIconName}
+                                                                    variant="bare"
+                                                                    size="small"
+                                                                    alternative-text="Toggle shop"
+                                                                    title="Toggle shop"
+                                                                    data-section-id={row.sectionId}
+                                                                    data-shop-id={row.shopId}
+                                                                    onclick={handleToggleShop}>
+                                                                </lightning-button-icon>
+                                                            </template>
+                                                            <span class="shop-chip">{row.shopName}</span>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </td>
+                                                <template if:true={showFunctionColumns}>
+                                                    <td class="master-col">
+                                                        <template if:true={row.isFunction}>
+                                                            <div class="function-master">
+                                                                <span class="function-master__text">{row.masterName}</span>
+                                                            </div>
+                                                        </template>
+                                                    </td>
+                                                    <td class="record-col">
+                                                        <template if:true={row.isFunction}>
+                                                            <template if:true={row.plantFunctionUrl}>
+                                                                <a
+                                                                    class="function-link function-cell-text function-cell-text_center"
+                                                                    href={row.plantFunctionUrl}
+                                                                    data-record-id={row.plantFunctionId}
+                                                                    data-object-api-name="Plant_Function__c"
+                                                                    onclick={handleRecordLinkClick}>
+                                                                    {row.recordDisplayName}
+                                                                </a>
+                                                            </template>
+                                                            <template if:false={row.gwbFunctionUrl}>
+                                                                <div class="function-cell-text function-cell-text_center">{row.recordDisplayName}</div>
+                                                            </template>
+                                                        </template>
+                                                    </td>
+                                                    <td class="program-col">
+                                                        <template if:true={row.isFunction}>
+                                                            <template if:true={row.plantProgramUrl}>
+                                                                <a
+                                                                    class="function-link function-cell-text"
+                                                                    href={row.plantProgramUrl}
+                                                                    data-record-id={row.plantProgramId}
+                                                                    data-object-api-name="Plant_Program__c"
+                                                                    onclick={handleRecordLinkClick}>
+                                                                    {row.plantProgram}
+                                                                </a>
+                                                            </template>
+                                                            <template if:false={row.plantProgramUrl}>
+                                                                <div class="function-cell-text">{row.plantProgram}</div>
+                                                            </template>
+                                                        </template>
+                                                    </td>
+                                                    <template if:true={row.isShop}>
+                                                        <td class="shop-target-rail panel-start" colspan="4">
+                                                            <span class="shop-target-caption">Shop Target</span>
+                                                        </td>
+                                                        <td class={row.shopTargetCellClass}>
+                                                            <div class="value-with-menu value-with-menu_shop">
+                                                                <template if:true={isEditMode}>
+                                                                    <template if:true={row.isComputedShopTarget}>
+                                                                        <span class={row.shopTargetValueClass}>{row.shopTargetDisplay}</span>
+                                                                    </template>
+                                                                    <template if:false={row.isComputedShopTarget}>
+                                                                        <div class={row.shopTargetValueClass}>
+                                                                            <input
+                                                                                class={row.shopTargetInputClass}
+                                                                                type="number"
+                                                                                value={row.shopTarget}
+                                                                                step="1"
+                                                                                onwheel={handleNumberInputWheel}
+                                                                                data-section-id={row.sectionId}
+                                                                                data-shop-id={row.shopId}
+                                                                                oninput={handleDraftValueInput}
+                                                                                onchange={handleShopTargetChange} />
+                                                                        </div>
+                                                                    </template>
+                                                                </template>
+                                                                <template if:false={isEditMode}>
+                                                                    <span class={row.shopTargetValueClass}>{row.shopTargetDisplay}</span>
+                                                                </template>
+                                                                <lightning-button-menu
+                                                                    class="row-action-menu"
+                                                                    icon-name="utility:down"
+                                                                    variant="border-filled"
+                                                                    icon-size="x-small"
+                                                                    alternative-text="Row actions"
+                                                                    menu-alignment="right"
+                                                                data-section-id={row.sectionId}
+                                                                data-shop-id={row.shopId}
+                                                                disabled={disableRowActions}
+                                                                onselect={handleRowMenuSelect}>
+                                                                    <template if:true={row.hasFunctions}>
+                                                                        <lightning-menu-item value="zero-shop-functions" label="Zero Out All Plant Functions"></lightning-menu-item>
+                                                                    </template>
+                                                                    <template if:false={row.hasFunctions}>
+                                                                        <lightning-menu-item value="reset-shop" label="Reset to Earlier"></lightning-menu-item>
+                                                                        <lightning-menu-item value="clear-shop" label="Clear"></lightning-menu-item>
+                                                                    </template>
+                                                                </lightning-button-menu>
+                                                            </div>
+                                                        </td>
+                                                    </template>
+                                                    <template if:false={row.isShop}>
+                                                        <td class="panel-spacer panel-start"></td>
+                                                        <td class={row.crew1CellClass}>
+                                                            <template if:true={isEditMode}>
+                                                                <input
+                                                                    class={row.crew1InputClass}
+                                                                    type="number"
+                                                                    value={row.crew1}
+                                                                    step="1"
+                                                                    onwheel={handleNumberInputWheel}
+                                                                    data-section-id={row.sectionId}
+                                                                    data-shop-id={row.shopId}
+                                                                    data-function-id={row.functionId}
+                                                                    data-field="crew1"
+                                                                    oninput={handleDraftValueInput}
+                                                                    onchange={handleCrewValueChange} />
+                                                            </template>
+                                                            <template if:false={isEditMode}>
+                                                                <span class="readonly-number-value">{row.crew1Display}</span>
+                                                            </template>
+                                                        </td>
+                                                        <td class={row.crew2CellClass}>
+                                                            <template if:true={isEditMode}>
+                                                                <input
+                                                                    class={row.crew2InputClass}
+                                                                    type="number"
+                                                                    value={row.crew2}
+                                                                    step="1"
+                                                                    onwheel={handleNumberInputWheel}
+                                                                    data-section-id={row.sectionId}
+                                                                    data-shop-id={row.shopId}
+                                                                    data-function-id={row.functionId}
+                                                                    data-field="crew2"
+                                                                    oninput={handleDraftValueInput}
+                                                                    onchange={handleCrewValueChange} />
+                                                            </template>
+                                                            <template if:false={isEditMode}>
+                                                                <span class="readonly-number-value">{row.crew2Display}</span>
+                                                            </template>
+                                                        </td>
+                                                        <td class={row.crew3CellClass}>
+                                                            <template if:true={isEditMode}>
+                                                                <input
+                                                                    class={row.crew3InputClass}
+                                                                    type="number"
+                                                                    value={row.crew3}
+                                                                    step="1"
+                                                                    onwheel={handleNumberInputWheel}
+                                                                    data-section-id={row.sectionId}
+                                                                    data-shop-id={row.shopId}
+                                                                    data-function-id={row.functionId}
+                                                                    data-field="crew3"
+                                                                    oninput={handleDraftValueInput}
+                                                                    onchange={handleCrewValueChange} />
+                                                            </template>
+                                                            <template if:false={isEditMode}>
+                                                                <span class="readonly-number-value">{row.crew3Display}</span>
+                                                            </template>
+                                                        </td>
+                                                        <td class="value-col function-total-cell">
+                                                            <div class="value-with-menu">
+                                                                <span class="value-with-menu__text readonly-number-value">{row.totalDisplay}</span>
+                                                                <lightning-button-menu
+                                                                    class="row-action-menu"
+                                                                    icon-name="utility:down"
+                                                                    variant="border-filled"
+                                                                    icon-size="x-small"
+                                                                    alternative-text="Row actions"
+                                                                    menu-alignment="right"
+                                                                    data-section-id={row.sectionId}
+                                                                    data-shop-id={row.shopId}
+                                                                data-function-id={row.functionId}
+                                                                    disabled={disableRowActions}
+                                                                    onselect={handleRowMenuSelect}>
+                                                                    <lightning-menu-item value="zero-function-crews" label="Zero Out All Crews"></lightning-menu-item>
+                                                                </lightning-button-menu>
+                                                            </div>
+                                                        </td>
+                                                    </template>
+                                                </template>
+                                                <template if:false={showFunctionColumns}>
+                                                    <td class="summary-spacer-col" colspan="3"></td>
+                                                    <td class="shop-target-rail panel-start" colspan="4">
+                                                        <span class="shop-target-caption">Shop Target</span>
+                                                    </td>
+                                                    <td class={row.shopTargetCellClass}>
+                                                        <div class="value-with-menu value-with-menu_shop">
+                                                            <template if:true={isEditMode}>
+                                                                <template if:true={row.isComputedShopTarget}>
+                                                                    <span class={row.shopTargetValueClass}>{row.shopTargetDisplay}</span>
+                                                                </template>
+                                                                <template if:false={row.isComputedShopTarget}>
+                                                                    <div class={row.shopTargetValueClass}>
+                                                                        <input
+                                                                            class={row.shopTargetInputClass}
+                                                                            type="number"
+                                                                            value={row.shopTarget}
+                                                                            step="1"
+                                                                            onwheel={handleNumberInputWheel}
+                                                                            data-section-id={row.sectionId}
+                                                                            data-shop-id={row.shopId}
+                                                                            oninput={handleDraftValueInput}
+                                                                            onchange={handleShopTargetChange} />
+                                                                    </div>
+                                                                </template>
+                                                            </template>
+                                                            <template if:false={isEditMode}>
+                                                                <span class={row.shopTargetValueClass}>{row.shopTargetDisplay}</span>
+                                                            </template>
+                                                            <lightning-button-menu
+                                                                class="row-action-menu"
+                                                                icon-name="utility:down"
+                                                                variant="border-filled"
+                                                                icon-size="x-small"
+                                                                alternative-text="Row actions"
+                                                                menu-alignment="right"
+                                                                data-section-id={row.sectionId}
+                                                                data-shop-id={row.shopId}
+                                                                disabled={disableRowActions}
+                                                                onselect={handleRowMenuSelect}>
+                                                                <lightning-menu-item value="reset-shop" label="Reset to Earlier"></lightning-menu-item>
+                                                                <lightning-menu-item value="clear-shop" label="Clear"></lightning-menu-item>
+                                                            </lightning-button-menu>
+                                                        </div>
+                                                    </td>
+                                                </template>
+                                            </tr>
+                                        </template>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </section>
+                    </template>
+                    <template if:true={showRenderSpinner}>
+                        <div class="render-spinner">
+                            <lightning-spinner alternative-text="Loading more adjustments" size="small"></lightning-spinner>
+                        </div>
+                    </template>
+                    <template if:true={showFooterActions}>
+                        <div class="edit-footer-dock">
+                            <div class="edit-footer-dock__actions">
+                                <template if:true={isSaving}>
+                                    <div class="save-status" aria-live="polite">
+                                        <lightning-spinner alternative-text="Saving adjustments" size="small"></lightning-spinner>
+                                        <span>Saving adjustments...</span>
+                                    </div>
+                                </template>
+                                <lightning-button label="Cancel" onclick={handleCancelEdit} disabled={cancelButtonDisabled}></lightning-button>
+                                <lightning-button label={saveButtonLabel} variant="brand" onclick={handleSaveAdjustments} disabled={saveButtonDisabled}></lightning-button>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </template>
+            </template>
+        </section>
+
+        <template if:true={addFunctionsModalOpen}>
+            <section class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1" aria-modal="true" aria-label="Add Plant Functions">
+                <div class="slds-modal__container function-modal">
+                    <header class="slds-modal__header function-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close" title="Close add plant functions" onclick={handleCloseAddFunctionsModal}>
+                            <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Close"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium">{modalTitle}</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <div class="modal-copy">
+                            <h3>Available Plant Functions</h3>
+                            <p>Select plant functions to add under the selected shop target.</p>
+                            <p class="modal-meta">{filteredAvailableFunctionCount} items</p>
+                        </div>
+
+                        <div class="modal-toolbar">
+                            <lightning-input
+                                type="search"
+                                label="Search"
+                                variant="label-hidden"
+                                value={functionSearchTerm}
+                                placeholder="Search this list..."
+                                disabled={showPlantFunctionModalLoading}
+                                onchange={handleFunctionSearch}>
+                            </lightning-input>
+                        </div>
+
+                        <div class="modal-table-wrap" onscroll={handleModalTableScroll}>
+                            <template if:true={showPlantFunctionModalLoading}>
+                                <div class="modal-loading-state">
+                                    <lightning-spinner alternative-text="Loading plant functions" size="medium"></lightning-spinner>
+                                    <span>Loading plant functions...</span>
+                                </div>
+                            </template>
+                            <template if:false={showPlantFunctionModalLoading}>
+                                <template if:true={showPlantFunctionModalEmptyState}>
+                                    <div class="modal-empty-state">
+                                        No plant functions are available for this shop and classification.
+                                    </div>
+                                </template>
+                                <template if:false={showPlantFunctionModalEmptyState}>
+                                    <table class="modal-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="modal-number-col">#</th>
+                                                <th class="modal-check-col"></th>
+                                                <th>Plant Function Master Name</th>
+                                                <th>Plant Program Name</th>
+                                                <th>Plant Program Code</th>
+                                                <th>Function Level</th>
+                                                <th>Functional Area</th>
+                                                <th>Line</th>
+                                                <th>Module</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={filteredAvailableFunctions} for:item="item">
+                                                <tr key={item.id} class={item.rowClass}>
+                                                    <td class="modal-number-col">{item.rowNumber}</td>
+                                                    <td class="modal-check-col">
+                                                        <input
+                                                            type="checkbox"
+                                                            checked={item.checked}
+                                                            disabled={item.disabled}
+                                                            title={item.disabledReason}
+                                                            data-function-id={item.id}
+                                                            onchange={handleToggleAvailableFunction} />
+                                                    </td>
+                                                    <td title={item.disabledReason}>{item.masterName}</td>
+                                                    <td>{item.plantProgram}</td>
+                                                    <td>{item.plantProgramCode}</td>
+                                                    <td>{item.plantFunctionLevel}</td>
+                                                    <td>{item.plantFunctionArea}</td>
+                                                    <td>{item.line}</td>
+                                                    <td>{item.module}</td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </template>
+                            </template>
+                        </div>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" onclick={handleCloseAddFunctionsModal}></lightning-button>
+                        <lightning-button class="slds-m-left_small" label="Add" variant="brand" onclick={handleAddSelectedFunctions} disabled={disableAddFunctions}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </template>
+
+        <template if:true={showCompletionModal}>
+            <section class="slds-modal slds-fade-in-open completion-modal-shell" role="dialog" tabindex="-1" aria-modal="true" aria-label="Adjustments Completed">
+                <div class="slds-modal__container completion-modal">
+                    <header class="slds-modal__header completion-modal__header">
+                        <button
+                            class="slds-button slds-button_icon slds-modal__close"
+                            title="Close adjustments completed dialog"
+                            onclick={handleCloseCompletionModal}
+                            disabled={isFinalizing}>
+                            <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Close"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium">Adjustments Completed</h2>
+                    </header>
+                    <div class="slds-modal__content completion-modal__content">
+                        <p class="completion-modal__question">Are you sure you want to complete position adjustments?</p>
+                        <p class="completion-modal__copy">
+                            This action will update the status of this Target to "Locked" no longer allowing you to further edit positions.
+                        </p>
+                    </div>
+                    <footer class="slds-modal__footer completion-modal__footer">
+                        <lightning-button
+                            label="Cancel"
+                            onclick={handleCloseCompletionModal}
+                            disabled={isFinalizing}>
+                        </lightning-button>
+                        <lightning-button
+                            label="Yes, proceed"
+                            variant="brand"
+                            onclick={handleConfirmCompletion}
+                            disabled={isFinalizing}>
+                        </lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open completion-backdrop"></div>
+        </template>
+
+        <template if:true={hasPendingRowAction}>
+            <section class="slds-modal slds-fade-in-open row-action-confirm-shell" role="dialog" tabindex="-1" aria-modal="true" aria-label={rowActionModalTitle}>
+                <div class="slds-modal__container row-action-confirm-modal">
+                    <header class="slds-modal__header row-action-confirm-modal__header">
+                        <button
+                            class="slds-button slds-button_icon slds-modal__close"
+                            title="Close row action confirmation"
+                            onclick={handleCloseRowActionConfirm}>
+                            <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Close"></lightning-icon>
+                        </button>
+                        <h2 class="slds-text-heading_medium">{rowActionModalTitle}</h2>
+                    </header>
+                    <div class="slds-modal__content row-action-confirm-modal__content">
+                        <p class="row-action-confirm-modal__question">{rowActionModalQuestion}</p>
+                    </div>
+                    <footer class="slds-modal__footer row-action-confirm-modal__footer">
+                        <lightning-button
+                            label="Cancel"
+                            onclick={handleCloseRowActionConfirm}>
+                        </lightning-button>
+                        <lightning-button
+                            label={rowActionModalConfirmLabel}
+                            variant="brand"
+                            onclick={handleConfirmRowAction}>
+                        </lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open row-action-confirm-backdrop"></div>
+        </template>
+    </section>
+</template>

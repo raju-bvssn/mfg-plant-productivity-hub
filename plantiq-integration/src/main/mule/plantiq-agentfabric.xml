@@ -3,10 +3,12 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xsi:schemaLocation="
-        http://www.mulesoft.org/schema/mule/core     https://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/ee/core  https://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-        http://www.mulesoft.org/schema/mule/http     https://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+        http://www.mulesoft.org/schema/mule/core     http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/ee/core  http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/http     http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/tls      http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
 
     <!--
         PlantIQ AgentFabric — Governance and Observability Layer
@@ -25,9 +27,16 @@
         To register agents: import agentfabric/agent-definitions.yaml into the console.
     -->
 
-    <!-- HTTP listener for AgentFabric management API (internal only) -->
+    <!-- HTTPS listener for AgentFabric management API (internal only) -->
     <http:listener-config name="AgentFabric_HTTP_Config">
-        <http:listener-connection host="${http.listener.host}" port="${agentfabric.listener.port}"/>
+        <http:listener-connection host="${http.listener.host}" port="${agentfabric.listener.port}" protocol="HTTPS">
+            <tls:context>
+                <tls:key-store type="jks" path="${tls.keystore.path}"
+                    alias="plantiq"
+                    keyPassword="${tls.keystore.keyPassword}"
+                    password="${tls.keystore.password}"/>
+            </tls:context>
+        </http:listener-connection>
     </http:listener-config>
 
     <!-- =========================================================
@@ -128,7 +137,7 @@
         </ee:transform>
 
         <logger level="ERROR"
-            message="#['[AgentFabric] Autonomous agent run FAILED: ' ++ (vars.af_runId default 'unknown') ++ ' | ' ++ error.description]"/>
+            message="#['[AgentFabric] Autonomous agent run FAILED: ' ++ (vars.af_runId default 'unknown')]"/>
     </sub-flow>
 
     <!-- =========================================================
@@ -196,39 +205,35 @@
     ========================================================== -->
 
     <flow name="agentfabric-status-flow">
-        <http:listener path="/agentfabric/status" method="GET" config-ref="AgentFabric_HTTP_Config"/>
+        <http:listener path="/agentfabric/status" config-ref="AgentFabric_HTTP_Config"/>
         <ee:transform>
             <ee:message>
-                <ee:set-payload><![CDATA[
-                    %dw 2.0 output application/json
-                    ---
-                    {
-                        agents: [
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+	agents: [{
+		name: "PlantIQ-Autonomous",
+		'type': "orchestration",
+		description: "Subscribes to PlantIQ_Target_Set__e Platform Event, runs 6-step recommendation chain, creates GWB_Productivity_Idea__c, posts to Slack",
+		status: "active",
+		trigger: "platform-event",
+		steps: ["retrieve-plant-context", "match-idea-library", "score-benchmarks", "call-einstein-llm", "create-productivity-idea", "post-to-slack"]
+	},
                             {
-                                name:        "PlantIQ-Autonomous",
-                                'type':      "orchestration",
-                                description: "Subscribes to PlantIQ_Target_Set__e Platform Event, runs 6-step recommendation chain, creates GWB_Productivity_Idea__c, posts to Slack",
-                                status:      "active",
-                                trigger:     "platform-event",
-                                steps:       ["retrieve-plant-context", "match-idea-library", "score-benchmarks", "call-einstein-llm", "create-productivity-idea", "post-to-slack"]
-                            },
-                            {
-                                name:        "PlantIQ-Interactive",
-                                'type':      "mcp-server",
-                                description: "Serves MCP JSON-RPC 2.0 protocol for Agentforce/Slack Q&A. 6 tools: get_gap_summary, get_plant_status, get_pending_ideas, get_benchmark_evidence, approve_idea, trigger_recommendation",
-                                status:      "active",
-                                trigger:     "http-mcp",
-                                endpoint:    "/mcp/v1",
-                                tools:       ["plantiq_get_gap_summary", "plantiq_get_plant_status", "plantiq_get_pending_ideas", "plantiq_get_benchmark_evidence", "plantiq_approve_idea", "plantiq_trigger_recommendation"]
-                            }
-                        ],
-                        guardrails: [
-                            "Approve tool requires 18-char Salesforce ID and non-empty approver name",
+		name: "PlantIQ-Interactive",
+		'type': "mcp-server",
+		description: "Serves MCP JSON-RPC 2.0 protocol for Agentforce/Slack Q&A. 6 tools: get_gap_summary, get_plant_status, get_pending_ideas, get_benchmark_evidence, approve_idea, trigger_recommendation",
+		status: "active",
+		trigger: "http-mcp",
+		endpoint: "/mcp/v1",
+		tools: ["plantiq_get_gap_summary", "plantiq_get_plant_status", "plantiq_get_pending_ideas", "plantiq_get_benchmark_evidence", "plantiq_approve_idea", "plantiq_trigger_recommendation"]
+	}],
+	guardrails: ["Approve tool requires 18-char Salesforce ID and non-empty approver name",
                             "Trigger tool requires 18-char Salesforce ID",
                             "All write tools validate record existence and state before executing",
-                            "API key required on all MCP requests (x-api-key header)"
-                        ]
-                    }
+                            "API key required on all MCP requests (x-api-key header)"]
+}
                 ]]></ee:set-payload>
             </ee:message>
         </ee:transform>

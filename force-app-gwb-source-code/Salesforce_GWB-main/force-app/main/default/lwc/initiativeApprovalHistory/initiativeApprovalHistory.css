@@ -1,0 +1,39 @@
+:host {
+    color: #000000;
+    --lwc-colorTextDefault: #000000;
+}
+
+.content-container {
+    padding: 0.5rem 1rem 1rem;
+}
+
+.approval-title {
+    font-family: sans-serif;
+    font-size: 18px;
+    color: #000000;
+    margin: 0 0 0.75rem 0;
+}
+
+.table-scroll-container {
+    max-height: 24rem;
+    overflow-y: auto;
+    border-bottom: 1px solid #d8dde6;
+}
+
+.table-scroll-container lightning-datatable {
+    --lwc-colorTextDefault: #000000;
+    --lwc-colorTextLabel: #000000;
+    --lwc-brandTextLink: #000000;
+    --lwc-brandTextLinkActive: #000000;
+    --lwc-brandTextLinkFocus: #000000;
+    --lwc-brandTextLinkHover: #000000;
+    --slds-g-color-neutral-base-10: #000000;
+    --slds-g-color-neutral-base-20: #000000;
+    --slds-g-color-neutral-base-30: #000000;
+    --slds-c-table-color-text-default: #000000;
+    --slds-c-table-heading-color-text: #000000;
+    --slds-c-table-text-color: #000000;
+    --sds-c-table-color-text-default: #000000;
+    --sds-c-table-heading-color-text: #000000;
+    --sds-c-table-text-color: #000000;
+}

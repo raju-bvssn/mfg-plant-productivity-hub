@@ -1,0 +1,411 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Parameter__c</fullName>
+    <label>Parameter</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <controllingField>Section__c</controllingField>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Crews</fullName>
+                <default>false</default>
+                <label>Crews</label>
+            </value>
+            <value>
+                <fullName>Shifts</fullName>
+                <default>false</default>
+                <label>Shifts</label>
+            </value>
+            <value>
+                <fullName>Net/Net JPH</fullName>
+                <default>false</default>
+                <label>Net/Net JPH</label>
+            </value>
+            <value>
+                <fullName>Calculated Volume incl. SOT</fullName>
+                <default>false</default>
+                <label>Calculated Volume incl. SOT</label>
+            </value>
+            <value>
+                <fullName>Scheduled Volume</fullName>
+                <default>false</default>
+                <label>Scheduled Volume</label>
+            </value>
+            <value>
+                <fullName>Volume Variance</fullName>
+                <default>false</default>
+                <label>Volume Variance</label>
+            </value>
+            <value>
+                <fullName>Paid Hours Per CREW</fullName>
+                <default>false</default>
+                <label>Paid Hours Per CREW</label>
+            </value>
+            <value>
+                <fullName>Available Working Days/Month</fullName>
+                <default>false</default>
+                <label>Available Working Days/Month</label>
+            </value>
+            <value>
+                <fullName>Production Working Days/Month</fullName>
+                <default>false</default>
+                <label>Production Working Days/Month</label>
+            </value>
+            <value>
+                <fullName>EQ SOT Days</fullName>
+                <default>false</default>
+                <label>EQ SOT Days</label>
+            </value>
+            <value>
+                <fullName>Base Headcount</fullName>
+                <default>false</default>
+                <label>Base Headcount</label>
+            </value>
+            <value>
+                <fullName>Previous YE Approved Target Changes</fullName>
+                <default>false</default>
+                <label>Previous YE Approved Target Changes</label>
+            </value>
+            <value>
+                <fullName>Advanced Target Changes</fullName>
+                <default>false</default>
+                <label>Advanced Target Changes</label>
+            </value>
+            <value>
+                <fullName>Absenteeism %</fullName>
+                <default>false</default>
+                <label>Absenteeism %</label>
+            </value>
+            <value>
+                <fullName>NSOT %</fullName>
+                <default>false</default>
+                <label>NSOT %</label>
+            </value>
+            <value>
+                <fullName>Final Assembly Line JPH</fullName>
+                <default>false</default>
+                <label>Final Assembly Line JPH</label>
+            </value>
+            <value>
+                <fullName>Daily Op Plan Volume</fullName>
+                <default>false</default>
+                <label>Daily Op Plan Volume</label>
+            </value>
+            <value>
+                <fullName>SOT days (Weekends)</fullName>
+                <default>false</default>
+                <label>SOT days (Weekends)</label>
+            </value>
+            <value>
+                <fullName>EQ SOT Days (Additional Weekday hours)</fullName>
+                <default>false</default>
+                <label>EQ SOT Days (Additional Weekday hours)</label>
+            </value>
+            <value>
+                <fullName>Total SOT Days</fullName>
+                <default>false</default>
+                <label>Total SOT Days</label>
+            </value>
+            <value>
+                <fullName>Equivalent Units Volume</fullName>
+                <default>false</default>
+                <label>Equivalent Units Volume</label>
+            </value>
+            <value>
+                <fullName>HARBOUR STROKES HPU</fullName>
+                <default>false</default>
+                <label>HARBOUR STROKES HPU</label>
+            </value>
+            <value>
+                <fullName>Scheduled Volume Pieces</fullName>
+                <default>false</default>
+                <label>Scheduled Volume Pieces</label>
+            </value>
+            <value>
+                <fullName>Scheduled Volume Strokes</fullName>
+                <default>false</default>
+                <label>Scheduled Volume Strokes</label>
+            </value>
+            <value>
+                <fullName>Equivalent SOT %</fullName>
+                <default>false</default>
+                <label>Equivalent SOT %</label>
+            </value>
+            <value>
+                <fullName>SOT percent from weekend days</fullName>
+                <default>false</default>
+                <label>SOT percent from weekend days</label>
+            </value>
+            <value>
+                <fullName>SOT from line time</fullName>
+                <default>false</default>
+                <label>SOT from line time</label>
+            </value>
+            <value>
+                <fullName>SOT equivalent days total</fullName>
+                <default>false</default>
+                <label>SOT equivalent days total</label>
+            </value>
+            <value>
+                <fullName>Additional Straight Time Hours Adjustment</fullName>
+                <default>false</default>
+                <label>Additional Straight Time Hours Adjustment</label>
+            </value>
+            <value>
+                <fullName>Total Manpower</fullName>
+                <default>false</default>
+                <label>Total Manpower</label>
+            </value>
+            <value>
+                <fullName>Total Manpower (Include Target Changes)</fullName>
+                <default>false</default>
+                <label>Total Manpower (Include Target Changes)</label>
+            </value>
+            <value>
+                <fullName>Additional Straight Time Hours</fullName>
+                <default>false</default>
+                <label>Additional Straight Time Hours</label>
+            </value>
+            <value>
+                <fullName>Absenteeism % + Summer VRO %</fullName>
+                <default>false</default>
+                <label>Absenteeism % + Summer VRO %</label>
+            </value>
+            <value>
+                <fullName>Scheduled Overtime Hours</fullName>
+                <default>false</default>
+                <label>Scheduled Overtime Hours</label>
+            </value>
+            <value>
+                <fullName>ST Hours (inc. Add&apos;l ST Hours)</fullName>
+                <default>false</default>
+                <label>ST Hours (inc. Add&apos;l ST Hours)</label>
+            </value>
+            <value>
+                <fullName>NSOT Hours</fullName>
+                <default>false</default>
+                <label>NSOT Hours</label>
+            </value>
+            <value>
+                <fullName>Total Hours</fullName>
+                <default>false</default>
+                <label>Total Hours</label>
+            </value>
+            <value>
+                <fullName>AHPU Monthly</fullName>
+                <default>false</default>
+                <label>AHPU Monthly</label>
+            </value>
+            <value>
+                <fullName>AHPU YTD</fullName>
+                <default>false</default>
+                <label>AHPU YTD</label>
+            </value>
+            <value>
+                <fullName>WHPU Monthly</fullName>
+                <default>false</default>
+                <label>WHPU Monthly</label>
+            </value>
+            <value>
+                <fullName>% Prod.</fullName>
+                <default>false</default>
+                <label>% Prod.</label>
+            </value>
+            <value>
+                <fullName>Additional OT Time Hours (Manual)</fullName>
+                <default>false</default>
+                <label>Additional OT Time Hours (Manual)</label>
+            </value>
+            <value>
+                <fullName>SOT Law</fullName>
+                <default>false</default>
+                <label>SOT Law</label>
+            </value>
+            <value>
+                <fullName>Scheduled Volume minus Calculated Volume</fullName>
+                <default>false</default>
+                <label>Scheduled Volume minus Calculated Volume</label>
+            </value>
+        </valueSetDefinition>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Crews</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Shifts</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Net/Net JPH</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Calculated Volume incl. SOT</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Scheduled Volume</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Volume Variance</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Paid Hours Per CREW</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Available Working Days/Month</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Production Working Days/Month</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>EQ SOT Days</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Final Assembly Line JPH</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Daily Op Plan Volume</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>SOT days (Weekends)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>EQ SOT Days (Additional Weekday hours)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Total SOT Days</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Equivalent Units Volume</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>HARBOUR STROKES HPU</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Scheduled Volume Pieces</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Scheduled Volume Strokes</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Equivalent SOT %</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>SOT percent from weekend days</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>SOT from line time</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>SOT equivalent days total</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>SOT Law</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Op Plan</controllingFieldValue>
+            <valueName>Scheduled Volume minus Calculated Volume</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Headcount</controllingFieldValue>
+            <valueName>Base Headcount</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Headcount</controllingFieldValue>
+            <valueName>Previous YE Approved Target Changes</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Headcount</controllingFieldValue>
+            <valueName>Advanced Target Changes</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Headcount</controllingFieldValue>
+            <valueName>Absenteeism %</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Headcount</controllingFieldValue>
+            <valueName>NSOT %</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Headcount</controllingFieldValue>
+            <valueName>Additional Straight Time Hours Adjustment</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Headcount</controllingFieldValue>
+            <valueName>Total Manpower</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Headcount</controllingFieldValue>
+            <valueName>Total Manpower (Include Target Changes)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Headcount</controllingFieldValue>
+            <valueName>% Prod.</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>Additional Straight Time Hours</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>Absenteeism % + Summer VRO %</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>Scheduled Overtime Hours</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>ST Hours (inc. Add&apos;l ST Hours)</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>NSOT Hours</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>Total Hours</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>AHPU Monthly</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>AHPU YTD</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>WHPU Monthly</valueName>
+        </valueSettings>
+        <valueSettings>
+            <controllingFieldValue>Hours</controllingFieldValue>
+            <valueName>Additional OT Time Hours (Manual)</valueName>
+        </valueSettings>
+    </valueSet>
+</CustomField>

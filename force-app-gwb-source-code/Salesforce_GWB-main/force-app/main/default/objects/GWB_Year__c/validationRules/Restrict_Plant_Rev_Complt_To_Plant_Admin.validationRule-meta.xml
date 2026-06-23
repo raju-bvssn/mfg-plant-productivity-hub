@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Plant_Rev_Complt_To_Plant_Admin</fullName>
+    <active>false</active>
+    <description>PR1064302-420 : When prior status is Plant Review, only Plant_Admin can transition to Plant Review Complete. Plant_Admin cannot transition to any other status from Plant Review.</description>
+    <errorConditionFormula>AND(
+    NOT($Setup.GWB_Switch__c.Bypass_VRs__c),
+    ISCHANGED(Status__c),
+    ISPICKVAL(PRIORVALUE(Status__c), &apos;Plant Review&apos;),
+    OR(
+        AND(
+            ISPICKVAL(Status__c, &apos;Plant Review Complete&apos;),
+            NOT($Permission.Plant_Admin)
+        ),
+        AND(
+            NOT(ISPICKVAL(Status__c, &apos;Plant Review Complete&apos;)),
+            $Permission.Plant_Admin
+        )
+    )
+)</errorConditionFormula>
+    <errorMessage>Invalid status transition: Only a Plant Admin can update status of a Target record from Plant Review to Plant Review Complete. Plant Admins cannot change Plant Review to any other status.</errorMessage>
+</ValidationRule>

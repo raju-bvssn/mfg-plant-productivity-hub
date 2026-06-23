@@ -1,0 +1,7 @@
+<design:component label="GWB Initiative Detail Planning (Unsaved Changes)">
+    <design:attribute name="mode" label="Planning Mode"
+        description="Use both for the legacy internal tabs, or forecast/actuals when Salesforce record tabs own the navigation."
+        datasource="both,forecast,actuals" default="both" />
+    <design:attribute name="showTestDataToggle" label="Show Test Data Toggle"
+        description="Shows the developer-only Test Data Mode switch." />
+</design:component>

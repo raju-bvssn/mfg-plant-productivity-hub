@@ -1,0 +1,267 @@
+/* ─── Table wrapper ─────────────────────────────────────────────────────────── */
+.table-wrapper {
+    overflow-x: auto;
+    max-width: 100%;
+    border: 1px solid #dddbda;
+    border-radius: 4px;
+}
+
+/* ─── Base table ────────────────────────────────────────────────────────────── */
+.gwb-table {
+    border-collapse: collapse;
+    min-width: 1900px;
+    font-size: 0.75rem;
+}
+
+.gwb-table thead th {
+    position: sticky;
+    z-index: 4;
+    background-color: #fff; /* fallback so content behind doesn't bleed through */
+}
+
+/* First header row (group labels: Prev Dec, Jan-Dec, etc.) sticks at top: 0 */
+.gwb-table .group-header-row th {
+    top: 0;
+}
+
+/* Second header row (Jan, Feb … Dec) sticks just below the first row.
+   28px = approximate rendered height of .group-header-row */
+.gwb-table .month-header-row th {
+    top: 28px;
+}
+
+/* Corner cells (row-label + row-type columns) are sticky both horizontally
+   AND vertically — they need the highest z-index so they don't get covered
+   by either the scrolling tbody or the other sticky headers. */
+.gwb-table thead th.sticky-col,
+.gwb-table thead th.sticky-col-2 {
+    z-index: 5;
+    top: 0; /* these span rowspan="2" so a single top:0 covers both rows */
+}
+
+.gwb-table th,
+.gwb-table td {
+    border: 1px solid #dddbda;
+    padding: 4px 6px;
+    vertical-align: middle;
+}
+
+.sticky-col {
+    position: sticky;
+    left: 0;
+    z-index: 3;
+    background: #fff;
+    min-width: 260px;
+    max-width: 260px;
+    white-space: normal;
+    word-break: break-word;
+    font-weight: 500;
+}
+
+.sticky-col-2 {
+    position: sticky;
+    left: 260px;
+    z-index: 3;
+    background: #fff;
+    min-width: 70px;
+    max-width: 70px;
+    text-align: center;
+    font-size: 0.7rem;
+    color: #444;
+}
+
+.group-header {
+    text-align: center;
+    font-weight: 700;
+    font-size: 0.75rem;
+    padding: 4px 8px;
+}
+
+.prev-dec-header {
+    background-color: #edf2f7;
+    color: #1f2937;
+}
+
+.month-group-header {
+    background-color: #cfe2f3;
+    color: #16325c;
+}
+
+.totals-header,
+.avg-header {
+    background-color: #d8e6ff;
+    color: #16325c;
+    text-align: center;
+    font-weight: 700;
+}
+
+.comments-header {
+    background-color: #f3f2f2;
+    color: #181818;
+}
+
+.month-header {
+    text-align: center;
+    font-weight: 600;
+    font-size: 0.72rem;
+    padding: 3px 6px;
+}
+
+.editable-month-header {
+    background-color: #dbeaf7;
+}
+
+.prev-dec-cell {
+    background-color: #f3f4f6;
+    text-align: right;
+}
+
+.editable-month-cell {
+    background-color: #e8f3fb;
+    text-align: right;
+}
+
+.month-readonly-cell {
+    background-color: #f8fbff;
+    text-align: right;
+}
+
+.total-row-cell {
+    background-color: #f0f0f0;
+    text-align: right;
+    font-weight: 700;
+}
+
+.total-col {
+    background-color: #d8e6ff;
+    text-align: right;
+    font-weight: 600;
+    min-width: 80px;
+}
+
+.avg-col {
+    background-color: #d8e6ff;
+    text-align: right;
+    min-width: 80px;
+}
+
+.comments-col {
+    background-color: #fff;
+    min-width: 180px;
+}
+
+.cell-value {
+    text-align: right;
+    padding: 2px 4px;
+}
+
+.cell-bold {
+    font-weight: 700;
+}
+
+.avg-value {
+    font-style: italic;
+    color: #0070d2;
+}
+
+.row-label-col {
+    font-size: 0.75rem;
+    color: #333;
+}
+
+.wrap-label-cell {
+    white-space: normal;
+    line-height: 1.2;
+}
+
+.row-type-col {
+    font-size: 0.7rem;
+    color: #555;
+    text-align: center;
+    font-weight: 500;
+}
+
+.type-total {
+    font-weight: 700;
+    color: #222;
+}
+
+.driver-row:hover td {
+    background-color: #f3faff;
+}
+
+.driver-row td.editable-month-cell:hover {
+    background-color: #d7ecf9;
+}
+
+.section-header-row td.section-header-cell {
+    background-color: #002b5c;
+    color: #fff;
+    font-weight: 700;
+    font-size: 0.85rem;
+    text-align: center;
+    padding: 6px;
+    letter-spacing: 0.08em;
+}
+
+.manpower-row:hover td {
+    background-color: #f3faff;
+}
+
+.cell-input {
+    --sds-c-input-text-color: #222;
+    --sds-c-input-color-border: transparent;
+    --sds-c-input-color-background: transparent;
+    --sds-c-input-shadow: none;
+    min-width: 60px;
+}
+
+.cell-input lightning-input {
+    margin: 0;
+    padding: 0;
+}
+
+.header-title {
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+    font-weight: 700;
+}
+
+.header-badge {
+    font-size: 0.7rem;
+    font-weight: 600;
+}
+
+.legend-bar {
+    display: flex;
+    align-items: center;
+    font-size: 0.75rem;
+    color: #555;
+}
+
+.bottom-actions {
+    display: flex;
+    justify-content: flex-end;
+    padding: 8px 0 4px;
+    border-top: 1px solid #dddbda;
+    margin-top: 8px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+}
+
+.legend-swatch {
+    display: inline-block;
+    width: 14px;
+    height: 14px;
+    border-radius: 2px;
+    margin-right: 4px;
+    border: 1px solid #ccc;
+}
+
+.prev-dec-swatch { background-color: #f3f4f6; }
+.editable-swatch { background-color: #e8f3fb; }
+.summary-swatch { background-color: #d8e6ff; }

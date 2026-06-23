@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plant_Name__c</fullName>
+    <deleteConstraint>Cascade</deleteConstraint>
+    <label>Auth Plant Name</label>
+    <referenceTo>Plant__c</referenceTo>
+    <relationshipLabel>Program Master</relationshipLabel>
+    <relationshipName>Program_Master</relationshipName>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

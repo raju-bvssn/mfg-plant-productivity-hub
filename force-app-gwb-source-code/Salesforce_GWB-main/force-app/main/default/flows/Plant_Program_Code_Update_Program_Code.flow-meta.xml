@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <decisions>
+        <name>Check_Bypass_Flag</name>
+        <label>Check Bypass Flag</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnector>
+            <targetReference>Parent_Program_Code_Master_Exist</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>False</defaultConnectorLabel>
+        <rules>
+            <name>True</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Setup.GWB_Switch__c.Bypass_Flows__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>True</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Parent_Program_Code_Master_Exist</name>
+        <label>Parent Program Code Master Exist</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Update_Needed</name>
+            <conditionLogic>1 AND (2 OR 3 OR 4 OR 5)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Program_Code_Master__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>searchIdentifier</leftValueReference>
+                <operator>IsBlank</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Program_Code__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Program_Code_Master__r.ProgramCode__c</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Sector__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Program_Code_Master__r.Auth_Sector__c</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Product_Type__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Program_Code_Master__r.Product_Type__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Update_Record</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>searchIdentifier</name>
+        <dataType>String</dataType>
+        <expression>IF(
+    ISBLANK($Record.Plant_Name__r.Name), 
+    &quot;&quot;, 
+    $Record.Plant_Name__r.Name
+) 
+
+&amp; 
+
+IF(
+    ISBLANK($Record.Sector__c), 
+    &quot;&quot;, 
+    IF(
+        ISBLANK($Record.Plant_Name__r.Name), 
+        &quot;&quot;,
+        &quot;-&quot;
+    ) &amp; $Record.Sector__c
+) 
+
+&amp; 
+
+IF(
+    ISBLANK(TEXT($Record.Product_Type__c)), 
+    &quot;&quot;, 
+    IF(
+        AND(
+            ISBLANK($Record.Plant_Name__r.Name), 
+            ISBLANK(TEXT($Record.Program_Code_Master__r.Auth_Sector__c))
+        ), 
+        &quot;&quot;, 
+        &quot;-&quot;
+    ) &amp; TEXT($Record.Product_Type__c) 
+) 
+
+&amp; 
+
+IF(
+    ISBLANK($Record.Program_Code_Master__r.ProgramCode__c), 
+    &quot;&quot;, 
+    IF(
+        AND(
+            ISBLANK($Record.Plant_Name__r.Name), 
+            ISBLANK(TEXT($Record.Program_Code_Master__r.Auth_Sector__c)), 
+            ISBLANK($Record.Program_Code_Master__r.ProgramCode__c)
+        ),
+        &quot;&quot;, 
+        &quot;-&quot;
+    ) &amp; ($Record.Program_Code_Master__r.ProgramCode__c) 
+)</expression>
+    </formulas>
+    <interviewLabel>Plant Program Code - Update Product Code {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Plant Program Code - Update Program Code</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <recordUpdates>
+        <name>Update_Record</name>
+        <label>Update Record</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <inputAssignments>
+            <field>Program_Code__c</field>
+            <value>
+                <elementReference>$Record.Program_Code_Master__r.ProgramCode__c</elementReference>
+            </value>
+        </inputAssignments>
+        <inputAssignments>
+            <field>Search_Identifier__c</field>
+            <value>
+                <elementReference>searchIdentifier</elementReference>
+            </value>
+        </inputAssignments>
+        <inputReference>$Record</inputReference>
+    </recordUpdates>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Check_Bypass_Flag</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Program_Code_Master__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <object>Program_Master__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordAfterSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GPS</fullName>
+    <columns>Plant__c</columns>
+    <columns>Calendar_Year__c</columns>
+    <columns>Month__c</columns>
+    <columns>Volume__c</columns>
+    <columns>Data_Point_Value__c</columns>
+    <columns>Sector__c</columns>
+    <columns>Functional_Area__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Sector__c</field>
+        <operation>equals</operation>
+        <value>GPS</value>
+    </filters>
+    <label>GPS</label>
+</ListView>

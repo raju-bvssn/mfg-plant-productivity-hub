@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <isExposed>true</isExposed>
+    <targets>
+        <target>lightning__FlowScreen</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__FlowScreen">
+            <property name="Plant_Approvers" type="@salesforce/schema/Plant_Approver__c[]" label="Plant Approvers" role="inputOnly"/>
+            <property name="User_Records" type="@salesforce/schema/User[]" label="User Records" role="inputOnly"/>
+            <property name="User_Lookup_Records" type="@salesforce/schema/User[]" label="User Lookup Records" role="inputOnly"/>
+            <property name="effectiveDate" type="Date" label="Effective Date" role="inputOnly"/>
+            <property name="Approver_1" type="String" label="Approver 1" role="outputOnly"/>
+            <property name="Approver_2" type="String" label="Approver 2" role="outputOnly"/>
+            <property name="Approver_3" type="String" label="Approver 3" role="outputOnly"/>
+            <property name="Approver_4" type="String" label="Approver 4" role="outputOnly"/>
+            <property name="Cancel_Requested" type="Boolean" label="Cancel Requested" role="outputOnly"/>
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

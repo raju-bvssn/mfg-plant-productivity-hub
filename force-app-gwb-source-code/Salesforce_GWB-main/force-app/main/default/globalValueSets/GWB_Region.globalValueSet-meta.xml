@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>GMNA</fullName>
+        <default>false</default>
+        <label>GMNA</label>
+    </customValue>
+    <customValue>
+        <fullName>GMSA</fullName>
+        <default>false</default>
+        <label>GMSA</label>
+    </customValue>
+    <customValue>
+        <fullName>GMIO</fullName>
+        <default>false</default>
+        <label>GMIO</label>
+    </customValue>
+    <description>Regions for GWB Application</description>
+    <masterLabel>GWB Region</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

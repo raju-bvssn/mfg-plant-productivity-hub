@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CompactLayout xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plant_Program_Compact_Layout</fullName>
+    <fields>Plant_Program_Name__c</fields>
+    <fields>Auth_Plant_Name__c</fields>
+    <fields>Include__c</fields>
+    <fields>Product_Type__c</fields>
+    <fields>Shop__c</fields>
+    <fields>Program_Product_Index__c</fields>
+    <fields>Plant_Program_Code__c</fields>
+    <fields>Shifts_Def__c</fields>
+    <label>Plant Program Compact Layout</label>
+</CompactLayout>

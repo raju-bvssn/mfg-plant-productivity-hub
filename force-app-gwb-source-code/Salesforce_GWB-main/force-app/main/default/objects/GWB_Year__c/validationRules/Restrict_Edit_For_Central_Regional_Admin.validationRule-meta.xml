@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Edit_For_Central_Regional_Admin</fullName>
+    <active>false</active>
+    <description>PR1064302-420 : Prevents Central_Admin and Regional_Admin users from editing GWB Year records with Published or Locked status.</description>
+    <errorConditionFormula>AND(
+    NOT($Setup.GWB_Switch__c.Bypass_VRs__c),
+    OR(
+        $Permission.Central_Admin,
+        $Permission.Regional_Admin
+    ),
+    OR(
+        ISPICKVAL(PRIORVALUE(Status__c), &apos;Published&apos;),
+        ISPICKVAL(PRIORVALUE(Status__c), &apos;Locked&apos;)
+    )
+)</errorConditionFormula>
+    <errorMessage>You do not have permission to edit this Target record. Records with a status of Published or Locked cannot be modified by a Central or Regional Admin.</errorMessage>
+</ValidationRule>

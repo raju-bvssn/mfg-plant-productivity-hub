@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Pol_absenteeism_salaried</label>
+    <protected>false</protected>
+    <values>
+        <field>Avg_Total_Tooltip__c</field>
+        <value xsi:type="xsd:string">Avg / Total = average of Jan-Dec values.</value>
+    </values>
+    <values>
+        <field>Category__c</field>
+        <value xsi:type="xsd:string">Hours</value>
+    </values>
+    <values>
+        <field>Classification__c</field>
+        <value xsi:type="xsd:string">Salary</value>
+    </values>
+    <values>
+        <field>Fill_Forward_On_Edit__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Formula_Key__c</field>
+        <value xsi:type="xsd:string">absenteeism</value>
+    </values>
+    <values>
+        <field>Formula_Tooltip__c</field>
+        <value xsi:type="xsd:string">Input value: monthly absenteeism % entered by classification. Total row shows the manpower-weighted average.</value>
+    </values>
+    <values>
+        <field>Internal_Key__c</field>
+        <value xsi:type="xsd:string">absenteeism-salaried</value>
+    </values>
+    <values>
+        <field>Is_Active__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Is_Editable__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Parameter_Driver__c</field>
+        <value xsi:type="xsd:string">Absenteeism %</value>
+    </values>
+    <values>
+        <field>Section_Name__c</field>
+        <value xsi:type="xsd:string">3. Hour Calculations</value>
+    </values>
+    <values>
+        <field>Section_Sequence__c</field>
+        <value xsi:type="xsd:double">3.0</value>
+    </values>
+    <values>
+        <field>Sector__c</field>
+        <value xsi:type="xsd:string">Polymers</value>
+    </values>
+    <values>
+        <field>Source_Section__c</field>
+        <value xsi:type="xsd:string">Headcount</value>
+    </values>
+    <values>
+        <field>Source_Type__c</field>
+        <value xsi:type="xsd:string">Parameter</value>
+    </values>
+    <values>
+        <field>Source_Value__c</field>
+        <value xsi:type="xsd:string">Absenteeism %</value>
+    </values>
+    <values>
+        <field>UI_Line_Type__c</field>
+        <value xsi:type="xsd:string">Input</value>
+    </values>
+    <values>
+        <field>UI_Sequence__c</field>
+        <value xsi:type="xsd:double">3.0</value>
+    </values>
+    <values>
+        <field>Value_Type__c</field>
+        <value xsi:type="xsd:string">percent</value>
+    </values>
+</CustomMetadata>

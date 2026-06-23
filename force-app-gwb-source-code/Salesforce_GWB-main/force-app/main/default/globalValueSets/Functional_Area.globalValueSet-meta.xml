@@ -1,0 +1,435 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Assembly</fullName>
+        <default>false</default>
+        <label>Assembly</label>
+    </customValue>
+    <customValue>
+        <fullName>Body</fullName>
+        <default>false</default>
+        <label>Body</label>
+    </customValue>
+    <customValue>
+        <fullName>Maintenance</fullName>
+        <default>false</default>
+        <label>Maintenance</label>
+    </customValue>
+    <customValue>
+        <fullName>Material</fullName>
+        <default>false</default>
+        <label>Material</label>
+    </customValue>
+    <customValue>
+        <fullName>Quality</fullName>
+        <default>false</default>
+        <label>Quality</label>
+    </customValue>
+    <customValue>
+        <fullName>Support</fullName>
+        <default>false</default>
+        <label>Support</label>
+    </customValue>
+    <customValue>
+        <fullName>Modules</fullName>
+        <default>false</default>
+        <label>Modules</label>
+    </customValue>
+    <customValue>
+        <fullName>Sub Assembly</fullName>
+        <default>false</default>
+        <label>Sub Assembly</label>
+    </customValue>
+    <customValue>
+        <fullName>Blanker</fullName>
+        <default>false</default>
+        <label>Blanker</label>
+    </customValue>
+    <customValue>
+        <fullName>All</fullName>
+        <default>false</default>
+        <label>All</label>
+    </customValue>
+    <customValue>
+        <fullName>Paint</fullName>
+        <default>false</default>
+        <label>Paint</label>
+    </customValue>
+    <customValue>
+        <fullName>Trim</fullName>
+        <default>false</default>
+        <label>Trim</label>
+    </customValue>
+    <customValue>
+        <fullName>Trim 1</fullName>
+        <default>false</default>
+        <label>Trim 1</label>
+    </customValue>
+    <customValue>
+        <fullName>Trim 2</fullName>
+        <default>false</default>
+        <label>Trim 2</label>
+    </customValue>
+    <customValue>
+        <fullName>Trim 3</fullName>
+        <default>false</default>
+        <label>Trim 3</label>
+    </customValue>
+    <customValue>
+        <fullName>Trim 4</fullName>
+        <default>false</default>
+        <label>Trim 4</label>
+    </customValue>
+    <customValue>
+        <fullName>Chassis 1</fullName>
+        <default>false</default>
+        <label>Chassis 1</label>
+    </customValue>
+    <customValue>
+        <fullName>Chassis 2</fullName>
+        <default>false</default>
+        <label>Chassis 2</label>
+    </customValue>
+    <customValue>
+        <fullName>Chassis 3</fullName>
+        <default>false</default>
+        <label>Chassis 3</label>
+    </customValue>
+    <customValue>
+        <fullName>Chassis 4</fullName>
+        <default>false</default>
+        <label>Chassis 4</label>
+    </customValue>
+    <customValue>
+        <fullName>Chassis 5</fullName>
+        <default>false</default>
+        <label>Chassis 5</label>
+    </customValue>
+    <customValue>
+        <fullName>AGV Line</fullName>
+        <default>false</default>
+        <label>AGV Line</label>
+    </customValue>
+    <customValue>
+        <fullName>Engine Dress</fullName>
+        <default>false</default>
+        <label>Engine Dress</label>
+    </customValue>
+    <customValue>
+        <fullName>Final Line</fullName>
+        <default>false</default>
+        <label>Final Line</label>
+    </customValue>
+    <customValue>
+        <fullName>Wheel Alignment &amp; Headlamp Aiming</fullName>
+        <default>false</default>
+        <label>Wheel Alignment &amp; Headlamp Aiming</label>
+    </customValue>
+    <customValue>
+        <fullName>NGFTT / GBFTT</fullName>
+        <default>false</default>
+        <label>NGFTT / GBFTT</label>
+    </customValue>
+    <customValue>
+        <fullName>Quality GCA Indirect</fullName>
+        <default>false</default>
+        <label>Quality GCA Indirect</label>
+    </customValue>
+    <customValue>
+        <fullName>Assembly- Module (Stacker/MFA)</fullName>
+        <default>false</default>
+        <label>Assembly- Module (Stacker/MFA)</label>
+    </customValue>
+    <customValue>
+        <fullName>Assembly- Pack Mainline</fullName>
+        <default>false</default>
+        <label>Assembly- Pack Mainline</label>
+    </customValue>
+    <customValue>
+        <fullName>GA</fullName>
+        <default>false</default>
+        <label>GA</label>
+    </customValue>
+    <customValue>
+        <fullName>Die/ Die Engineer</fullName>
+        <default>false</default>
+        <label>Die/ Die Engineer</label>
+    </customValue>
+    <customValue>
+        <fullName>Quality Direct</fullName>
+        <default>false</default>
+        <label>Quality Direct</label>
+    </customValue>
+    <customValue>
+        <fullName>Repair</fullName>
+        <default>false</default>
+        <label>Repair</label>
+    </customValue>
+    <customValue>
+        <fullName>Operations</fullName>
+        <default>false</default>
+        <label>Operations</label>
+    </customValue>
+    <customValue>
+        <fullName>GCA</fullName>
+        <default>false</default>
+        <label>GCA</label>
+    </customValue>
+    <customValue>
+        <fullName>Press Drivers</fullName>
+        <default>false</default>
+        <label>Press Drivers</label>
+    </customValue>
+    <customValue>
+        <fullName>PLOM</fullName>
+        <default>false</default>
+        <label>PLOM</label>
+    </customValue>
+    <customValue>
+        <fullName>Facilities</fullName>
+        <default>false</default>
+        <label>Facilities</label>
+    </customValue>
+    <customValue>
+        <fullName>Polymers(Direct) - VS &amp; Tests</fullName>
+        <default>false</default>
+        <label>Polymers(Direct) - VS &amp; Tests</label>
+    </customValue>
+    <customValue>
+        <fullName>GSC</fullName>
+        <default>false</default>
+        <label>GSC</label>
+    </customValue>
+    <customValue>
+        <fullName>Powerhouse</fullName>
+        <default>false</default>
+        <label>Powerhouse</label>
+    </customValue>
+    <customValue>
+        <fullName>Substation</fullName>
+        <default>false</default>
+        <label>Substation</label>
+    </customValue>
+    <customValue>
+        <fullName>GMS/IE</fullName>
+        <default>false</default>
+        <label>GMS/IE</label>
+    </customValue>
+    <customValue>
+        <fullName>WOC</fullName>
+        <default>false</default>
+        <label>WOC</label>
+    </customValue>
+    <customValue>
+        <fullName>Machinery &amp; Equipment</fullName>
+        <default>false</default>
+        <label>Machinery &amp; Equipment</label>
+    </customValue>
+    <customValue>
+        <fullName>Press</fullName>
+        <default>false</default>
+        <label>Press</label>
+    </customValue>
+    <customValue>
+        <fullName>Polymers</fullName>
+        <default>false</default>
+        <label>Polymers</label>
+    </customValue>
+    <customValue>
+        <fullName>Vehicle</fullName>
+        <default>false</default>
+        <label>Vehicle</label>
+    </customValue>
+    <customValue>
+        <fullName>Injection</fullName>
+        <default>false</default>
+        <label>Injection</label>
+    </customValue>
+    <customValue>
+        <fullName>Multiple</fullName>
+        <default>false</default>
+        <label>Multiple</label>
+    </customValue>
+    <customValue>
+        <fullName>RESS</fullName>
+        <default>false</default>
+        <label>RESS</label>
+    </customValue>
+    <customValue>
+        <fullName>Machining</fullName>
+        <default>false</default>
+        <label>Machining</label>
+    </customValue>
+    <customValue>
+        <fullName>Plant Tech</fullName>
+        <default>false</default>
+        <label>Plant Tech</label>
+    </customValue>
+    <customValue>
+        <fullName>Utilities</fullName>
+        <default>false</default>
+        <label>Utilities</label>
+    </customValue>
+    <customValue>
+        <fullName>Non-GPS</fullName>
+        <default>false</default>
+        <label>Non-GPS</label>
+    </customValue>
+    <customValue>
+        <fullName>Assembly - Pack</fullName>
+        <default>false</default>
+        <label>Assembly - Pack</label>
+    </customValue>
+    <customValue>
+        <fullName>Blanking</fullName>
+        <default>false</default>
+        <label>Blanking</label>
+    </customValue>
+    <customValue>
+        <fullName>Chassis</fullName>
+        <default>false</default>
+        <label>Chassis</label>
+    </customValue>
+    <customValue>
+        <fullName>Die Setting</fullName>
+        <default>false</default>
+        <label>Die Setting</label>
+    </customValue>
+    <customValue>
+        <fullName>Elpo</fullName>
+        <default>false</default>
+        <label>Elpo</label>
+    </customValue>
+    <customValue>
+        <fullName>Environmental</fullName>
+        <default>false</default>
+        <label>Environmental</label>
+    </customValue>
+    <customValue>
+        <fullName>Equation</fullName>
+        <default>false</default>
+        <label>Equation</label>
+    </customValue>
+    <customValue>
+        <fullName>Final</fullName>
+        <default>false</default>
+        <label>Final</label>
+    </customValue>
+    <customValue>
+        <fullName>Food Services</fullName>
+        <default>false</default>
+        <label>Food Services</label>
+    </customValue>
+    <customValue>
+        <fullName>Finesse</fullName>
+        <default>false</default>
+        <label>Finesse</label>
+    </customValue>
+    <customValue>
+        <fullName>Finance</fullName>
+        <default>false</default>
+        <label>Finance</label>
+    </customValue>
+    <customValue>
+        <fullName>Assembly - Module</fullName>
+        <default>false</default>
+        <label>Assembly - Module</label>
+    </customValue>
+    <customValue>
+        <fullName>Chassis 6</fullName>
+        <default>false</default>
+        <label>Chassis 6</label>
+    </customValue>
+    <customValue>
+        <fullName>Communications</fullName>
+        <default>false</default>
+        <label>Communications</label>
+    </customValue>
+    <customValue>
+        <fullName>Temporary containment jobs</fullName>
+        <default>false</default>
+        <label>Temporary containment jobs</label>
+    </customValue>
+    <customValue>
+        <fullName>Trim 5</fullName>
+        <default>false</default>
+        <label>Trim 5</label>
+    </customValue>
+    <customValue>
+        <fullName>Trim 6</fullName>
+        <default>false</default>
+        <label>Trim 6</label>
+    </customValue>
+    <customValue>
+        <fullName>Two Tone</fullName>
+        <default>false</default>
+        <label>Two Tone</label>
+    </customValue>
+    <customValue>
+        <fullName>Tool &amp; Die</fullName>
+        <default>false</default>
+        <label>Tool &amp; Die</label>
+    </customValue>
+    <customValue>
+        <fullName>Top Coat</fullName>
+        <default>false</default>
+        <label>Top Coat</label>
+    </customValue>
+    <customValue>
+        <fullName>Production</fullName>
+        <default>false</default>
+        <label>Production</label>
+    </customValue>
+    <customValue>
+        <fullName>Sealer</fullName>
+        <default>false</default>
+        <label>Sealer</label>
+    </customValue>
+    <customValue>
+        <fullName>Post Top Coat</fullName>
+        <default>false</default>
+        <label>Post Top Coat</label>
+    </customValue>
+    <customValue>
+        <fullName>Prime</fullName>
+        <default>false</default>
+        <label>Prime</label>
+    </customValue>
+    <customValue>
+        <fullName>Pre-Trim</fullName>
+        <default>false</default>
+        <label>Pre-Trim</label>
+    </customValue>
+    <customValue>
+        <fullName>Staff</fullName>
+        <default>false</default>
+        <label>Staff</label>
+    </customValue>
+    <customValue>
+        <fullName>Safety</fullName>
+        <default>false</default>
+        <label>Safety</label>
+    </customValue>
+    <customValue>
+        <fullName>Material Kitting and Sequencing</fullName>
+        <default>false</default>
+        <label>Material Kitting and Sequencing</label>
+    </customValue>
+    <customValue>
+        <fullName>Production Kitting and Sequencing</fullName>
+        <default>false</default>
+        <label>Production Kitting and Sequencing</label>
+    </customValue>
+    <customValue>
+        <fullName>Personnel</fullName>
+        <default>false</default>
+        <label>Personnel</label>
+    </customValue>
+    <customValue>
+        <fullName>Medical</fullName>
+        <default>false</default>
+        <label>Medical</label>
+    </customValue>
+    <masterLabel>Functional Area</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

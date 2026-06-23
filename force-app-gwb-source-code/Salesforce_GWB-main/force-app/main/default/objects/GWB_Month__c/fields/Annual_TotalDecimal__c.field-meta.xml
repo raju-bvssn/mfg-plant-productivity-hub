@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Annual_TotalDecimal__c</fullName>
+    <externalId>false</externalId>
+    <formula>Jan_Decimal__c + Feb_Decimal__c + Mar_Decimal__c + Apr_Decimal__c + May_Decimal__c + Jun_Decimal__c + Jul_Decimal__c + Aug_Decimal__c + Sep_Decimal__c + Oct_Decimal__c + Nov_Decimal__c + Dec_Decimal__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Annual Total</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>1</scale>
+    <trackTrending>false</trackTrending>
+    <type>Number</type>
+    <unique>false</unique>
+</CustomField>

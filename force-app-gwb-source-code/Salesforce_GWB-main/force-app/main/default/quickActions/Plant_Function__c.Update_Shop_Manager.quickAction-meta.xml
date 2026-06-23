@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<QuickAction xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Screen Flow to Update Shop Manager on Plant Function</description>
+    <flowDefinition>Update_Shop_Manager</flowDefinition>
+    <label>Update Shop Manager</label>
+    <optionsCreateFeedItem>false</optionsCreateFeedItem>
+    <type>Flow</type>
+</QuickAction>

@@ -1,0 +1,51 @@
+.table-container {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.modal-container .slds-modal__container {
+    width: 100vh !important;
+    max-width: 100vh !important;
+}
+
+/* Disable row highlight on hover */
+.no-row-hover tbody tr:hover > td,
+.no-row-hover tbody tr:hover > th {
+    background-color: transparent !important;
+}
+
+/* Custom smooth borders for table and cells */
+.custom-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--lwc-colorBorder, #D8DDE6);
+    border-radius: 6px;
+    /* overflow: hidden; - Removed to allow sticky header to work properly if needed, though sticky is inside container */
+}
+
+.custom-table thead th {
+    background: var(--lwc-colorBackgroundAlt, #FAFAF9);
+    border-bottom: 1px solid var(--lwc-colorBorder, #D8DDE6);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.custom-table tbody td {
+    border-bottom: 1px solid var(--lwc-colorBorder, #E5E5E5);
+}
+
+.custom-table th:not(:last-child),
+.custom-table td:not(:last-child) {
+    border-right: 1px solid var(--lwc-colorBorder, #E5E5E5);
+}
+
+.custom-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.custom-table thead tr:first-child th:first-child { border-top-left-radius: 6px; }
+.custom-table thead tr:first-child th:last-child { border-top-right-radius: 6px; }
+.custom-table tbody tr:last-child td:first-child { border-bottom-left-radius: 6px; }
+.custom-table tbody tr:last-child td:last-child { border-bottom-right-radius: 6px; }

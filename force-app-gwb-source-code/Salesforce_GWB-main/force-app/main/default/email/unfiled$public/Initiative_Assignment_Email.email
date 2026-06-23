@@ -1,0 +1,48 @@
+<messaging:emailTemplate subject="Action needed: Approve Actuals for {!relatedTo.Name}" recipientType="User" relatedToType="Initiative__c">
+
+<messaging:htmlEmailBody >
+<html>
+    <body style="font-family: Arial, sans-serif;font-size: 16px; line-height: 1.6; color: #333;">
+        <!-- Hidden field to force SOQL to load CreatedBy data -->
+        <apex:outputText value="{!relatedTo.CreatedBy.Name}" rendered="false" />
+        
+        <p>Hello,</p>
+        
+        <p>Initiative record <b><a href="{!LEFT($Api.Partner_Server_URL_580, FIND('/services', $Api.Partner_Server_URL_580)) & relatedTo.Id}">{!relatedTo.Name}</a></b> is submitted to you for approval.Please contact {!relatedTo.CreatedBy.Name} (<a href="mailto:{!relatedTo.CreatedBy.Email}">{!relatedTo.CreatedBy.Email}</a>) if you have any questions.</p>
+        
+        <p>
+            <b>Area:</b> {!relatedTo.Shop_Manager_View__c}<br/>
+            <b>Effective Date of Change:</b>&nbsp;
+            <apex:outputText value="{0, date, MMMM d, yyyy}">
+                <apex:param value="{!relatedTo.Effective_Date__c}" />
+            </apex:outputText><br/>
+            <b>Quantity Impacted:</b> {!IF(BLANKVALUE(relatedTo.Position_Adjustment__c, 0) > 0, "+", "")}{!relatedTo.Position_Adjustment__c}<br/>
+            <b>Driver:</b> {!relatedTo.Driver__c}
+        </p>
+        
+        <p>To approve or reject this item, reply to this email with the word APPROVE, APPROVED, YES, REJECT, REJECTED, or NO in the first line of the email message, or click this <b><a href="{!LEFT($Api.Partner_Server_URL_580, FIND('/services', $Api.Partner_Server_URL_580)) & relatedTo.Id}">Approval Link</a></b>.</p>
+        
+        <p><b>If replying via email you can also add comments on the second line. The comments are stored with the approval request in Salesforce CRM.</b></p>
+            
+            <p><b>Note: For Salesforce to process your response the word APPROVE, APPROVED, YES, REJECT, REJECTED, or NO must be in the first line of the reply email. Also, any comment must be in the second line.</b></p>
+    </body>
+</html>
+</messaging:htmlEmailBody>
+
+<messaging:plainTextEmailBody >
+Hello,
+
+Initiative record {!relatedTo.Name} ({!LEFT($Api.Partner_Server_URL_580, FIND('/services', $Api.Partner_Server_URL_580)) & relatedTo.Id}) is submitted to you for approval. 
+
+Please contact {!relatedTo.CreatedBy.Name} ({!relatedTo.CreatedBy.Email}) if you have any questions.
+
+Area: {!relatedTo.Shop_Manager_View__c}
+Effective Date of Change: {!relatedTo.Effective_Date__c}
+Quantity Impacted: {!IF(BLANKVALUE(relatedTo.Position_Adjustment__c, 0) > 0, "+", "")}{!relatedTo.Position_Adjustment__c}
+Driver: {!relatedTo.Driver__c}
+
+To approve or reject this item, reply to this email with the word APPROVE, APPROVED, YES, REJECT, REJECTED, or NO in the first line of the email message, or click this link:
+{!LEFT($Api.Partner_Server_URL_580, FIND('/services', $Api.Partner_Server_URL_580)) & 'p/process/ProcessInstanceStep?id=' & relatedTo.Id}
+</messaging:plainTextEmailBody>
+
+</messaging:emailTemplate>

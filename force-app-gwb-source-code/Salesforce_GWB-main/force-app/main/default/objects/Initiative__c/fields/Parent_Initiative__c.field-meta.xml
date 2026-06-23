@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Parent_Initiative__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <description>Parent initiative for containment hierarchy. Used to copy and lock plan functions on child initiatives.</description>
+    <label>Parent Initiative</label>
+    <referenceTo>Initiative__c</referenceTo>
+    <relationshipLabel>Child Initiatives</relationshipLabel>
+    <relationshipName>Child_Initiatives</relationshipName>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

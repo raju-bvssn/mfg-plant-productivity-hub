@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>NA</fullName>
+        <default>false</default>
+        <label>NA</label>
+    </customValue>
+    <customValue>
+        <fullName>EU</fullName>
+        <default>false</default>
+        <label>EU</label>
+    </customValue>
+    <customValue>
+        <fullName>SA</fullName>
+        <default>false</default>
+        <label>SA</label>
+    </customValue>
+    <customValue>
+        <fullName>SK</fullName>
+        <default>false</default>
+        <label>SK</label>
+    </customValue>
+    <customValue>
+        <fullName>MEO</fullName>
+        <default>false</default>
+        <label>MEO</label>
+    </customValue>
+    <customValue>
+        <fullName>NA-ASI</fullName>
+        <default>false</default>
+        <label>NA-ASI</label>
+    </customValue>
+    <customValue>
+        <fullName>AP</fullName>
+        <default>false</default>
+        <label>AP</label>
+    </customValue>
+    <customValue>
+        <fullName>GMSA</fullName>
+        <default>false</default>
+        <label>GMSA</label>
+    </customValue>
+    <customValue>
+        <fullName>IO</fullName>
+        <default>false</default>
+        <label>IO</label>
+    </customValue>
+    <description>Functional Description: GWB User Region field for regional sharing
+        Used in Integration: N
+        Bi-Directional Sync: N
+        User Story #: 4426226</description>
+    <masterLabel>GWB User Region</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

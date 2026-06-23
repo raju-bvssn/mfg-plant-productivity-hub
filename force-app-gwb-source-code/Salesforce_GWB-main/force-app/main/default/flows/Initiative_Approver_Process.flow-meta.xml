@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>66.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <customProperties>
+        <name>ScreenProgressIndicator</name>
+        <value>
+            <stringValue>{&quot;location&quot;:&quot;top&quot;,&quot;type&quot;:&quot;simple&quot;}</stringValue>
+        </value>
+    </customProperties>
+    <decisions>
+        <name>Check_Deadline</name>
+        <label>Check Deadline</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <defaultConnectorLabel>Default Outcome</defaultConnectorLabel>
+        <rules>
+            <name>Past_Deadline</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.CurrentDate</leftValueReference>
+                <operator>GreaterThan</operator>
+                <rightValue>
+                    <elementReference>f_ThirdBusinessDayOfNextMonth</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Error_Screen</targetReference>
+            </connector>
+            <label>Past Deadline</label>
+        </rules>
+        <rules>
+            <name>Valid_Timeframe</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.CurrentDate</leftValueReference>
+                <operator>GreaterThanOrEqualTo</operator>
+                <rightValue>
+                    <elementReference>Same_Month</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Flow.CurrentDate</leftValueReference>
+                <operator>LessThanOrEqualTo</operator>
+                <rightValue>
+                    <elementReference>f_ThirdBusinessDayOfNextMonth</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Initiative_Approver_Screen</targetReference>
+            </connector>
+            <label>Valid Timeframe</label>
+        </rules>
+        <rules>
+            <name>Future_Timeframe</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Flow.CurrentDate</leftValueReference>
+                <operator>LessThan</operator>
+                <rightValue>
+                    <elementReference>Get_Initiative.Effective_Date__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Error_Screen_2</targetReference>
+            </connector>
+            <label>Future Timeframe</label>
+        </rules>
+    </decisions>
+    <environments>Default</environments>
+    <formulas>
+        <name>f_FirstOfNextMonth</name>
+        <dataType>Date</dataType>
+        <expression>DATE(
+    YEAR({!Get_Initiative.Effective_Date__c}) + IF(MONTH({!Get_Initiative.Effective_Date__c}) = 12, 1, 0),
+    IF(MONTH({!Get_Initiative.Effective_Date__c}) = 12, 1, MONTH({!Get_Initiative.Effective_Date__c}) + 1),
+    1
+)</expression>
+    </formulas>
+    <formulas>
+        <name>f_ThirdBusinessDayOfNextMonth</name>
+        <dataType>Date</dataType>
+        <expression>CASE( WEEKDAY({!f_FirstOfNextMonth}),
+  1, {!f_FirstOfNextMonth} + 3, /* Starts Sunday: Biz days are Mon(2nd), Tue(3rd), Wed(4th). Result: 4th */
+  2, {!f_FirstOfNextMonth} + 2, /* Starts Monday: Biz days are Mon(1st), Tue(2nd), Wed(3rd). Result: 3rd */
+  3, {!f_FirstOfNextMonth} + 2, /* Starts Tuesday: Biz days are Tue(1st), Wed(2nd), Thu(3rd). Result: 3rd */
+  4, {!f_FirstOfNextMonth} + 2, /* Starts Wednesday: Biz days are Wed(1st), Thu(2nd), Fri(3rd). Result: 3rd */
+  5, {!f_FirstOfNextMonth} + 4, /* Starts Thursday: Biz days are Thu(1st), Fri(2nd), Mon(5th). Result: 5th */
+  6, {!f_FirstOfNextMonth} + 4, /* Starts Friday: Biz days are Fri(1st), Mon(4th), Tue(5th). Result: 5th */
+  7, {!f_FirstOfNextMonth} + 4, /* Starts Saturday: Biz days are Mon(3rd), Tue(4th), Wed(5th). Result: 5th */
+  {!f_FirstOfNextMonth}
+)</expression>
+    </formulas>
+    <formulas>
+        <name>Same_Month</name>
+        <dataType>Date</dataType>
+        <expression>DATE(YEAR({!Get_Initiative.Effective_Date__c}), MONTH({!Get_Initiative.Effective_Date__c}), 1)</expression>
+    </formulas>
+    <interviewLabel>Initiative Approver Screen {!$Flow.CurrentDateTime}</interviewLabel>
+    <label>Initiative Approver Process</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>Flow</processType>
+    <recordLookups>
+        <name>Get_Initiative</name>
+        <label>Get Initiative</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <assignNullValuesIfNoRecordsFound>false</assignNullValuesIfNoRecordsFound>
+        <connector>
+            <targetReference>Check_Deadline</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Id</field>
+            <operator>EqualTo</operator>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </filters>
+        <getFirstRecordOnly>true</getFirstRecordOnly>
+        <object>Initiative__c</object>
+        <queriedFields>Id</queriedFields>
+        <queriedFields>Effective_Date__c</queriedFields>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </recordLookups>
+    <screens>
+        <name>Error_Screen</name>
+        <label>Error Screen</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Error_Info</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;background-color: rgb(255, 255, 255); font-size: 16px; font-family: sans-serif; color: rgb(43, 45, 49);&quot;&gt;Timeframe to report actuals has already passed. Please make changes on the Effective Date of this Initiative to report actuals.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <nextOrFinishButtonLabel>Cancel</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <screens>
+        <name>Error_Screen_2</name>
+        <label>Error Screen 2</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <allowBack>false</allowBack>
+        <allowFinish>true</allowFinish>
+        <allowPause>false</allowPause>
+        <fields>
+            <name>Future_Error</name>
+            <fieldText>&lt;p&gt;&lt;span style=&quot;color: rgb(43, 45, 49); font-family: sans-serif; font-size: 16px; background-color: rgb(255, 255, 255);&quot;&gt;Timeframe to report actuals is in future. Please make changes on the Effective Date of this Initiative to report actuals.&lt;/span&gt;&lt;/p&gt;</fieldText>
+            <fieldType>DisplayText</fieldType>
+            <styleProperties>
+                <verticalAlignment>
+                    <stringValue>top</stringValue>
+                </verticalAlignment>
+                <width>
+                    <stringValue>12</stringValue>
+                </width>
+            </styleProperties>
+        </fields>
+        <nextOrFinishButtonLabel>Cancel</nextOrFinishButtonLabel>
+        <showFooter>true</showFooter>
+        <showHeader>false</showHeader>
+    </screens>
+    <start>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Get_Initiative</targetReference>
+        </connector>
+    </start>
+    <status>Active</status>
+    <subflows>
+        <name>Initiative_Approver_Screen</name>
+        <label>Initiative Approver Screen</label>
+        <locationX>0</locationX>
+        <locationY>0</locationY>
+        <flowName>Initiative_Approver_Screen</flowName>
+        <inputAssignments>
+            <name>recordId</name>
+            <value>
+                <elementReference>recordId</elementReference>
+            </value>
+        </inputAssignments>
+        <storeOutputAutomatically>true</storeOutputAutomatically>
+    </subflows>
+    <variables>
+        <name>recordId</name>
+        <dataType>String</dataType>
+        <isCollection>false</isCollection>
+        <isInput>true</isInput>
+        <isOutput>false</isOutput>
+    </variables>
+</Flow>

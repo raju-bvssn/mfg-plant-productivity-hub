@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Total_Changes_Made__c</fullName>
+    <label>Total Changes Made</label>
+    <summarizedField>Plant_Shop_Target_Item__c.Adjustment__c</summarizedField>
+    <summaryForeignKey>Plant_Shop_Target_Item__c.Plant_Shop_Target__c</summaryForeignKey>
+    <summaryOperation>sum</summaryOperation>
+    <trackTrending>false</trackTrending>
+    <type>Summary</type>
+</CustomField>

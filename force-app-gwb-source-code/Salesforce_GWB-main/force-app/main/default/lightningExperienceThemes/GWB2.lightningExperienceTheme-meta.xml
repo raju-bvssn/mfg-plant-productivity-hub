@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningExperienceTheme xmlns="http://soap.sforce.com/2006/04/metadata">
+    <defaultBrandingSet>LEXTHEMINGGWB2</defaultBrandingSet>
+    <designSystemVersion>SLDS_v2</designSystemVersion>
+    <isDarkModeEnabled>false</isDarkModeEnabled>
+    <masterLabel>GWB 2.0</masterLabel>
+    <shouldOverrideLoadingImage>false</shouldOverrideLoadingImage>
+</LightningExperienceTheme>

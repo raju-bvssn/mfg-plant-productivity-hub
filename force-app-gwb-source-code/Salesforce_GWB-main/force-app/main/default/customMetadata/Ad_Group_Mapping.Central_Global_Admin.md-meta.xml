@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Central (Global) Admin</label>
+    <protected>false</protected>
+    <values>
+        <field>CallCenterName__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Create_User__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>LocaleSidKey__c</field>
+        <value xsi:type="xsd:string">en_US</value>
+    </values>
+    <values>
+        <field>Locale_Type__c</field>
+        <value xsi:type="xsd:string">English (United States)</value>
+    </values>
+    <values>
+        <field>GWB_Region__c</field>
+        <value xsi:type="xsd:string">NA</value>
+    </values>
+    <values>
+        <field>PermissionGroupSetName__c</field>
+        <value xsi:type="xsd:string">Central_Global_Admin_PSG</value>
+    </values>
+    <values>
+        <field>PriorityNbr__c</field>
+        <value xsi:type="xsd:double">11.0</value>
+    </values>
+    <values>
+        <field>ProfileGroupName__c</field>
+        <value xsi:type="xsd:string">GM Base User</value>
+    </values>
+    <values>
+        <field>PublicGroupName__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>TelephonyPackageLicenseName__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>UserPersonaMappingName__c</field>
+        <value xsi:nil="true"/>
+    </values>
+</CustomMetadata>

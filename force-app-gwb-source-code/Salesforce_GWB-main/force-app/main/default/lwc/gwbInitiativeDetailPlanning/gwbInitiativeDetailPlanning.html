@@ -1,0 +1,684 @@
+<template>
+  <section class="planning-shell">
+    <div class="toolbar">
+      <template if:true={showTestModeControl}>
+        <lightning-input
+          type="toggle"
+          label="Test Data Mode"
+          checked={testDataMode}
+          onchange={handleTestModeToggle}
+        ></lightning-input>
+      </template>
+      <template if:false={showTestModeControl}>
+        <span></span>
+      </template>
+      <div class="toolbar__actions">
+        <template if:true={showReportActualsButton}>
+          <lightning-button
+            label="Report Actuals"
+            icon-name="utility:send"
+            variant="outline-brand"
+            disabled={reportActualsDisabled}
+            onclick={handleReportActuals}
+          ></lightning-button>
+        </template>
+        <lightning-button
+          label="Edit Positions"
+          icon-name="utility:edit"
+          variant="outline-brand"
+          disabled={editPositionsDisabled}
+          onclick={handleEdit}
+        ></lightning-button>
+        <lightning-button-icon
+          icon-name="utility:refresh"
+          variant="border-filled"
+          alternative-text="Refresh"
+          title="Refresh"
+          onclick={loadData}
+        ></lightning-button-icon>
+      </div>
+    </div>
+
+    <template if:true={childInitiativeMessage}>
+      <div class="info-banner" role="status">{childInitiativeMessage}</div>
+    </template>
+
+    <template if:true={showInternalTabs}>
+      <lightning-tabset active-tab-value={activeTab}>
+        <lightning-tab label="Forecast" value="forecast" onactive={handleTabActive}></lightning-tab>
+        <lightning-tab label="Actuals" value="actuals" onactive={handleTabActive}></lightning-tab>
+      </lightning-tabset>
+    </template>
+
+    <section class="planner-card">
+      <header class="planner-card__header">
+        <div class={sectionIconClass} aria-hidden="true"></div>
+        <h2>{activeTitle}</h2>
+      </header>
+
+      <template for:each={activeViewSections} for:item="section" for:index="sectionIndex">
+        <section key={section.key} class="month-section">
+          <table class="planner-table">
+            <colgroup>
+              <col class="col-record-action" />
+              <template if:true={isActualsTab}>
+                <col class="col-function-actual" />
+                <col class="col-operation" />
+              </template>
+              <template if:false={isActualsTab}>
+                <col class="col-function" />
+              </template>
+              <col class="col-crew" />
+              <col class="col-crew" />
+              <col class="col-crew" />
+              <col class="col-total-needed" />
+              <col class="col-total-made" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th class="group-band" colspan={crewStartColspan}></th>
+                <th class="group-band" colspan="3">Crew Split</th>
+                <th class="group-band">Total Changes Needed</th>
+                <th class="group-band">Total Changes Made</th>
+              </tr>
+              <tr class="column-heads">
+                <th class="record-action-cell">
+                  <template if:true={showAddFunctionsButton}>
+                    <lightning-button-icon
+                      icon-name="utility:add"
+                      variant="bare"
+                      size="small"
+                      alternative-text="Add Functions"
+                      title="Add Functions"
+                      onclick={openFunctionModal}
+                    ></lightning-button-icon>
+                  </template>
+                </th>
+                <th>Function</th>
+                <template if:true={isActualsTab}>
+                  <th>Operation</th>
+                </template>
+                <th>Crew 1</th>
+                <th>Crew 2</th>
+                <th>Crew 3</th>
+                <th>{section.totalChangesNeeded}</th>
+                <th class={section.totalMadeClass}>
+                  <lightning-icon icon-name={section.totalStatusIcon} size="xx-small"></lightning-icon>
+                  <span>{section.totalChangesMade}</span>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <template if:true={section.hasRows}>
+                <template for:each={section.rows} for:item="row">
+                  <tr key={row.uid}>
+                    <td class="record-action-cell">
+                      <template if:true={isActualsTab}>
+                        <lightning-button-icon
+                          icon-name="utility:add"
+                          variant="bare"
+                          size="small"
+                          alternative-text="Add Operations"
+                          title="Add Operations"
+                          data-section-index={sectionIndex}
+                          data-function-id={row.uid}
+                          onclick={openOperationModal}
+                        ></lightning-button-icon>
+                      </template>
+                      <template if:false={isActualsTab}>
+                        <span class="row-number">{row.rowNumber}</span>
+                      </template>
+                    </td>
+                    <td class="function-cell">
+                      <template if:true={row.hasPlantFunctionUrl}>
+                        <a href={row.plantFunctionUrl} target="_blank">{row.plantFunctionName}</a>
+                      </template>
+                      <template if:false={row.hasPlantFunctionUrl}>
+                        <span>{row.plantFunctionName}</span>
+                      </template>
+                    </td>
+                    <template if:true={isActualsTab}>
+                      <td></td>
+                    </template>
+                    <td>
+                      <template if:true={row.crew1Editable}>
+                        <input
+                          class="crew-input"
+                          type="number"
+                          value={row.crew1DisplayValue}
+                          data-section-index={sectionIndex}
+                          data-function-id={row.uid}
+                          data-field="crew1"
+                          onchange={handleCrewChange}
+                        />
+                      </template>
+                      <template if:false={row.crew1Editable}>
+                        <span class="crew-value">{row.crew1DisplayValue}</span>
+                      </template>
+                    </td>
+                    <td>
+                      <template if:true={row.crew2Editable}>
+                        <input
+                          class="crew-input"
+                          type="number"
+                          value={row.crew2DisplayValue}
+                          data-section-index={sectionIndex}
+                          data-function-id={row.uid}
+                          data-field="crew2"
+                          onchange={handleCrewChange}
+                        />
+                      </template>
+                      <template if:false={row.crew2Editable}>
+                        <span class="crew-value">{row.crew2DisplayValue}</span>
+                      </template>
+                    </td>
+                    <td>
+                      <template if:true={row.crew3Editable}>
+                        <input
+                          class="crew-input"
+                          type="number"
+                          value={row.crew3DisplayValue}
+                          data-section-index={sectionIndex}
+                          data-function-id={row.uid}
+                          data-field="crew3"
+                          onchange={handleCrewChange}
+                        />
+                      </template>
+                      <template if:false={row.crew3Editable}>
+                        <span class="crew-value">{row.crew3DisplayValue}</span>
+                      </template>
+                    </td>
+                    <td class="total-cell">
+                      <template if:true={isActualsTab}>{row.totalChangesNeeded}</template>
+                    </td>
+                    <td class={row.totalMadeClass}>{row.totalChangesMade}</td>
+                  </tr>
+                  <template if:true={isActualsTab}>
+                    <template for:each={row.operations} for:item="operation">
+                      <tr key={operation.uid} class="operation-row">
+                        <td></td>
+                        <td></td>
+                        <td>{operation.operationIdentifier}</td>
+                        <td>
+                          <template if:true={operation.crew1Editable}>
+                            <input
+                              class="crew-input"
+                              type="number"
+                              value={operation.crew1}
+                              data-section-index={sectionIndex}
+                              data-function-id={row.uid}
+                              data-operation-id={operation.uid}
+                              data-field="crew1"
+                              onchange={handleCrewChange}
+                            />
+                          </template>
+                          <template if:false={operation.crew1Editable}>
+                            <span class="crew-value">{operation.crew1}</span>
+                          </template>
+                        </td>
+                        <td>
+                          <template if:true={operation.crew2Editable}>
+                            <input
+                              class="crew-input"
+                              type="number"
+                              value={operation.crew2}
+                              data-section-index={sectionIndex}
+                              data-function-id={row.uid}
+                              data-operation-id={operation.uid}
+                              data-field="crew2"
+                              onchange={handleCrewChange}
+                            />
+                          </template>
+                          <template if:false={operation.crew2Editable}>
+                            <span class="crew-value">{operation.crew2}</span>
+                          </template>
+                        </td>
+                        <td>
+                          <template if:true={operation.crew3Editable}>
+                            <input
+                              class="crew-input"
+                              type="number"
+                              value={operation.crew3}
+                              data-section-index={sectionIndex}
+                              data-function-id={row.uid}
+                              data-operation-id={operation.uid}
+                              data-field="crew3"
+                              onchange={handleCrewChange}
+                            />
+                          </template>
+                          <template if:false={operation.crew3Editable}>
+                            <span class="crew-value">{operation.crew3}</span>
+                          </template>
+                        </td>
+                        <td class="total-cell"></td>
+                        <td>{operation.totalChangesNeeded}</td>
+                      </tr>
+                    </template>
+                  </template>
+                </template>
+              </template>
+              <template if:false={section.hasRows}>
+                <tr>
+                  <td class="empty-state" colspan={tableColspan}>
+                    There are currently no Functions yet assigned to this Initiative.
+                  </td>
+                </tr>
+              </template>
+            </tbody>
+          </table>
+        </section>
+      </template>
+    </section>
+
+    <template if:true={isEditMode}>
+      <footer class="edit-footer">
+        <div class="edit-footer__actions">
+          <template if:true={errorMessage}>
+            <div class="save-error" role="alert">
+              <lightning-icon
+                class="save-error__icon"
+                icon-name="utility:error"
+                size="small"
+                alternative-text="Save error"
+                title={errorMessage}
+              ></lightning-icon>
+              <div class="save-error__popover">
+                <div class="save-error__header">
+                  <lightning-icon icon-name="utility:error" size="small"></lightning-icon>
+                  <span>We hit a snag.</span>
+                  <lightning-button-icon
+                    class="save-error__close"
+                    icon-name="utility:close"
+                    variant="bare-inverse"
+                    size="small"
+                    alternative-text="Close error"
+                    title="Close error"
+                    onclick={dismissError}
+                  ></lightning-button-icon>
+                </div>
+                <div class="save-error__body">
+                  <strong>Review the errors on this page.</strong>
+                  <ul>
+                    <li>{errorMessage}</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </template>
+          <lightning-button label="Cancel" onclick={handleCancel}></lightning-button>
+          <lightning-button
+            class="slds-m-left_small"
+            label="Save"
+            variant="brand"
+            onclick={handleSave}
+          ></lightning-button>
+        </div>
+      </footer>
+    </template>
+
+    <template if:true={showFunctionModal}>
+      <section class="slds-modal slds-fade-in-open" role="dialog" aria-modal="true">
+        <div class="slds-modal__container picker-modal">
+          <header class="slds-modal__header">
+            <button class="slds-button slds-button_icon slds-modal__close" onclick={closeFunctionModal}>
+              <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+            </button>
+            <h2 class="slds-text-heading_medium">Add Functions</h2>
+          </header>
+          <div class="slds-modal__content slds-p-around_medium">
+            <div class="picker-section-header">
+              <div>
+                <h3>Available Functions</h3>
+                <p>Select all Functions you would like to add to this Initiative.</p>
+              </div>
+              <div class="picker-section-actions">
+                <lightning-input
+                  type="search"
+                  variant="label-hidden"
+                  label="Search Available Functions"
+                  placeholder="Search this list..."
+                  value={functionSearchTerm}
+                  onchange={handleFunctionSearchInput}
+                ></lightning-input>
+                <lightning-button-icon
+                  icon-name="utility:refresh"
+                  variant="border-filled"
+                  alternative-text="Refresh Available Functions"
+                  title="Refresh Available Functions"
+                  onclick={refreshAvailableFunctions}
+                ></lightning-button-icon>
+              </div>
+            </div>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout picker-table">
+              <colgroup>
+                <col class="picker-col-select" />
+                <col class="picker-col-function" />
+                <col class="picker-col-program" />
+                <col class="picker-col-code" />
+                <col class="picker-col-level" />
+                <col class="picker-col-area" />
+                <col class="picker-col-line" />
+                <col class="picker-col-module" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Function Master</th>
+                  <th>Program Name</th>
+                  <th>Program Code</th>
+                  <th>Function Level</th>
+                  <th>Function Area</th>
+                  <th>Line</th>
+                  <th>Module</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template for:each={filteredAvailableFunctions} for:item="item">
+                  <tr key={item.uid}>
+                    <td>
+                      <input type="checkbox" data-id={item.uid} checked={item.checked} onchange={handleFunctionSelect} />
+                    </td>
+                    <td title={item.plantFunctionName}><div class="slds-truncate">{item.plantFunctionName}</div></td>
+                    <td title={item.programName}><div class="slds-truncate">{item.programName}</div></td>
+                    <td title={item.programCode}><div class="slds-truncate">{item.programCode}</div></td>
+                    <td title={item.functionLevel}><div class="slds-truncate">{item.functionLevel}</div></td>
+                    <td title={item.functionArea}><div class="slds-truncate">{item.functionArea}</div></td>
+                    <td title={item.line}><div class="slds-truncate">{item.line}</div></td>
+                    <td title={item.module}><div class="slds-truncate">{item.module}</div></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <footer class="slds-modal__footer">
+            <lightning-button label="Cancel" onclick={closeFunctionModal}></lightning-button>
+            <lightning-button class="slds-m-left_small" label="Add" variant="brand" onclick={addSelectedFunctions} disabled={disableAddFunctions}></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={showOperationModal}>
+      <section class="slds-modal slds-fade-in-open" role="dialog" aria-modal="true">
+        <div class="slds-modal__container picker-modal">
+          <header class="slds-modal__header">
+            <button class="slds-button slds-button_icon slds-modal__close" onclick={closeOperationModal}>
+              <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+            </button>
+            <h2 class="slds-text-heading_medium">Add Operations</h2>
+          </header>
+          <div class="slds-modal__content slds-p-around_medium">
+            <div class="picker-section-header">
+              <div>
+                <h3>Available Operations</h3>
+                <p>Select all Operations you would like to add to this Function.</p>
+              </div>
+              <div class="picker-section-actions">
+                <lightning-input
+                  type="search"
+                  variant="label-hidden"
+                  label="Search Available Operations"
+                  placeholder="Search this list..."
+                  value={operationSearchTerm}
+                  onchange={handleOperationSearchInput}
+                ></lightning-input>
+                <lightning-button-icon
+                  icon-name="utility:refresh"
+                  variant="border-filled"
+                  alternative-text="Refresh Available Operations"
+                  title="Refresh Available Operations"
+                  onclick={refreshAvailableOperations}
+                ></lightning-button-icon>
+              </div>
+            </div>
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered slds-table_fixed-layout picker-table">
+              <colgroup>
+                <col class="picker-col-select" />
+                <col class="picker-col-operation" />
+                <col class="picker-col-operation-area" />
+                <col class="picker-col-equipment" />
+                <col class="picker-col-comment" />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th></th>
+                  <th>Operation Identifier</th>
+                  <th>Area</th>
+                  <th>Equipment</th>
+                  <th>Comment</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template for:each={filteredAvailableOperations} for:item="item">
+                  <tr key={item.uid}>
+                    <td>
+                      <input type="checkbox" data-id={item.uid} checked={item.checked} onchange={handleOperationSelect} />
+                    </td>
+                    <td title={item.operationIdentifier}><div class="slds-truncate">{item.operationIdentifier}</div></td>
+                    <td title={item.area}><div class="slds-truncate">{item.area}</div></td>
+                    <td title={item.equipment}><div class="slds-truncate">{item.equipment}</div></td>
+                    <td title={item.comment}><div class="slds-truncate">{item.comment}</div></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+          <footer class="slds-modal__footer">
+            <lightning-button label="Cancel" onclick={closeOperationModal}></lightning-button>
+            <lightning-button class="slds-m-left_small" label="Add" variant="brand" onclick={addSelectedOperations} disabled={disableAddOperations}></lightning-button>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <template if:true={showChangeRequestModal}>
+      <section class="slds-modal slds-fade-in-open" role="dialog" aria-modal="true">
+        <div class="slds-modal__container change-request-modal">
+          <header class="slds-modal__header">
+            <button class="slds-button slds-button_icon slds-modal__close" onclick={closeChangeRequestModal}>
+              <lightning-icon icon-name="utility:close" size="x-small"></lightning-icon>
+            </button>
+            <h2 class="slds-text-heading_medium">Change Request</h2>
+          </header>
+
+          <div class="slds-modal__content slds-p-around_medium">
+            <template if:true={isChangeRequestStepOne}>
+              <h3>Reporting Month</h3>
+              <p>Select the month you want to report actuals for.</p>
+              <lightning-radio-group
+                class="reporting-month-options"
+                name="reportingMonth"
+                options={reportingMonthOptions}
+                value={selectedReportingMonth}
+                type="radio"
+                onchange={handleReportingMonthChange}
+              ></lightning-radio-group>
+            </template>
+
+            <template if:true={isChangeRequestStepTwo}>
+              <h3>{changeRequestModalTitle}</h3>
+              <h4>Change Request Summary</h4>
+              <p>Review all the Functions and Operations that have reported actual values to this Initiative for this month.</p>
+              <div class="wizard-table-scroll">
+                <table class="support-table wizard-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Functions</th>
+                      <th>Operations</th>
+                      <th>Total Position Adjustments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template for:each={changeRequestSummaryRows} for:item="row">
+                      <tr key={row.id}>
+                        <td>{row.rowNumber}</td>
+                        <td>{row.functionName}</td>
+                        <td>{row.operationName}</td>
+                        <td>{row.total}</td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </template>
+
+            <template if:true={isChangeRequestStepThree}>
+              <h3>{changeRequestModalTitle}</h3>
+              <h4>Select Approvers</h4>
+              <p>Approvers are prefiltered based on the Initiative's Plant, Sector, and Shop. Add or remove approvers from this Change Request.</p>
+              <div class="wizard-table-scroll">
+                <table class="support-table wizard-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th></th>
+                      <th>Approver Name</th>
+                      <th>Role</th>
+                      <th>Department</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template for:each={availableApprovers} for:item="approver">
+                      <tr key={approver.id}>
+                        <td>{approver.rowNumber}</td>
+                        <td>
+                          <input
+                            type="checkbox"
+                            checked={approver.checked}
+                            data-id={approver.id}
+                            onchange={handleApproverSelect}
+                          />
+                        </td>
+                        <td>{approver.name}</td>
+                        <td>{approver.role}</td>
+                        <td>{approver.department}</td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </template>
+
+            <template if:true={isChangeRequestStepFour}>
+              <h3>{changeRequestModalTitle}</h3>
+              <h4>Review Change Request Information</h4>
+              <p>These are the Functions and Operations being reported:</p>
+              <div class="wizard-table-scroll wizard-table-scroll_short">
+                <table class="support-table wizard-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Functions</th>
+                      <th>Operations</th>
+                      <th>Total Position Adjustments</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template for:each={changeRequestSummaryRows} for:item="row">
+                      <tr key={row.id}>
+                        <td>{row.rowNumber}</td>
+                        <td>{row.functionName}</td>
+                        <td>{row.operationName}</td>
+                        <td>{row.total}</td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+              <p class="slds-m-top_small">These are the Approvers for this Change Request:</p>
+              <div class="wizard-table-scroll wizard-table-scroll_short">
+                <table class="support-table wizard-table">
+                  <thead>
+                    <tr>
+                      <th></th>
+                      <th>Approver Name</th>
+                      <th>Role</th>
+                      <th>Department</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <template for:each={selectedApprovers} for:item="approver">
+                      <tr key={approver.id}>
+                        <td>{approver.rowNumber}</td>
+                        <td>{approver.name}</td>
+                        <td>{approver.role}</td>
+                        <td>{approver.department}</td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </template>
+          </div>
+
+          <footer class="slds-modal__footer change-request-modal__footer">
+            <lightning-button
+              label="Previous"
+              variant="neutral"
+              disabled={isFirstChangeRequestStep}
+              onclick={handleChangeRequestPrevious}
+            ></lightning-button>
+            <div class="wizard-progress">
+              <span class="wizard-progress__dot"></span>
+              <span class="wizard-progress__line"></span>
+              <span class="wizard-progress__dot"></span>
+              <span class="wizard-progress__line"></span>
+              <span class="wizard-progress__dot"></span>
+              <span class="wizard-progress__line wizard-progress__line_inactive"></span>
+              <span class="wizard-progress__dot wizard-progress__dot_inactive"></span>
+            </div>
+            <div>
+              <lightning-button label="Cancel" variant="neutral" onclick={closeChangeRequestModal}></lightning-button>
+              <template if:false={isFinalChangeRequestStep}>
+                <lightning-button
+                  class="slds-m-left_small"
+                  label="Next"
+                  variant="brand"
+                  disabled={nextChangeRequestDisabled}
+                  onclick={handleChangeRequestNext}
+                ></lightning-button>
+              </template>
+              <template if:true={isFinalChangeRequestStep}>
+                <lightning-button
+                  class="slds-m-left_small"
+                  label="Submit for Approval"
+                  variant="brand"
+                  onclick={submitChangeRequest}
+                ></lightning-button>
+              </template>
+            </div>
+          </footer>
+        </div>
+      </section>
+      <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+  </section>
+  <template if:true={showCreateApprovalModal}>
+    <section class="slds-modal slds-fade-in-open" role="dialog" aria-modal="true" aria-label="Report Actuals">
+      <div class="slds-modal__container create-approval-modal">
+        <header class="slds-modal__header create-initiative-modal-header">
+          <button
+            class="slds-button slds-button_icon slds-modal__close create-approval-modal__close"
+            onclick={closeCreateApprovalModal}
+            title="Close"
+          >
+            <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Close"></lightning-icon>
+          </button>
+          <h2 class="slds-text-heading_medium create-initiative-modal-title">Report Actuals</h2>
+        </header>
+        <div class="slds-modal__content slds-p-around_medium create-approval-modal__content">
+          <lightning-flow
+            flow-api-name="Initiative_Approver_Process"
+            flow-input-variables={flowInputVariables}
+            onstatuschange={handleFlowStatusChange}
+          >
+          </lightning-flow>
+        </div>
+      </div>
+    </section>
+    <div class="slds-backdrop slds-backdrop_open"></div>
+  </template>
+</template>

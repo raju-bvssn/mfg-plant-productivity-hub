@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Lockport_Components</label>
+    <protected>false</protected>
+    <values>
+        <field>APS__c</field>
+        <value xsi:type="xsd:string">APSLockport</value>
+    </values>
+    <values>
+        <field>Assembly_M_Schedule__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Auth_Plant_Code__c</field>
+        <value xsi:type="xsd:string">LPC</value>
+    </values>
+    <values>
+        <field>GMOS_Stockman__c</field>
+        <value xsi:type="xsd:string">GPS OTHER_LOCKPORT</value>
+    </values>
+    <values>
+        <field>GPS_M_Schedule__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>POMS__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Salesforce_Plant_Name__c</field>
+        <value xsi:type="xsd:string">Lockport Components</value>
+    </values>
+    <values>
+        <field>Sector__c</field>
+        <value xsi:type="xsd:string">Components</value>
+    </values>
+    <values>
+        <field>Workday_Adaptive__c</field>
+        <value xsi:nil="true"/>
+    </values>
+    <values>
+        <field>Workday__c</field>
+        <value xsi:nil="true"/>
+    </values>
+</CustomMetadata>

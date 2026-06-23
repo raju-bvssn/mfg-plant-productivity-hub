@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Fields</fullName>
+    <columns>MasterLabel</columns>
+    <columns>DeveloperName</columns>
+    <columns>PermissionGroupSetName__c</columns>
+    <columns>PriorityNbr__c</columns>
+    <columns>ProfileGroupName__c</columns>
+    <columns>PublicGroupName__c</columns>
+    <columns>UserPersonaMappingName__c</columns>
+    <columns>CallCenterName__c</columns>
+    <columns>TelephonyPackageLicenseName__c</columns>
+    <filterScope>Everything</filterScope>
+    <label>All Fields</label>
+    <language>en_US</language>
+</ListView>

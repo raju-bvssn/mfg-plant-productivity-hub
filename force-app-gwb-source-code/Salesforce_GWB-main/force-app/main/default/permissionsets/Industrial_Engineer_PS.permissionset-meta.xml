@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customPermissions>
+        <enabled>true</enabled>
+        <name>Industrial_Engineer</name>
+    </customPermissions>
+    <description>PS exclusive for Industrial Engineer persona</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Industrial Engineer PS</label>
+    <userPermissions>
+        <enabled>true</enabled>
+        <name>RunReports</name>
+    </userPermissions>
+    <classAccesses>
+        <apexClass>ProdPlanInitiativeCntrl</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ProdPlanSummaryCntrl</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <classAccesses>
+        <apexClass>ProdPlanningGlobalFilterCntrl</apexClass>
+        <enabled>true</enabled>
+    </classAccesses>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Payroll__c</object>
+        <viewAllFields>true</viewAllFields>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <objectPermissions>
+        <allowCreate>false</allowCreate>
+        <allowDelete>false</allowDelete>
+        <allowEdit>false</allowEdit>
+        <allowRead>true</allowRead>
+        <modifyAllRecords>false</modifyAllRecords>
+        <object>Workday_Profit_Center_Plant_Decoder__c</object>
+        <viewAllFields>true</viewAllFields>
+        <viewAllRecords>false</viewAllRecords>
+    </objectPermissions>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>WDA_Base_Supp_Mapping__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>WDA_Headcount_Type_Mapping__mdt</name>
+    </customMetadataTypeAccesses>
+    <customMetadataTypeAccesses>
+        <enabled>true</enabled>
+        <name>WDA_Hours_Classification_Mapping__mdt</name>
+    </customMetadataTypeAccesses>
+    <tabSettings>
+        <tab>Productivity_Planning_Suite</tab>
+        <visibility>Available</visibility>
+    </tabSettings>
+    <tabSettings>
+        <tab>Payroll__c</tab>
+        <visibility>Available</visibility>
+    </tabSettings>
+<tabSettings>
+        <tab>Workday_Profit_Center_Plant_Decoder__c</tab>
+        <visibility>Available</visibility>
+    </tabSettings>
+<tabSettings>
+        <tab>Initiative__c</tab>
+        <visibility>Available</visibility>
+    </tabSettings>
+</PermissionSet>

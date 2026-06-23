@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GM_ApplicableRegionAccess__c</fullName>
+    <description>Functional Description: This field is used to filter CRMA data to only show the records based on the logged in users Regions 
+User Story #: 5128466
+Used in Integration: N
+Bi-Directional Sync: N</description>
+    <label>Applicable Region Access</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>GWB_User_Region</valueSetName>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Function_Level__c</fullName>
+    <label>Function Level</label>
+    <required>false</required>
+    <trackFeedHistory>true</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>01 - Director</fullName>
+                <default>false</default>
+                <label>01 - Director</label>
+            </value>
+            <value>
+                <fullName>02 - Area Manager</fullName>
+                <default>false</default>
+                <label>02 - Area Manager</label>
+            </value>
+            <value>
+                <fullName>03 - Shift Leader</fullName>
+                <default>false</default>
+                <label>03 - Shift Leader</label>
+            </value>
+            <value>
+                <fullName>04 - Group Leader</fullName>
+                <default>false</default>
+                <label>04 - Group Leader</label>
+            </value>
+            <value>
+                <fullName>05 - Maint. Shift Leader</fullName>
+                <default>false</default>
+                <label>05 - Maint. Shift Leader</label>
+            </value>
+            <value>
+                <fullName>06 - Maint. Group Leader</fullName>
+                <default>false</default>
+                <label>06 - Maint. Group Leader</label>
+            </value>
+            <value>
+                <fullName>07 - Lead Engineer</fullName>
+                <default>false</default>
+                <label>07 - Lead Engineer</label>
+            </value>
+            <value>
+                <fullName>08 - Engineer/Technician</fullName>
+                <default>false</default>
+                <label>08 - Engineer/Technician</label>
+            </value>
+            <value>
+                <fullName>09 - Analyst</fullName>
+                <default>false</default>
+                <label>09 - Analyst</label>
+            </value>
+            <value>
+                <fullName>10 - Team Leader</fullName>
+                <default>false</default>
+                <label>10 - Team Leader</label>
+            </value>
+            <value>
+                <fullName>11 - Maint. Team Leader</fullName>
+                <default>false</default>
+                <label>11 - Maint. Team Leader</label>
+            </value>
+            <value>
+                <fullName>12 - Core Team</fullName>
+                <default>false</default>
+                <label>12 - Core Team</label>
+            </value>
+            <value>
+                <fullName>13 - Maint. Team Member</fullName>
+                <default>false</default>
+                <label>13 - Maint. Team Member</label>
+            </value>
+            <value>
+                <fullName>14 - Team Member</fullName>
+                <default>false</default>
+                <label>14 - Team Member</label>
+            </value>
+            <value>
+                <fullName>15 - Tag Relief</fullName>
+                <default>false</default>
+                <label>15 - Tag Relief</label>
+            </value>
+            <value>
+                <fullName>16 - ARO</fullName>
+                <default>false</default>
+                <label>16 - ARO</label>
+            </value>
+            <value>
+                <fullName>17 - VRO</fullName>
+                <default>false</default>
+                <label>17 - VRO</label>
+            </value>
+            <value>
+                <fullName>- Empty</fullName>
+                <default>false</default>
+                <label>- Empty</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

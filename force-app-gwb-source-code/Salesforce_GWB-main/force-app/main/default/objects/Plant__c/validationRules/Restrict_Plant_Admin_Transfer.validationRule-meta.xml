@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Plant_Admin_Transfer</fullName>
+    <active>true</active>
+    <description>Restricts updates to the Plant Admin field. Once populated, only the user currently assigned as the Plant Admin can reassign the field to a different user.</description>
+    <errorConditionFormula>AND(
+    NOT($Setup.GWB_Switch__c.Bypass_VRs__c),
+    NOT($Permission.Central_Admin),
+    NOT($Permission.Regional_Admin),
+    NOT($Permission.GWB_System_Admin),
+    ISCHANGED(Plant_Admin__c),
+    NOT(ISBLANK(PRIORVALUE(Plant_Admin__c))),
+    PRIORVALUE(Plant_Admin__c) &lt;&gt; $User.Id
+)</errorConditionFormula>
+    <errorDisplayField>Plant_Admin__c</errorDisplayField>
+    <errorMessage>Only the current Plant Admin can update this field once it has been set.</errorMessage>
+</ValidationRule>

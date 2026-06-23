@@ -1,0 +1,39 @@
+<template>
+    <lightning-card>
+        <div slot="title" class="suite-header">
+            <span class="suite-header-icon" aria-hidden="true">
+                <lightning-icon
+                    icon-name={headerIconName}
+                    alternative-text={headerIconAltText}
+                    size="medium"
+                    variant="inverse"
+                ></lightning-icon>
+            </span>
+            <span class="suite-header-title">Productivity Planning Suite</span>
+        </div>
+        <div class="slds-p-around_medium">
+            <c-prod-planning-global-filter
+                initial-filters={appliedFilters}
+                active-tab={activeTabValue}
+                onfilterschange={handleFilterChange}
+                onapply={handleApply}
+            ></c-prod-planning-global-filter>
+        </div>
+        <div class="slds-p-horizontal_medium slds-p-bottom_medium">
+            <lightning-tabset active-tab-value={activeTabValue}>
+                <lightning-tab label="Summary" value="summary" onactive={handleTabActive}>
+                    <div class="slds-p-vertical_small">
+                        <c-productivity-planning-summary
+                            applied-filter-wrapper={appliedFilters}
+                        ></c-productivity-planning-summary>
+                    </div>
+                </lightning-tab>
+                <lightning-tab label="Initiatives" value="initiatives" onactive={handleTabActive}>
+                    <div class="slds-p-vertical_small">
+                        <c-productivity-planning-initiative applied-filter-wrapper={appliedFilters}></c-productivity-planning-initiative>    
+                    </div>
+                </lightning-tab>
+            </lightning-tabset>
+        </div>
+    </lightning-card>
+</template>

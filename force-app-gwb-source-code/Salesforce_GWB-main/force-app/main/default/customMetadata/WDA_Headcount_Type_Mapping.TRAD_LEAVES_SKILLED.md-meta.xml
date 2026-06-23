@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>TRAD_LEAVES_SKILLED</label>
+    <protected>false</protected>
+    <values>
+        <field>Category__c</field>
+        <value xsi:type="xsd:string">Leaves-Skilled</value>
+    </values>
+    <values>
+        <field>Classification_Grouping__c</field>
+        <value xsi:type="xsd:string">Skilled Leaves</value>
+    </values>
+    <values>
+        <field>Status__c</field>
+        <value xsi:type="xsd:string">Leaves</value>
+    </values>
+    <values>
+        <field>Type__c</field>
+        <value xsi:type="xsd:string">Hourly</value>
+    </values>
+    <values>
+        <field>Workday_Adaptive_Headcount_Type__c</field>
+        <value xsi:type="xsd:string">TRAD_LEAVES_SKILLED</value>
+    </values>
+</CustomMetadata>

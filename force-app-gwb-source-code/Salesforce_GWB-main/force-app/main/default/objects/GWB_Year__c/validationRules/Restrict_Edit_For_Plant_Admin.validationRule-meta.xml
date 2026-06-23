@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Restrict_Edit_For_Plant_Admin</fullName>
+    <active>false</active>
+    <description>PR1064302-420: Prevents users with the Plant_Admin custom permission from editing a GWB Year (Target) record when the prior status was Plant Review Complete, Published, or Locked.</description>
+    <errorConditionFormula>AND(
+    NOT($Setup.GWB_Switch__c.Bypass_VRs__c),
+    $Permission.Plant_Admin,
+    OR(
+        ISPICKVAL(PRIORVALUE(Status__c), &apos;Plant Review Complete&apos;),
+        ISPICKVAL(PRIORVALUE(Status__c), &apos;Published&apos;),
+        ISPICKVAL(PRIORVALUE(Status__c), &apos;Locked&apos;)
+    )
+)</errorConditionFormula>
+    <errorMessage>You do not have permission to edit this Target record. Records with a status of Plant Review Complete, Published or Locked cannot be modified by a Plant Admin.</errorMessage>
+</ValidationRule>

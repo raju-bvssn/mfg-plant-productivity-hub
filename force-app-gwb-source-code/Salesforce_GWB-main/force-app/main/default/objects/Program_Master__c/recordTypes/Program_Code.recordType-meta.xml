@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<RecordType xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Program_Code</fullName>
+    <active>true</active>
+    <compactLayoutAssignment>Plant_Program_Code_Compact_Layout</compactLayoutAssignment>
+    <label>Program Code</label>
+    <picklistValues>
+        <picklist>Product_Type__c</picklist>
+        <values>
+            <fullName>Battery</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Castings</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Components</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Drive Unit</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Engine</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Equation</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Polymers</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Stamping</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Transmission</fullName>
+            <default>false</default>
+        </values>
+        <values>
+            <fullName>Vehicle</fullName>
+            <default>false</default>
+        </values>
+    </picklistValues>
+</RecordType>

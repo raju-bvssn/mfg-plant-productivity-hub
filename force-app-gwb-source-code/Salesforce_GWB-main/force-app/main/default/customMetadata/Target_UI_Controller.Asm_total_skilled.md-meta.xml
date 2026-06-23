@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>Asm_total_skilled</label>
+    <protected>false</protected>
+    <values>
+        <field>Avg_Total_Tooltip__c</field>
+        <value xsi:type="xsd:string">Avg / Total = average of Jan-Dec values.</value>
+    </values>
+    <values>
+        <field>Category__c</field>
+        <value xsi:type="xsd:string">Headcount</value>
+    </values>
+    <values>
+        <field>Classification__c</field>
+        <value xsi:type="xsd:string">Skilled</value>
+    </values>
+    <values>
+        <field>Fill_Forward_On_Edit__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Formula_Key__c</field>
+        <value xsi:type="xsd:string">totalManpower</value>
+    </values>
+    <values>
+        <field>Formula_Tooltip__c</field>
+        <value xsi:type="xsd:string">Total Manpower formula: Previous December is Base Headcount Prev Dec + Approved Target Prev Dec. Jan starts from previous December, then each month rolls forward using the same classification total plus the applicable adjustment rows for that month.</value>
+    </values>
+    <values>
+        <field>Internal_Key__c</field>
+        <value xsi:type="xsd:string">total-skilled</value>
+    </values>
+    <values>
+        <field>Is_Active__c</field>
+        <value xsi:type="xsd:boolean">true</value>
+    </values>
+    <values>
+        <field>Is_Editable__c</field>
+        <value xsi:type="xsd:boolean">false</value>
+    </values>
+    <values>
+        <field>Parameter_Driver__c</field>
+        <value xsi:type="xsd:string">Total Manpower (incl prev YE approved Target Changes)</value>
+    </values>
+    <values>
+        <field>Section_Name__c</field>
+        <value xsi:type="xsd:string">2. Driver and Headcount Information</value>
+    </values>
+    <values>
+        <field>Section_Sequence__c</field>
+        <value xsi:type="xsd:double">2.0</value>
+    </values>
+    <values>
+        <field>Sector__c</field>
+        <value xsi:type="xsd:string">Assembly</value>
+    </values>
+    <values>
+        <field>Source_Section__c</field>
+        <value xsi:type="xsd:string">Headcount</value>
+    </values>
+    <values>
+        <field>Source_Type__c</field>
+        <value xsi:type="xsd:string">Parameter</value>
+    </values>
+    <values>
+        <field>Source_Value__c</field>
+        <value xsi:type="xsd:string">Total Manpower</value>
+    </values>
+    <values>
+        <field>UI_Line_Type__c</field>
+        <value xsi:type="xsd:string">Formula</value>
+    </values>
+    <values>
+        <field>UI_Sequence__c</field>
+        <value xsi:type="xsd:double">39.0</value>
+    </values>
+    <values>
+        <field>Value_Type__c</field>
+        <value xsi:type="xsd:string">number</value>
+    </values>
+</CustomMetadata>

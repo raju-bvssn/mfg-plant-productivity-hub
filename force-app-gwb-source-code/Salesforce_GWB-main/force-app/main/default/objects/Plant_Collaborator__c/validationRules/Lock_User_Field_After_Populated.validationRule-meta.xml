@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Lock_User_Field_After_Populated</fullName>
+    <active>true</active>
+    <description>Prevents all updates to the User__c field once an initial value has been set.</description>
+    <errorConditionFormula>AND(
+    NOT( $Setup.GWB_Switch__c.Bypass_VRs__c ),
+    ISCHANGED(User__c),
+    NOT(ISBLANK(PRIORVALUE(User__c)))
+)</errorConditionFormula>
+    <errorDisplayField>User__c</errorDisplayField>
+    <errorMessage>The User field cannot be changed once it has been assigned.</errorMessage>
+</ValidationRule>

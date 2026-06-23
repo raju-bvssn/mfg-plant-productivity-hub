@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>M_Schedule_Product_Type__c</fullName>
+    <description>PR1064302-482 - This field will hold the Product Type values of records from M-Schedule GPS file. Mule will be using this field to map the M-Schedule product type and aggregate values for Salesforce Product Type.</description>
+    <externalId>false</externalId>
+    <label>M-Schedule Product Type</label>
+    <length>30</length>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Text</type>
+    <unique>false</unique>
+</CustomField>

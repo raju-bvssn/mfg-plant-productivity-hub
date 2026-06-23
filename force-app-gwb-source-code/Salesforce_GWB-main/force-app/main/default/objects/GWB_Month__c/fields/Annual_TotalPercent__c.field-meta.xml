@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Annual_TotalPercent__c</fullName>
+    <formula>Jan_Percent__c + Feb_Percent__c + Mar_Percent__c + Apr_Percent__c + May_Percent__c + Jun_Percent__c + Jul_Percent__c + Aug_Percent__c + Sep_Percent__c + Oct_Percent__c + Nov_Percent__c + Dec_Percent__c</formula>
+    <formulaTreatBlanksAs>BlankAsZero</formulaTreatBlanksAs>
+    <label>Annual Total</label>
+    <precision>18</precision>
+    <required>false</required>
+    <scale>0</scale>
+    <trackTrending>false</trackTrending>
+    <type>Percent</type>
+</CustomField>

@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ValidationRule xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>No_Negative_Totals</fullName>
+    <active>true</active>
+    <description>Prevents any monthly total or Prev Dec Total field from being set to a negative value.</description>
+    <errorConditionFormula>OR(
+        AND(NOT(ISNULL(Jan_Total__c)), Jan_Total__c &lt; 0),
+        AND(NOT(ISNULL(Feb_Total__c)), Feb_Total__c &lt; 0),
+        AND(NOT(ISNULL(Mar_Total__c)), Mar_Total__c &lt; 0),
+        AND(NOT(ISNULL(Apr_Total__c)), Apr_Total__c &lt; 0),
+        AND(NOT(ISNULL(May_Total__c)), May_Total__c &lt; 0),
+        AND(NOT(ISNULL(Jun_Total__c)), Jun_Total__c &lt; 0),
+        AND(NOT(ISNULL(Jul_Total__c)), Jul_Total__c &lt; 0),
+        AND(NOT(ISNULL(Aug_Total__c)), Aug_Total__c &lt; 0),
+        AND(NOT(ISNULL(Sep_Total__c)), Sep_Total__c &lt; 0),
+        AND(NOT(ISNULL(Oct_Total__c)), Oct_Total__c &lt; 0),
+        AND(NOT(ISNULL(Nov_Total__c)), Nov_Total__c &lt; 0),
+        AND(NOT(ISNULL(Dec_Total__c)), Dec_Total__c &lt; 0),
+        AND(NOT(ISNULL(Prev_Dec_Total__c)), Prev_Dec_Total__c &lt; 0)
+    )</errorConditionFormula>
+    <errorMessage>Total fields cannot be negative. Please enter a value of 0 or greater for all monthly totals.</errorMessage>
+</ValidationRule>

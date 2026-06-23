@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UserAccessPolicy xmlns="http://soap.sforce.com/2006/04/metadata">
+    <booleanFilter>1 AND 2</booleanFilter>
+    <description>Assign Central Admins to the Central Admin public group.</description>
+    <masterLabel>Assign Central Admin To Public Group</masterLabel>
+    <order>1</order>
+    <status>Design</status>
+    <userAccessPolicyActions>
+        <action>Grant</action>
+        <target>GWB_Central_Admins</target>
+        <type>Group</type>
+    </userAccessPolicyActions>
+    <userAccessPolicyFilters>
+        <operation>equals</operation>
+        <sortOrder>1</sortOrder>
+        <target>Central_Global_Admin_PSG</target>
+        <type>PermissionSetGroup</type>
+    </userAccessPolicyFilters>
+    <userAccessPolicyFilters>
+        <columnName>IsActive</columnName>
+        <operation>equals</operation>
+        <sortOrder>2</sortOrder>
+        <target>User</target>
+        <type>User</type>
+        <value>true</value>
+    </userAccessPolicyFilters>
+</UserAccessPolicy>

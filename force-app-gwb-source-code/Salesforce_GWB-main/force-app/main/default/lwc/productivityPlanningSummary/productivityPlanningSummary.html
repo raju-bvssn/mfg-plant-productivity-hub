@@ -1,0 +1,123 @@
+<template>
+    <article class="slds-card pps-summary-card">
+        <div class="slds-card__header pps-card-header">
+            <div class="pps-card-header__title">
+                <span class="pps-card-icon">
+                    <lightning-icon
+                        icon-name="action:new_custom26"
+                        size="x-small"
+                        alternative-text="Summary"
+                        variant="inverse"
+                    ></lightning-icon>
+                </span>
+                <h2 class="slds-text-heading_small pps-card-title">Plant Shop Summary</h2>
+            </div>
+            <div class="pps-card-header__actions">
+                <lightning-button-icon
+                    icon-name="utility:refresh"
+                    alternative-text="Refresh summary"
+                    title="Refresh summary"
+                    variant="border-filled"
+                    size="small"
+                    onclick={handleRefresh}
+                    disabled={isLoading}
+                ></lightning-button-icon>
+            </div>
+        </div>
+
+        <div class="slds-card__body pps-summary-body">
+            <template lwc:if={isLoading}>
+                <div class="pps-state-row">
+                    <lightning-spinner alternative-text="Loading summary..." size="small"></lightning-spinner>
+                </div>
+            </template>
+
+            <template lwc:if={errorMessage}>
+                <div class="slds-text-color_error slds-p-around_small" role="alert">
+                    {errorMessage}
+                </div>
+            </template>
+
+            <template lwc:if={showInitialState}>
+                <div class="slds-text-body_regular slds-p-around_small slds-text-align_center">
+                    Apply filters to load the Plant Shop Summary.
+                </div>
+            </template>
+
+            <template lwc:if={showEmptyState}>
+                <div class="slds-text-body_regular slds-p-around_small slds-text-align_center">
+                    No data available for the current filter selections.
+                </div>
+            </template>
+
+            <template lwc:if={showTable}>
+                <div class="pps-table-scroll">
+                    <table class="pps-summary-table">
+                        <thead>
+                            <tr class="pps-header-row">
+                                <th class="pps-row-label-header" scope="col">
+                                    <div class="slds-truncate">&nbsp;</div>
+                                </th>
+                                <template for:each={columnHeaders} for:item="col">
+                                    <th key={col.key} class="pps-month-header" scope="col">
+                                        <div class="slds-truncate" title={col.label}>{col.label}</div>
+                                    </th>
+                                </template>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={displayRows} for:item="row">
+                                <tr key={row.key} class={row.rowClass}>
+                                    <template lwc:if={row.isTargetBanner}>
+                                        <th class={row.rowLabelClass} scope="row">{row.rowLabel}</th>
+                                        <td class={row.spanCellClass} colspan={row.spanCellColspan}></td>
+                                    </template>
+
+                                    <template lwc:elseif={row.isSinglePhaseBanner}>
+                                        <th class={row.rowLabelClass} scope="row">{row.rowLabel}</th>
+                                        <td class={row.spanCellClass} colspan={row.spanCellColspan}></td>
+                                    </template>
+
+                                    <template lwc:elseif={row.isActualForecastBanner}>
+                                        <th class={row.rowLabelClass} scope="row"></th>
+                                        <template for:each={row.actualForecastCells} for:item="cell">
+                                            <td key={cell.key} class={cell.cssClass}>{cell.label}</td>
+                                        </template>
+                                    </template>
+
+                                    <template lwc:elseif={row.isIndicatorRow}>
+                                        <th class={row.rowLabelClass} scope="row">
+                                            <div class="slds-truncate" title={row.rowLabel}>{row.rowLabel}</div>
+                                        </th>
+                                        <template for:each={row.indicatorCells} for:item="cell">
+                                            <td key={cell.key} class={cell.cssClass}>
+                                                <span class="pps-indicator">
+                                                    <template lwc:if={cell.isNonPositive}>
+                                                        <span class="pps-indicator-icon pps-indicator-icon_down" aria-hidden="true">&#9660;</span>
+                                                    </template>
+                                                    <template lwc:elseif={cell.isPositive}>
+                                                        <span class="pps-indicator-icon pps-indicator-icon_up" aria-hidden="true">&#9650;</span>
+                                                    </template>
+                                                    <span class="pps-indicator-value">{cell.value}</span>
+                                                </span>
+                                            </td>
+                                        </template>
+                                    </template>
+
+                                    <template lwc:else>
+                                        <th class={row.rowLabelClass} scope="row">
+                                            <div class="slds-truncate" title={row.rowLabel}>{row.rowLabel}</div>
+                                        </th>
+                                        <template for:each={row.valueCells} for:item="cell">
+                                            <td key={cell.key} class={cell.cssClass}>{cell.value}</td>
+                                        </template>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+        </div>
+    </article>
+</template>

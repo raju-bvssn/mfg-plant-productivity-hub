@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Read only access to Plant Objects</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Plant Viewer PSG</label>
+    <permissionSets>EinsteinAnalyticsPlusDataExtractUser</permissionSets>
+    <permissionSets>Global_Data_View_PS</permissionSets>
+    <permissionSets>Industrial_Engineer_PS</permissionSets>
+    <permissionSets>Plant_Viewer_PS</permissionSets>
+    <permissionSets>force__EinsteinAnalyticsPlusUser</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

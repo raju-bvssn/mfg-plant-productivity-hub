@@ -4,6 +4,6 @@
     <protected>false</protected>
     <values>
         <field>Value__c</field>
-        <value xsi:type="xsd:string">REPLACE_WITH_MCP_API_KEY</value>
+        <value xsi:type="xsd:string">3c62cea0bc88a096ba2868ac2901a87ecf74f5da4c2cd43a80dd8cdf173fd422</value>
     </values>
 </CustomMetadata>

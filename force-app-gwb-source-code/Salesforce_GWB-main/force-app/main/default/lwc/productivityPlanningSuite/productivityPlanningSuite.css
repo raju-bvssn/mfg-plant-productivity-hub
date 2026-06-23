@@ -1,0 +1,33 @@
+/**
+:host {
+    display: block;
+    background: var(--slds-g-color-neutral-base-95, #F3F3F3);
+    --slds-c-card-color-background: var(--slds-g-color-neutral-base-95, #F3F3F3);
+}
+**/
+.suite-header {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.suite-header-icon {
+    width: 32px;
+    height: 32px;
+    border-radius: 9999px;
+    background: #ff5d2d;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+}
+
+.suite-header-title {
+    font-family: var(--lwc-fontFamily, "Salesforce Sans", Arial, sans-serif);
+    font-weight: 400;
+    font-style: normal;
+    font-size: 1.5rem;
+    line-height: 18px;
+    letter-spacing: 0;
+    color: var(--color-on-surface-1-neutral-40, #5c5c5c);
+}

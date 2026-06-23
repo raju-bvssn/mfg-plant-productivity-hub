@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>OTS</fullName>
+        <default>false</default>
+        <label>OTS</label>
+    </customValue>
+    <customValue>
+        <fullName>Skilled</fullName>
+        <default>false</default>
+        <label>Skilled</label>
+    </customValue>
+    <customValue>
+        <fullName>Salaried</fullName>
+        <default>false</default>
+        <label>Salaried</label>
+    </customValue>
+    <customValue>
+        <fullName>OTS ILO</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>OTS ILO</label>
+    </customValue>
+    <customValue>
+        <fullName>Skilled Leaves</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Skilled Leaves</label>
+    </customValue>
+    <customValue>
+        <fullName>Part Time Employees (Flex Temps)</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Part Time Employees (Flex Temps)</label>
+    </customValue>
+    <customValue>
+        <fullName>Students</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Students</label>
+    </customValue>
+    <customValue>
+        <fullName>Apprentice</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Apprentice</label>
+    </customValue>
+    <customValue>
+        <fullName>Salaried Leaves</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Salaried Leaves</label>
+    </customValue>
+    <customValue>
+        <fullName>PT Temp Leaves</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>PT Temp Leaves</label>
+    </customValue>
+    <customValue>
+        <fullName>OTS Leaves</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>OTS Leaves</label>
+    </customValue>
+    <masterLabel>Classification Group</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

@@ -1,0 +1,16 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId" access="global" description="Aura wrapper that hosts the gwbInitiativeDetailPlanning LWC and surfaces uncommitted inline edits to Lightning Experience through lightning:unsavedChanges.">
+    <aura:attribute name="mode" type="String" default="both" access="global"
+        description="Use both for the legacy internal tabs, or forecast/actuals when Salesforce record tabs own the navigation." />
+    <aura:attribute name="showTestDataToggle" type="Boolean" default="false" access="global"
+        description="Shows the developer-only Test Data Mode switch." />
+
+    <lightning:unsavedChanges aura:id="unsavedChanges"
+        onsave="{!c.handleUnsavedSave}"
+        ondiscard="{!c.handleUnsavedDiscard}" />
+
+    <c:gwbInitiativeDetailPlanning aura:id="planner"
+        recordId="{!v.recordId}"
+        mode="{!v.mode}"
+        showTestDataToggle="{!v.showTestDataToggle}"
+        onunsavedchangeschange="{!c.handleUnsavedChange}" />
+</aura:component>

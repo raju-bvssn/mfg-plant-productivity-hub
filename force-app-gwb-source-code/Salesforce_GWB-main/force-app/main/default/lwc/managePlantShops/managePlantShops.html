@@ -1,0 +1,105 @@
+<template>
+    <lightning-quick-action-panel header="Manage Plant Shops">
+        <div class="slds-p-around_medium">
+
+
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </template>
+
+            <!-- Error Message -->
+            <template if:true={error}>
+                <div class="slds-m-bottom_medium">
+                    <lightning-formatted-text value={error} class="slds-text-color_error"></lightning-formatted-text>
+                </div>
+            </template>
+
+            <!-- Table Container -->
+            <template if:false={isLoading}>
+                <div class="slds-scrollable_y table-container">
+                    <table class="slds-table slds-table_cell-buffer no-row-hover custom-table">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th scope="col" class="slds-text-align_center">
+                                    <div class="slds-truncate">Sector</div>
+                                </th>
+                                <th scope="col" class="slds-text-align_center">
+                                    <div class="slds-truncate">Product Type</div>
+                                </th>
+                                <th scope="col" class="slds-text-align_center">
+                                    <div class="slds-truncate">Shop</div>
+                                </th>
+                                <template for:each={programValues} for:item="programValue">
+                                    <th key={programValue} scope="col" class="slds-text-align_center">
+                                        <div class="slds-truncate">{programValue}</div>
+                                    </th>
+                                </template>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={plantShopRows} for:item="plantShop" for:index="index">
+                                <tr key={plantShop.key}>
+                                    <!-- Auth Sector -->
+                                    <td data-label="Auth Sector">
+                                        <lightning-formatted-text
+                                            value={plantShop.authSector}></lightning-formatted-text>
+                                    </td>
+
+                                    <!-- Product Type -->
+                                    <td data-label="Product Type">
+                                        <lightning-formatted-text
+                                            value={plantShop.productType}></lightning-formatted-text>
+                                    </td>
+                                    <!-- Product Type -->
+                                    <td data-label="Shop">
+                                        <lightning-formatted-text value={plantShop.shop}></lightning-formatted-text>
+                                    </td>
+
+                                    <!-- Program Checkboxes (Dynamic) -->
+                                    <template for:each={plantShop.programLoop} for:item="program">
+                                        <td key={program.programValue} data-label={program.programValue}
+                                            class="slds-text-align_center">
+                                            <template if:true={program.isVisible}>
+                                                <div
+                                                    class="slds-grid slds-grid_vertical-align-center slds-gutters_x-small">
+                                                    <div class="slds-col slds-shrink-none">
+                                                        <lightning-input type="checkbox" data-index={index}
+                                                            data-program={program.programValue} data-key={plantShop.key}
+                                                            checked={program.isSelected} label=""
+                                                            onchange={handleProgramChange}>
+                                                        </lightning-input>
+                                                    </div>
+                                                    <div class="slds-col">
+                                                        <lightning-record-picker label="Op Plan Default"
+                                                            placeholder="Select Op Plan" data-index={index}
+                                                            data-program={program.programValue} data-key={plantShop.key}
+                                                            object-api-name="Operation_Plan__c"
+                                                            value={program.operationPlanId}
+                                                            onchange={handleOperationPlanChange}>
+                                                        </lightning-record-picker>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                            <!-- <template if:false={program.isVisible}>
+                                                <lightning-formatted-text value="N/A"></lightning-formatted-text>
+                                            </template> -->
+                                        </td>
+                                    </template>
+                                </tr>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+        </div>
+
+        <!-- Footer Actions -->
+        <div slot="footer">
+            <lightning-button label="Cancel" onclick={handleCancel} variant="neutral">
+            </lightning-button>
+            <lightning-button label="Save" onclick={handleSave} variant="brand" disabled={isLoading}>
+            </lightning-button>
+        </div>
+    </lightning-quick-action-panel>
+</template>

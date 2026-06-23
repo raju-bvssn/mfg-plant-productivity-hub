@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Auth_Sector__c</fullName>
+    <label>Auth Sector</label>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Assembly</fullName>
+                <default>false</default>
+                <label>Assembly</label>
+            </value>
+            <value>
+                <fullName>RESS</fullName>
+                <default>false</default>
+                <label>RESS</label>
+            </value>
+            <value>
+                <fullName>GPS</fullName>
+                <default>false</default>
+                <label>GPS</label>
+            </value>
+            <value>
+                <fullName>Press</fullName>
+                <default>false</default>
+                <label>Press</label>
+            </value>
+            <value>
+                <fullName>Polymer</fullName>
+                <default>false</default>
+                <label>Polymer</label>
+            </value>
+            <value>
+                <fullName>All</fullName>
+                <default>true</default>
+                <label>All</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

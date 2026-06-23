@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomMetadata xmlns="http://soap.sforce.com/2006/04/metadata" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+    <label>PPEO</label>
+    <protected>false</protected>
+    <values>
+        <field>Functional_Area_Code__c</field>
+        <value xsi:type="xsd:string">PPEO</value>
+    </values>
+    <values>
+        <field>GWB_Base_Supp__c</field>
+        <value xsi:type="xsd:string">SUPP</value>
+    </values>
+</CustomMetadata>

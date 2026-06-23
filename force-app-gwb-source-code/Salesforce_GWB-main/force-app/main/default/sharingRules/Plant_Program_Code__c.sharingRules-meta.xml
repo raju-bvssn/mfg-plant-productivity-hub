@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sharingCriteriaRules>
+        <fullName>Program_Code_Master_GMSA_Access</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>Program Code Master GMSA Access</label>
+        <sharedTo>
+            <group>GWB_Regional_Admins_SA</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>CreatedById</field>
+            <operation>notEqual</operation>
+            <value></value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>Program_Code_Master_GMNA_Access</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>Program Code Master GMNA Access</label>
+        <sharedTo>
+            <group>GWB_Regional_Admins_NA</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>CreatedById</field>
+            <operation>notEqual</operation>
+            <value></value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>Program_Code_Master_GMIO_Access</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>Program Code Master GMIO Access</label>
+        <sharedTo>
+            <group>GWB_Regional_Admins_IO</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>CreatedById</field>
+            <operation>notEqual</operation>
+            <value></value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+</SharingRules>

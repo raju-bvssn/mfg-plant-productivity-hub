@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>67.0</apiVersion>
+    <isExposed>true</isExposed>
+    <masterLabel>GWB Initiative Detail Planning</masterLabel>
+    <targets>
+        <target>lightning__RecordPage</target>
+    </targets>
+    <targetConfigs>
+        <targetConfig targets="lightning__RecordPage">
+            <objects>
+                <object>Initiative__c</object>
+            </objects>
+            <property
+                name="mode"
+                type="String"
+                label="Planning Mode"
+                description="Use both for the legacy internal tabs, or forecast/actuals when Salesforce record tabs own the navigation."
+                default="both"
+                datasource="both,forecast,actuals"
+            />
+            <property
+                name="showTestDataToggle"
+                type="Boolean"
+                label="Show Test Data Toggle"
+                description="Shows the developer-only Test Data Mode switch."
+                default="false"
+            />
+        </targetConfig>
+    </targetConfigs>
+</LightningComponentBundle>

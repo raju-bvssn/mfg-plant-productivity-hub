@@ -1,0 +1,488 @@
+<!--
+  @description : GWB Budget Planning table. Embedded on the GWB Budget Planning app page.
+                 Displays volume drivers and manpower headcount data by month,
+                 matching the GWB Year spreadsheet layout.
+  @group       : GWB Budget
+  @last modified on  : 03-25-2026
+-->
+<template>
+    <lightning-card>
+        <div slot="title" class="header-title">
+            <lightning-icon icon-name="standard:forecasts" size="small" class="slds-m-right_x-small"></lightning-icon>
+            <span>GWB Target Planning</span>
+            <template if:true={plantName}>
+                <span class="slds-badge slds-m-left_small header-badge">{plantName}</span>
+            </template>
+            <template if:true={mSchedule}>
+                <span class="slds-badge slds-badge_inverse slds-m-left_x-small header-badge">{mSchedule}</span>
+            </template>
+        </div>
+
+        <div slot="actions">
+            <lightning-button
+                label="Save Draft"
+                variant="brand"
+                icon-name="utility:save"
+                onclick={handleSave}
+                disabled={isSaving}
+                class="slds-m-right_x-small">
+            </lightning-button>
+            <lightning-button
+                label="Change Status"
+                variant="neutral"
+                onclick={handleOpenStatusModal}>
+            </lightning-button>
+        </div>
+
+        <div class="slds-p-around_small">
+            <template if:true={isSaving}>
+                <div class="slds-align_absolute-center slds-p-around_medium">
+                    <lightning-spinner alternative-text="Saving..." size="medium"></lightning-spinner>
+                </div>
+            </template>
+
+            <div class="table-wrapper">
+                <table class="slds-table slds-table_cell-buffer slds-table_bordered gwb-table">
+                    <thead>
+                        <tr class="slds-line-height_reset group-header-row">
+                            <th class="row-label-col sticky-col" rowspan="2" scope="col">
+                                <div></div>
+                            </th>
+                            <th class="row-type-col sticky-col-2" rowspan="2" scope="col">
+                                <div></div>
+                            </th>
+                            <th rowspan="2" class="group-header prev-dec-header" scope="col">
+                                Prev Dec
+                            </th>
+                            <th colspan="12" class="group-header month-group-header" scope="colgroup">
+                                Jan - Dec
+                            </th>
+                            <th class="group-header totals-header" rowspan="2" scope="col">
+                                Total Year
+                            </th>
+                            <th class="group-header avg-header" rowspan="2" scope="col">
+                                Average HC
+                            </th>
+                            <th class="group-header comments-header" rowspan="2" scope="col">
+                                Comments
+                            </th>
+                        </tr>
+                        <tr class="slds-line-height_reset month-header-row">
+                            <th class="month-header editable-month-header" scope="col">Jan</th>
+                            <th class="month-header editable-month-header" scope="col">Feb</th>
+                            <th class="month-header editable-month-header" scope="col">Mar</th>
+                            <th class="month-header editable-month-header" scope="col">Apr</th>
+                            <th class="month-header editable-month-header" scope="col">May</th>
+                            <th class="month-header editable-month-header" scope="col">Jun</th>
+                            <th class="month-header editable-month-header" scope="col">Jul</th>
+                            <th class="month-header editable-month-header" scope="col">Aug</th>
+                            <th class="month-header editable-month-header" scope="col">Sep</th>
+                            <th class="month-header editable-month-header" scope="col">Oct</th>
+                            <th class="month-header editable-month-header" scope="col">Nov</th>
+                            <th class="month-header editable-month-header" scope="col">Dec</th>
+                        </tr>
+                    </thead>
+
+                    <tbody>
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell" data-label="label">Number of Crews</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.numCrews} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="numCrews" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input
+                                            type="number"
+                                            variant="label-hidden"
+                                            value={cell.value}
+                                            step="1"
+                                            min="0"
+                                            data-row="numCrews"
+                                            data-idx={idx}
+                                            onchange={handleVolumeChange}
+                                            class="cell-input">
+                                        </lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.numCrews}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input
+                                    type="text"
+                                    variant="label-hidden"
+                                    value={volumeComments.numCrews}
+                                    data-row="numCrews"
+                                    onchange={handleVolumeCommentChange}>
+                                </lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">Number of Shifts</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.numShifts} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="numShifts" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input
+                                            type="number"
+                                            variant="label-hidden"
+                                            value={cell.value}
+                                            step="1"
+                                            min="0"
+                                            data-row="numShifts"
+                                            data-idx={idx}
+                                            onchange={handleVolumeChange}
+                                            class="cell-input">
+                                        </lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.numShifts}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input type="text" variant="label-hidden" value={volumeComments.numShifts} data-row="numShifts" onchange={handleVolumeCommentChange}></lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">Net/Net JPH</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.netJph} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="netJph" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input
+                                            type="number"
+                                            variant="label-hidden"
+                                            value={cell.value}
+                                            step="0.1"
+                                            min="0"
+                                            data-row="netJph"
+                                            data-idx={idx}
+                                            onchange={handleVolumeChange}
+                                            class="cell-input">
+                                        </lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.netJph}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input type="text" variant="label-hidden" value={volumeComments.netJph} data-row="netJph" onchange={handleVolumeCommentChange}></lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">Calculated Volume including SOT days</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.calcVolume} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="calcVolume" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input type="number" variant="label-hidden" value={cell.value} step="1" data-row="calcVolume" data-idx={idx} onchange={handleVolumeChange} class="cell-input"></lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.calcVolume}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input type="text" variant="label-hidden" value={volumeComments.calcVolume} data-row="calcVolume" onchange={handleVolumeCommentChange}></lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">Scheduled Volume</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.scheduledVol} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="scheduledVol" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input
+                                            type="number"
+                                            variant="label-hidden"
+                                            value={cell.value}
+                                            step="1"
+                                            data-row="scheduledVol"
+                                            data-idx={idx}
+                                            onchange={handleVolumeChange}
+                                            class="cell-input">
+                                        </lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.scheduledVol}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input type="text" variant="label-hidden" value={volumeComments.scheduledVol} data-row="scheduledVol" onchange={handleVolumeCommentChange}></lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">Scheduled Volume minus Calculated Volume</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.scheduledMinusCalc} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="scheduledMinusCalc" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input type="number" variant="label-hidden" value={cell.value} step="1" data-row="scheduledMinusCalc" data-idx={idx} onchange={handleVolumeChange} class="cell-input"></lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.scheduledMinusCalc}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input type="text" variant="label-hidden" value={volumeComments.scheduledMinusCalc} data-row="scheduledMinusCalc" onchange={handleVolumeCommentChange}></lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">Paid Hours Per CREW</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.paidHours} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="paidHours" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input
+                                            type="number"
+                                            variant="label-hidden"
+                                            value={cell.value}
+                                            step="0.01"
+                                            min="0"
+                                            data-row="paidHours"
+                                            data-idx={idx}
+                                            onchange={handleVolumeChange}
+                                            class="cell-input">
+                                        </lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.paidHours}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input type="text" variant="label-hidden" value={volumeComments.paidHours} data-row="paidHours" onchange={handleVolumeCommentChange}></lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">Available Working Days / Month</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.availWorkDays} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="availWorkDays" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input
+                                            type="number"
+                                            variant="label-hidden"
+                                            value={cell.value}
+                                            step="1"
+                                            min="0"
+                                            data-row="availWorkDays"
+                                            data-idx={idx}
+                                            onchange={handleVolumeChange}
+                                            class="cell-input">
+                                        </lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.availWorkDays}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input type="text" variant="label-hidden" value={volumeComments.availWorkDays} data-row="availWorkDays" onchange={handleVolumeCommentChange}></lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">Production Working days per Month</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.prodWorkDays} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="prodWorkDays" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input
+                                            type="number"
+                                            variant="label-hidden"
+                                            value={cell.value}
+                                            step="1"
+                                            min="0"
+                                            data-row="prodWorkDays"
+                                            data-idx={idx}
+                                            onchange={handleVolumeChange}
+                                            class="cell-input">
+                                        </lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.prodWorkDays}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input type="text" variant="label-hidden" value={volumeComments.prodWorkDays} data-row="prodWorkDays" onchange={handleVolumeCommentChange}></lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="slds-hint-parent driver-row">
+                            <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">EQ SOT Days</td>
+                            <td class="row-type-col sticky-col-2"></td>
+                            <template for:each={volumeData.eqSotDays} for:item="cell" for:index="idx">
+                                <td key={cell.key} data-row="eqSotDays" data-idx={idx} class={cell.cssClass}>
+                                    <template if:true={cell.editable}>
+                                        <lightning-input
+                                            type="number"
+                                            variant="label-hidden"
+                                            value={cell.value}
+                                            step="1"
+                                            min="0"
+                                            data-row="eqSotDays"
+                                            data-idx={idx}
+                                            onchange={handleVolumeChange}
+                                            class="cell-input">
+                                        </lightning-input>
+                                    </template>
+                                    <template if:false={cell.editable}>
+                                        <div class="cell-value">{cell.value}</div>
+                                    </template>
+                                </td>
+                            </template>
+                            <td class="total-col"><div class="cell-value">{volumeTotals.eqSotDays}</div></td>
+                            <td class="avg-col"></td>
+                            <td class="comments-col">
+                                <lightning-input type="text" variant="label-hidden" value={volumeComments.eqSotDays} data-row="eqSotDays" onchange={handleVolumeCommentChange}></lightning-input>
+                            </td>
+                        </tr>
+
+                        <tr class="section-header-row">
+                            <td colspan="18" class="section-header-cell">MANPOWER</td>
+                        </tr>
+
+                        <template for:each={manpowerGroups} for:item="group">
+                            <template for:each={group.rows} for:item="row">
+                                <tr key={row.key} class="slds-hint-parent manpower-row">
+                                    <td class="row-label-col sticky-col slds-text-body_small wrap-label-cell">
+                                        <template if:true={row.showGroupLabel}>
+                                            {group.label}
+                                        </template>
+                                    </td>
+                                    <td class={row.typeCssClass}>{row.type}</td>
+                                    <template for:each={row.cells} for:item="cell" for:index="idx">
+                                        <td key={cell.key} data-group={group.key} data-row={row.key} data-idx={idx} class={cell.cssClass}>
+                                            <template if:true={cell.editable}>
+                                                <lightning-input
+                                                    type="number"
+                                                    variant="label-hidden"
+                                                    value={cell.value}
+                                                    step="1"
+                                                    data-group={group.key}
+                                                    data-rowkey={row.key}
+                                                    data-idx={idx}
+                                                    onchange={handleManpowerChange}
+                                                    class="cell-input">
+                                                </lightning-input>
+                                            </template>
+                                            <template if:false={cell.editable}>
+                                                <div class={cell.valueCssClass}>{cell.value}</div>
+                                            </template>
+                                        </td>
+                                    </template>
+                                    <td class="total-col">
+                                        <div class={row.totalCssClass}>{row.total}</div>
+                                    </td>
+                                    <td class="avg-col">
+                                        <template if:true={row.showAvg}>
+                                            <div class="cell-value avg-value">{row.avg}</div>
+                                        </template>
+                                    </td>
+                                    <td class="comments-col">
+                                        <lightning-input
+                                            type="text"
+                                            variant="label-hidden"
+                                            value={row.comments}
+                                            data-group={group.key}
+                                            data-rowkey={row.key}
+                                            onchange={handleManpowerCommentChange}>
+                                        </lightning-input>
+                                    </td>
+                                </tr>
+                            </template>
+                        </template>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="slds-m-top_small legend-bar">
+                <span class="legend-item">
+                    <span class="legend-swatch prev-dec-swatch"></span> Prev Dec (read-only)
+                </span>
+                <span class="legend-item slds-m-left_medium">
+                    <span class="legend-swatch editable-swatch"></span> Jan - Dec (editable)
+                </span>
+                <span class="legend-item slds-m-left_medium">
+                    <span class="legend-swatch summary-swatch"></span> Total / Average (read-only)
+                </span>
+            </div>
+
+            <div class="bottom-actions slds-m-top_small">
+                <lightning-button
+                    label="Save Draft"
+                    variant="brand"
+                    icon-name="utility:save"
+                    onclick={handleSave}
+                    disabled={isSaving}
+                    class="slds-m-right_x-small">
+                </lightning-button>
+                <lightning-button
+                    label="Change Status"
+                    variant="neutral"
+                    onclick={handleOpenStatusModal}>
+                </lightning-button>
+            </div>
+        </div>
+    </lightning-card>
+
+    <template if:true={isStatusModalOpen}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="status-modal-heading" class="slds-modal slds-fade-in-open slds-modal_small">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseStatusModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="status-modal-heading" class="slds-modal__title slds-hyphenate">Change Status</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <lightning-combobox
+                        name="status"
+                        label="Status"
+                        value={selectedStatus}
+                        options={statusOptions}
+                        placeholder="Select status"
+                        onchange={handleStatusChange}>
+                    </lightning-combobox>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Close" variant="neutral" onclick={handleCloseStatusModal}></lightning-button>
+                    <lightning-button label="Update" variant="brand" onclick={handleSubmitStatusChange} class="slds-m-left_x-small"></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+    </template>
+</template>

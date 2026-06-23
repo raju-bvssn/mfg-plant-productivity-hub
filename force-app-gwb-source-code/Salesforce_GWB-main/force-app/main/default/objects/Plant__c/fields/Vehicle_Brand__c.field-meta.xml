@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Vehicle_Brand__c</fullName>
+    <label>Vehicle Brand For Polymers</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>MultiselectPicklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>TBD</fullName>
+                <default>false</default>
+                <label>TBD</label>
+            </value>
+            <value>
+                <fullName>MONTANA</fullName>
+                <default>false</default>
+                <label>MONTANA</label>
+            </value>
+            <value>
+                <fullName>TRACKER</fullName>
+                <default>false</default>
+                <label>TRACKER</label>
+            </value>
+            <value>
+                <fullName>BRIGHTDROP 400</fullName>
+                <default>false</default>
+                <label>BRIGHTDROP 400</label>
+            </value>
+            <value>
+                <fullName>BRIGHTDROP 600</fullName>
+                <default>false</default>
+                <label>BRIGHTDROP 600</label>
+            </value>
+            <value>
+                <fullName>SILVERADO</fullName>
+                <default>false</default>
+                <label>SILVERADO</label>
+            </value>
+            <value>
+                <fullName>SILVERADO HD</fullName>
+                <default>false</default>
+                <label>SILVERADO HD</label>
+            </value>
+            <value>
+                <fullName>ENVISION</fullName>
+                <default>false</default>
+                <label>ENVISION</label>
+            </value>
+            <value>
+                <fullName>AVEO</fullName>
+                <default>false</default>
+                <label>AVEO</label>
+            </value>
+            <value>
+                <fullName>CAPTIVA</fullName>
+                <default>false</default>
+                <label>CAPTIVA</label>
+            </value>
+            <value>
+                <fullName>GROOVE</fullName>
+                <default>false</default>
+                <label>GROOVE</label>
+            </value>
+            <value>
+                <fullName>N400 MAX</fullName>
+                <default>false</default>
+                <label>N400 MAX</label>
+            </value>
+            <value>
+                <fullName>ONIX</fullName>
+                <default>false</default>
+                <label>ONIX</label>
+            </value>
+            <value>
+                <fullName>PICKUP-D</fullName>
+                <default>false</default>
+                <label>PICKUP-D</label>
+            </value>
+            <value>
+                <fullName>SV70</fullName>
+                <default>false</default>
+                <label>SV70</label>
+            </value>
+            <value>
+                <fullName>E260S+</fullName>
+                <default>false</default>
+                <label>E260S+</label>
+            </value>
+            <value>
+                <fullName>EV70</fullName>
+                <default>false</default>
+                <label>EV70</label>
+            </value>
+            <value>
+                <fullName>F510S</fullName>
+                <default>false</default>
+                <label>F510S</label>
+            </value>
+            <value>
+                <fullName>LCF DSL-JP</fullName>
+                <default>false</default>
+                <label>LCF DSL-JP</label>
+            </value>
+            <value>
+                <fullName>ENCORE GX</fullName>
+                <default>false</default>
+                <label>ENCORE GX</label>
+            </value>
+            <value>
+                <fullName>ENVISTA</fullName>
+                <default>false</default>
+                <label>ENVISTA</label>
+            </value>
+            <value>
+                <fullName>TRAILBLAZER</fullName>
+                <default>false</default>
+                <label>TRAILBLAZER</label>
+            </value>
+            <value>
+                <fullName>TRAX</fullName>
+                <default>false</default>
+                <label>TRAX</label>
+            </value>
+            <value>
+                <fullName>OPTIQ</fullName>
+                <default>false</default>
+                <label>OPTIQ</label>
+            </value>
+            <value>
+                <fullName>BLAZER</fullName>
+                <default>false</default>
+                <label>BLAZER</label>
+            </value>
+            <value>
+                <fullName>BLAZER EV</fullName>
+                <default>false</default>
+                <label>BLAZER EV</label>
+            </value>
+            <value>
+                <fullName>EQUINOX</fullName>
+                <default>false</default>
+                <label>EQUINOX</label>
+            </value>
+            <value>
+                <fullName>EQUINOX EV</fullName>
+                <default>false</default>
+                <label>EQUINOX EV</label>
+            </value>
+            <value>
+                <fullName>SIERRA</fullName>
+                <default>false</default>
+                <label>SIERRA</label>
+            </value>
+            <value>
+                <fullName>TERRAIN</fullName>
+                <default>false</default>
+                <label>TERRAIN</label>
+            </value>
+            <value>
+                <fullName>PROLOGUE</fullName>
+                <default>false</default>
+                <label>PROLOGUE</label>
+            </value>
+            <value>
+                <fullName>ENCLAVE</fullName>
+                <default>false</default>
+                <label>ENCLAVE</label>
+            </value>
+            <value>
+                <fullName>CELESTIQ</fullName>
+                <default>false</default>
+                <label>CELESTIQ</label>
+            </value>
+            <value>
+                <fullName>CT4</fullName>
+                <default>false</default>
+                <label>CT4</label>
+            </value>
+            <value>
+                <fullName>CT5</fullName>
+                <default>false</default>
+                <label>CT5</label>
+            </value>
+            <value>
+                <fullName>ESCALADE</fullName>
+                <default>false</default>
+                <label>ESCALADE</label>
+            </value>
+            <value>
+                <fullName>ESCALADE ESV</fullName>
+                <default>false</default>
+                <label>ESCALADE ESV</label>
+            </value>
+            <value>
+                <fullName>ESCALADE IQ</fullName>
+                <default>false</default>
+                <label>ESCALADE IQ</label>
+            </value>
+            <value>
+                <fullName>LYRIQ</fullName>
+                <default>false</default>
+                <label>LYRIQ</label>
+            </value>
+            <value>
+                <fullName>XT4</fullName>
+                <default>false</default>
+                <label>XT4</label>
+            </value>
+            <value>
+                <fullName>XT5</fullName>
+                <default>false</default>
+                <label>XT5</label>
+            </value>
+            <value>
+                <fullName>XT6</fullName>
+                <default>false</default>
+                <label>XT6</label>
+            </value>
+            <value>
+                <fullName>COLORADO</fullName>
+                <default>false</default>
+                <label>COLORADO</label>
+            </value>
+            <value>
+                <fullName>CORVETTE</fullName>
+                <default>false</default>
+                <label>CORVETTE</label>
+            </value>
+            <value>
+                <fullName>EXPRESS</fullName>
+                <default>false</default>
+                <label>EXPRESS</label>
+            </value>
+            <value>
+                <fullName>SILVERADO EV</fullName>
+                <default>false</default>
+                <label>SILVERADO EV</label>
+            </value>
+            <value>
+                <fullName>SILVERADO MD</fullName>
+                <default>false</default>
+                <label>SILVERADO MD</label>
+            </value>
+            <value>
+                <fullName>SUBURBAN</fullName>
+                <default>false</default>
+                <label>SUBURBAN</label>
+            </value>
+            <value>
+                <fullName>TAHOE</fullName>
+                <default>false</default>
+                <label>TAHOE</label>
+            </value>
+            <value>
+                <fullName>TRAVERSE</fullName>
+                <default>false</default>
+                <label>TRAVERSE</label>
+            </value>
+            <value>
+                <fullName>ACADIA</fullName>
+                <default>false</default>
+                <label>ACADIA</label>
+            </value>
+            <value>
+                <fullName>CANYON</fullName>
+                <default>false</default>
+                <label>CANYON</label>
+            </value>
+            <value>
+                <fullName>GMC HUM EV LUX-5 SUV BEV</fullName>
+                <default>false</default>
+                <label>GMC HUM EV LUX-5 SUV BEV</label>
+            </value>
+            <value>
+                <fullName>GMC HUM EV PICKUP-E BEV</fullName>
+                <default>false</default>
+                <label>GMC HUM EV PICKUP-E BEV</label>
+            </value>
+            <value>
+                <fullName>SAVANA</fullName>
+                <default>false</default>
+                <label>SAVANA</label>
+            </value>
+            <value>
+                <fullName>SIERRA EV</fullName>
+                <default>false</default>
+                <label>SIERRA EV</label>
+            </value>
+            <value>
+                <fullName>SIERRA HD</fullName>
+                <default>false</default>
+                <label>SIERRA HD</label>
+            </value>
+            <value>
+                <fullName>YUKON</fullName>
+                <default>false</default>
+                <label>YUKON</label>
+            </value>
+            <value>
+                <fullName>YUKON XL</fullName>
+                <default>false</default>
+                <label>YUKON XL</label>
+            </value>
+            <value>
+                <fullName>ZDX</fullName>
+                <default>false</default>
+                <label>ZDX</label>
+            </value>
+            <value>
+                <fullName>ESCALADE IQL</fullName>
+                <default>false</default>
+                <label>ESCALADE IQL</label>
+            </value>
+            <value>
+                <fullName>VISTIQ</fullName>
+                <default>false</default>
+                <label>VISTIQ</label>
+            </value>
+            <value>
+                <fullName>LCF GAS-US</fullName>
+                <default>false</default>
+                <label>LCF GAS-US</label>
+            </value>
+            <value>
+                <fullName>BOLT</fullName>
+                <default>false</default>
+                <label>BOLT</label>
+            </value>
+            <value>
+                <fullName>LCF 6500XD-US</fullName>
+                <default>false</default>
+                <label>LCF 6500XD-US</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+    <visibleLines>4</visibleLines>
+</CustomField>

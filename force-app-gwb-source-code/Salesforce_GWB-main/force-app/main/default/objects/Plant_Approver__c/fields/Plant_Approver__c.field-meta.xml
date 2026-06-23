@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plant_Approver__c</fullName>
+    <deleteConstraint>Restrict</deleteConstraint>
+    <description>PR1064302-603</description>
+    <label>Plant Approver</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>$Source.Auth_Plant_Name__c</field>
+            <operation>equals</operation>
+            <valueField>Plant_Collaborator__c.Plant__c</valueField>
+        </filterItems>
+        <filterItems>
+            <field>Plant_Collaborator__c.Active__c</field>
+            <operation>equals</operation>
+            <value>True</value>
+        </filterItems>
+        <infoMessage>Please contact the plant admin to add a plant collaborator if you don&apos;t find the approver in the search results</infoMessage>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Plant_Collaborator__c</referenceTo>
+    <relationshipLabel>Plant Approvers</relationshipLabel>
+    <relationshipName>Plant_Approvers</relationshipName>
+    <required>true</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

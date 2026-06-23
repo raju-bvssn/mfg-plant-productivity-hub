@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Country_of_Vehicle_Assembly__c</fullName>
+    <label>Country of Vehicle Assembly</label>
+    <required>false</required>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>BRAZIL</fullName>
+                <default>false</default>
+                <label>BRAZIL</label>
+            </value>
+            <value>
+                <fullName>CANADA</fullName>
+                <default>false</default>
+                <label>CANADA</label>
+            </value>
+            <value>
+                <fullName>CHINA</fullName>
+                <default>false</default>
+                <label>CHINA</label>
+            </value>
+            <value>
+                <fullName>JAPAN</fullName>
+                <default>false</default>
+                <label>JAPAN</label>
+            </value>
+            <value>
+                <fullName>KOREA_REPUBLIC_OF</fullName>
+                <default>false</default>
+                <label>KOREA, REPUBLIC OF</label>
+            </value>
+            <value>
+                <fullName>MEXICO</fullName>
+                <default>false</default>
+                <label>MEXICO</label>
+            </value>
+            <value>
+                <fullName>UNITED_STATES</fullName>
+                <default>false</default>
+                <label>UNITED STATES</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

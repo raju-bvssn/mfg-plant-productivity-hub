@@ -1,0 +1,775 @@
+<template>
+    <lightning-card title={panelHeader}>
+        <div class="slds-p-around_medium">
+
+
+            <!-- Loading Spinner -->
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading..." size="medium"></lightning-spinner>
+            </template>
+
+            <!-- Error Message -->
+            <template if:true={error}>
+                <div class="slds-m-bottom_medium">
+                    <lightning-formatted-text value={error} class="slds-text-color_error"></lightning-formatted-text>
+                </div>
+            </template>
+
+            <!-- Table Container -->
+            <template if:false={isLoading}>
+                <div class="slds-scrollable_y table-container">
+                    <table class="slds-table slds-table_cell-buffer no-row-hover custom-table">
+                        <thead>
+                            <tr class="slds-line-height_reset">
+                                <th scope="col" class="slds-text-align_center">
+                                    <div class="slds-truncate">Sector</div>
+                                </th>
+                                <th scope="col" class="slds-text-align_center">
+                                    <div class="slds-truncate">Product Type</div>
+                                </th>
+                                <th scope="col" class="slds-text-align_center">
+                                    <div class="slds-truncate">Shop</div>
+                                </th>
+                                <template for:each={programValues} for:item="programValue">
+                                    <th key={programValue} scope="col" class="slds-text-align_center program-cell">
+                                        <div class="slds-truncate program-code-header">{programValue}</div>
+                                    </th>
+                                </template>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <template for:each={plantShopRows} for:item="plantShop" for:index="index">
+                                <tr key={plantShop.key}>
+                                    <!-- Auth Sector -->
+                                    <td data-label="Auth Sector">
+                                        <lightning-formatted-text
+                                            value={plantShop.authSector}></lightning-formatted-text>
+                                    </td>
+
+                                    <!-- Product Type -->
+                                    <td data-label="Product Type">
+                                        <lightning-formatted-text
+                                            value={plantShop.productType}></lightning-formatted-text>
+                                    </td>
+                                    <!-- Shop with expand/collapse icon for special shop combinations -->
+                                    <td data-label="Shop">
+                                        <div class="slds-grid slds-grid_vertical-align-center">
+                                            <template if:true={plantShop.isExpandable}>
+                                                <button class="slds-button slds-button_icon slds-m-right_x-small expand-collapse-btn"
+                                                        title="Toggle child shops"
+                                                        data-key={plantShop.key}
+                                                        onclick={handleToggleExpand}>
+                                                    <template if:true={plantShop.isExpanded}>
+                                                        <lightning-icon icon-name="utility:chevrondown" size="x-small" alternative-text="Collapse"></lightning-icon>
+                                                    </template>
+                                                    <template if:false={plantShop.isExpanded}>
+                                                        <lightning-icon icon-name="utility:chevronright" size="x-small" alternative-text="Expand"></lightning-icon>
+                                                    </template>
+                                                </button>
+                                            </template>
+                                            <lightning-formatted-text value={plantShop.shop}></lightning-formatted-text>
+                                        </div>
+                                    </td>
+
+                                    <!-- Program Checkboxes (Dynamic) -->
+                                    <template for:each={plantShop.programLoop} for:item="program">
+                                        <td key={program.programValue} data-label={program.programValue}
+                                            class="slds-text-align_left program-cell">
+                                            <template if:true={program.isVisible}>
+                                                <!-- If dropdown should be shown -->
+                                                <template if:true={program.showDropdown}>
+                                                    <div class="slds-grid slds-grid_vertical slds-gutters_xx-small">
+                                                        <!-- Checkbox Row with Program Code Label -->
+                                                        <div class="slds-col slds-size_1-of-1">
+                                                            <div class="slds-grid slds-grid_vertical-align-center">
+                                                                <div class="slds-col slds-size_fit" style="font-weight: bold;">
+                                                                    Program Code
+                                                                </div>
+                                                                <div class="slds-col slds-size_fit" style="margin-left: auto;">
+                                                                    <lightning-input type="checkbox" data-index={index}
+                                                                        data-program={program.programValue} data-key={plantShop.key}
+                                                                        checked={program.isSelected} label=""
+                                                                        onchange={handleProgramChange}>
+                                                                    </lightning-input>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Program Dropdown and Op Plan Row (side by side) - Op Plan hidden for All/All Except Body, Paint -->
+                                                        <div class="slds-col slds-size_1-of-1">
+                                                            <div class="slds-grid slds-gutters_xx-small">
+                                                                <div class={plantShop.showOpPlanColumnClass}>
+                                                                    <lightning-combobox
+                                                                        label="Program Code"
+                                                                        placeholder="Select Program"
+                                                                        options={program.dropdownOptions}
+                                                                        value={program.selectedProgramCode}
+                                                                        data-program={program.programValue}
+                                                                        data-key={plantShop.key}
+                                                                        onchange={handleProgramCodeChange}
+                                                                        variant="label-hidden">
+                                                                    </lightning-combobox>
+                                                                </div>
+                                                                <template if:true={plantShop.showOpPlan}>
+                                                                    <div class="slds-col slds-size_1-of-2">
+                                                                        <lightning-combobox
+                                                                            label="Op Plan"
+                                                                            placeholder="Select Op Plan"
+                                                                            options={operationPlanOptions}
+                                                                            value={program.operationPlanId}
+                                                                            data-program={program.programValue}
+                                                                            data-key={plantShop.key}
+                                                                            onchange={handleOperationPlanDropdownChange}
+                                                                            variant="label-hidden"
+                                                                            disabled={program.isOpPlanReadOnly}>
+                                                                        </lightning-combobox>
+                                                                    </div>
+                                                                </template>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Name Field Row -->
+                                                        <div class="slds-col slds-size_1-of-1">
+                                                            <lightning-input
+                                                                type="text"
+                                                                label="Name:"
+                                                                placeholder="Enter the Plant Program Name"
+                                                                value={program.plantProgramName}
+                                                                data-program={program.programValue}
+                                                                data-key={plantShop.key}
+                                                                onchange={handlePlantProgramNameChange}
+                                                                variant="label-hidden">
+                                                            </lightning-input>
+                                                        </div>
+                                                    </div>
+                                                </template>
+                                                <!-- If no dropdown (standard display) -->
+                                                <template if:false={program.showDropdown}>
+                                                    <div class="slds-grid slds-grid_vertical slds-gutters_xx-small">
+                                                        <!-- Checkbox Row with Program Code Label -->
+                                                        <div class="slds-col slds-size_1-of-1">
+                                                            <div class="slds-grid slds-grid_vertical-align-center">
+                                                                <div class="slds-col slds-size_fit" style="font-weight: bold;">
+                                                                    Program Code
+                                                                </div>
+                                                                <div class="slds-col slds-size_fit" style="margin-left: auto;">
+                                                                    <lightning-input type="checkbox" data-index={index}
+                                                                        data-program={program.programValue} data-key={plantShop.key}
+                                                                        checked={program.isSelected} label=""
+                                                                        onchange={handleProgramChange}>
+                                                                    </lightning-input>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <!-- Program Code Dropdown and Op Plan Row (side by side) - Op Plan hidden for All/All Except Body, Paint -->
+                                                        <template if:true={program.isVisible}>
+                                                            <template if:false={program.showDropdown}>
+                                                                <template if:true={program.programCode}>
+                                                                    <div class="slds-col slds-size_1-of-1">
+                                                                        <div class="slds-grid slds-gutters_xx-small">
+                                                                            <div class={plantShop.showOpPlanColumnClass}>
+                                                                                <lightning-combobox
+                                                                                    label="Code"
+                                                                                    placeholder="Select Program"
+                                                                                    options={program.dropdownOptions}
+                                                                                    value={program.selectedProgramCode}
+                                                                                    data-program={program.programValue}
+                                                                                    data-key={plantShop.key}
+                                                                                    onchange={handleProgramCodeChange}
+                                                                                    variant="label-hidden">
+                                                                                </lightning-combobox>
+                                                                            </div>
+                                                                            <template if:true={plantShop.showOpPlan}>
+                                                                                <div class="slds-col slds-size_1-of-2">
+                                                                                    <lightning-combobox
+                                                                                        label="Op Plan"
+                                                                                        placeholder="Select Op Plan"
+                                                                                        options={operationPlanOptions}
+                                                                                        value={program.operationPlanId}
+                                                                                        data-program={program.programValue}
+                                                                                        data-key={plantShop.key}
+                                                                                        onchange={handleOperationPlanDropdownChange}
+                                                                                        variant="label-hidden"
+                                                                                        disabled={program.isOpPlanReadOnly}>
+                                                                                    </lightning-combobox>
+                                                                                </div>
+                                                                            </template>
+                                                                        </div>
+                                                                    </div>
+                                                                </template>
+                                                            </template>
+                                                        </template>
+                                                        <!-- Name Field Row -->
+                                                        <template if:true={program.isVisible}>
+                                                            <div class="slds-col slds-size_1-of-1">
+                                                                <lightning-input
+                                                                    type="text"
+                                                                    label="Name:"
+                                                                    placeholder="Enter the Plant Program Name"
+                                                                    value={program.plantProgramName}
+                                                                    data-program={program.programValue}
+                                                                    data-key={plantShop.key}
+                                                                    onchange={handlePlantProgramNameChange}
+                                                                    variant="label-hidden">
+                                                                </lightning-input>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </template>
+                                            </template>
+                                        </td>
+                                    </template>
+                                </tr>
+                                <!-- Child rows for expanded special shop combinations -->
+                                <template if:true={plantShop.isExpanded}>
+                                    <template for:each={plantShop.childRows} for:item="childRow">
+                                        <tr key={childRow.shop} class="child-row">
+                                            <!-- Empty Sector cell -->
+                                            <td data-label="Auth Sector" class="child-cell"></td>
+                                            <!-- Empty Product Type cell -->
+                                            <td data-label="Product Type" class="child-cell"></td>
+                                            <!-- Shop name (indented) -->
+                                            <td data-label="Shop" class="child-cell">
+                                                <div class="slds-p-left_large">
+                                                    <lightning-icon icon-name="utility:level_down" size="xx-small" class="slds-m-right_x-small child-indicator"></lightning-icon>
+                                                    <lightning-formatted-text value={childRow.shop}></lightning-formatted-text>
+                                                </div>
+                                            </td>
+                                            <!-- Program columns with Manage Shifts buttons -->
+                                            <template for:each={childRow.programList} for:item="childProg">
+                                                <td key={childProg.programIndex} data-label={childProg.programIndex} class="slds-text-align_left program-cell child-cell">
+                                                    <template if:true={childProg.hasProgram}>
+                                                        <div class="slds-grid slds-grid_vertical slds-gutters_xx-small">
+                                                            <div class="slds-col slds-size_1-of-1">
+                                                                <div class="program-info">
+                                                                    <template if:true={childProg.programCode}>
+                                                                        <div class="program-code">{childProg.programCode}</div>
+                                                                    </template>
+                                                                </div>
+                                                            </div>
+                                                            <div class="slds-col slds-size_1-of-1 slds-m-top_x-small">
+                                                                <div class="slds-grid slds-grid_vertical-align-center slds-gutters_xx-small">
+                                                                    <div class="slds-col slds-grow" style="min-width: 0;">
+                                                                        <lightning-combobox
+                                                                            label="Op Plan Default"
+                                                                            placeholder="Select Op Plan"
+                                                                            options={operationPlanOptions}
+                                                                            value={childProg.operationPlanId}
+                                                                            data-plant-program-id={childProg.plantProgramId}
+                                                                            data-program-index={childProg.programIndex}
+                                                                            data-parent-key={plantShop.key}
+                                                                            onchange={handleChildOperationPlanChange}
+                                                                            disabled={childProg.isOpPlanReadOnly}
+                                                                            variant="label-hidden">
+                                                                        </lightning-combobox>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </template>
+                                                </td>
+                                            </template>
+                                        </tr>
+                                    </template>
+                                </template>
+                            </template>
+                        </tbody>
+                    </table>
+                </div>
+            </template>
+        </div>
+
+        <!-- Footer Actions -->
+        <div slot="footer">
+            <lightning-button label="Cancel" onclick={handleCancel} variant="neutral" disabled={isCancelDisabled}>
+            </lightning-button>
+            <lightning-button label="Save" onclick={handleSave} variant="brand" disabled={isSaveDisabled}>
+            </lightning-button>
+        </div>
+    </lightning-card>
+
+    <template if:true={showDeactivateProgramModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="deactivate-program-modal-heading"
+            class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container deactivation-modal-container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close"
+                        title="Close" onclick={handleCloseDeactivateProgramModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="deactivate-program-modal-heading" class="slds-modal__title slds-hyphenate">
+                        Deactivation Warning
+                    </h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p class="slds-m-bottom_medium">
+                        Deactivating this program will archive its related functions. Select a plant program in the same
+                        plant-sector-product type-shop to reparent the Equation plant functions to.
+                    </p>
+                    <div class="slds-scrollable_x">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered reparent-table">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th scope="col"><div class="slds-truncate">Product Type</div></th>
+                                    <th scope="col"><div class="slds-truncate">Shop</div></th>
+                                    <th scope="col"><div class="slds-truncate">Program Code</div></th>
+                                    <th scope="col"><div class="slds-truncate">Program Name</div></th>
+                                    <th scope="col"><div class="slds-truncate">Operating Plan</div></th>
+                                    <th scope="col"><div class="slds-truncate">Program Index</div></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <div class="slds-truncate">{deactivateProgramModalState.productType}</div>
+                                    </td>
+                                    <td>
+                                        <template if:true={deactivateProgramModalState.isShopSelectable}>
+                                            <lightning-combobox
+                                                data-field="shopMasterId"
+                                                placeholder="Select Shop"
+                                                options={deactivateProgramModalState.shopOptions}
+                                                value={deactivateProgramModalState.shopMasterId}
+                                                onchange={handleDeactivateProgramModalFieldChange}
+                                                variant="label-hidden">
+                                            </lightning-combobox>
+                                        </template>
+                                        <template if:false={deactivateProgramModalState.isShopSelectable}>
+                                            <div class="slds-truncate">{deactivateProgramModalState.sourceShopLabel}</div>
+                                        </template>
+                                    </td>
+                                    <td>
+                                        <lightning-combobox
+                                            data-field="programCode"
+                                            placeholder="Select Program Code"
+                                            options={deactivateProgramModalState.programCodeOptions}
+                                            value={deactivateProgramModalState.programCode}
+                                            onchange={handleDeactivateProgramModalFieldChange}
+                                            variant="label-hidden">
+                                        </lightning-combobox>
+                                    </td>
+                                    <td>
+                                        <lightning-input
+                                            type="text"
+                                            data-field="programName"
+                                            value={deactivateProgramModalState.programName}
+                                            onchange={handleDeactivateProgramModalFieldChange}
+                                            variant="label-hidden">
+                                        </lightning-input>
+                                    </td>
+                                    <td>
+                                        <lightning-combobox
+                                            data-field="operationPlanId"
+                                            placeholder="Select Operating Plan"
+                                            options={operationPlanOptions}
+                                            value={deactivateProgramModalState.operationPlanId}
+                                            onchange={handleDeactivateProgramModalFieldChange}
+                                            variant="label-hidden">
+                                        </lightning-combobox>
+                                    </td>
+                                    <td>
+                                        <lightning-combobox
+                                            data-field="programIndex"
+                                            placeholder="Select Program Index"
+                                            options={programIndexOptions}
+                                            value={deactivateProgramModalState.programIndex}
+                                            onchange={handleDeactivateProgramModalFieldChange}
+                                            variant="label-hidden">
+                                        </lightning-combobox>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleCloseDeactivateProgramModal}></lightning-button>
+                    <lightning-button
+                        label="Continue"
+                        variant="brand"
+                        onclick={handleConfirmDeactivateProgramModal}
+                        disabled={isDeactivateProgramConfirmDisabled}>
+                    </lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+    <!-- Shift Change Popup Modal -->
+    <template if:true={showShiftChangeModal}>
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="shift-modal-heading"
+            class="slds-modal slds-fade-in-open" onclick={handleClickOutside}>
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse"
+                        title="Close" onclick={handleCloseShiftModal}>
+                        <lightning-icon icon-name="utility:close" alternative-text="Close" variant="inverse"
+                            size="small"></lightning-icon>
+                        <span class="slds-assistive-text">Close</span>
+                    </button>
+                    <h2 id="shift-modal-heading" class="slds-modal__title slds-hyphenate">
+                        Enter Authorized Positions for New Shift
+                    </h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_medium">
+                    <p class="slds-m-bottom_medium">
+                        You are changing from <strong>{oldShiftCount} shifts</strong> to 
+                        <strong>{newShiftCount} shifts</strong>.
+                    </p>
+                    <p class="slds-m-bottom_medium">
+                        <template if:true={isGoingFrom1To3}>
+                            Please enter the authorized crew positions for the <strong>2nd and 3rd shifts</strong> for each Plant Function:
+                        </template>
+                        <template if:false={isGoingFrom1To3}>
+                            Please enter the authorized crew positions for the <strong>{newShiftLabel}</strong> for each Plant Function:
+                        </template>
+                    </p>
+
+                    <template if:true={isLoadingFunctions}>
+                        <lightning-spinner alternative-text="Loading functions..." size="small"></lightning-spinner>
+                    </template>
+
+                    <template if:false={isLoadingFunctions}>
+                        <div class="slds-m-bottom_small" style="display: flex; justify-content: space-between; align-items: center;">
+                            <div style="flex: 1;">
+                                <template if:true={hasActiveFilters}>
+                                    <lightning-button
+                                        label="Clear All Filters"
+                                        variant="neutral"
+                                        size="small"
+                                        onclick={clearAllFilters}
+                                        class="slds-m-right_small"
+                                    ></lightning-button>
+                                    <span class="slds-text-color_weak slds-text-body_small">
+                                        ({filteredWorkbookData.length} of {workbookData.length} records)
+                                    </span>
+                                </template>
+                            </div>
+                        </div>
+                        <div class="slds-scrollable_y" style="max-height: 400px;">
+                            <table class="slds-table slds-table_cell-buffer slds-table_bordered excel-filter-table">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th class="excel-filter-header" scope="col">
+                                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                                <div class="slds-truncate" title="Function">Function</div>
+                                                <div class="excel-filter-icon-container">
+                                                    <template if:true={showFilterDropdowns.function}>
+                                                        <lightning-icon icon-name="utility:down" size="xx-small" class="excel-filter-icon-active"></lightning-icon>
+                                                    </template>
+                                                    <template if:false={showFilterDropdowns.function}>
+                                                        <lightning-icon icon-name="utility:filterList" size="xx-small" class={getFilterIconClass.function}></lightning-icon>
+                                                    </template>
+                                                    <button 
+                                                        class="slds-button slds-button_icon slds-button_icon-x-small excel-filter-button"
+                                                        onclick={toggleFilterDropdown}
+                                                        data-column="function"
+                                                        title="Filter"
+                                                    >
+                                                        <span class="slds-assistive-text">Filter Function</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <template if:true={showFilterDropdowns.function}>
+                                                <div class="excel-filter-dropdown">
+                                                    <div class="excel-filter-dropdown-header">
+                                                        <lightning-button
+                                                            label="Select All"
+                                                            variant="bare"
+                                                            size="x-small"
+                                                            onclick={selectAllFilters}
+                                                            data-column="function"
+                                                            class="slds-m-right_x-small"
+                                                        ></lightning-button>
+                                                        <lightning-button
+                                                            label="Clear"
+                                                            variant="bare"
+                                                            size="x-small"
+                                                            onclick={clearColumnFilter}
+                                                            data-column="function"
+                                                        ></lightning-button>
+                                                    </div>
+                                                    <div class="excel-filter-dropdown-content">
+                                                        <template for:each={uniqueFunctionNames} for:item="funcName">
+                                                            <div key={funcName} class="excel-filter-item">
+                                                                <lightning-input
+                                                                    type="checkbox"
+                                                                    label={funcName}
+                                                                    value={funcName}
+                                                                    data-filter-column="function"
+                                                                    onchange={handleFilterChangeFunction}
+                                                                    variant="label-inline"
+                                                                ></lightning-input>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </th>
+                                        <th class="excel-filter-header" scope="col">
+                                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                                <div class="slds-truncate" title="Program Code">Program Code</div>
+                                                <div class="excel-filter-icon-container">
+                                                    <template if:true={showFilterDropdowns.programCode}>
+                                                        <lightning-icon icon-name="utility:down" size="xx-small" class="excel-filter-icon-active"></lightning-icon>
+                                                    </template>
+                                                    <template if:false={showFilterDropdowns.programCode}>
+                                                        <lightning-icon icon-name="utility:filterList" size="xx-small" class={getFilterIconClass.programCode}></lightning-icon>
+                                                    </template>
+                                                    <button 
+                                                        class="slds-button slds-button_icon slds-button_icon-x-small excel-filter-button"
+                                                        onclick={toggleFilterDropdown}
+                                                        data-column="programCode"
+                                                        title="Filter"
+                                                    >
+                                                        <span class="slds-assistive-text">Filter Program Code</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <template if:true={showFilterDropdowns.programCode}>
+                                                <div class="excel-filter-dropdown">
+                                                    <div class="excel-filter-dropdown-header">
+                                                        <lightning-button
+                                                            label="Select All"
+                                                            variant="bare"
+                                                            size="x-small"
+                                                            onclick={selectAllFilters}
+                                                            data-column="programCode"
+                                                            class="slds-m-right_x-small"
+                                                        ></lightning-button>
+                                                        <lightning-button
+                                                            label="Clear"
+                                                            variant="bare"
+                                                            size="x-small"
+                                                            onclick={clearColumnFilter}
+                                                            data-column="programCode"
+                                                        ></lightning-button>
+                                                    </div>
+                                                    <div class="excel-filter-dropdown-content">
+                                                        <template for:each={uniqueProgramCodes} for:item="progCode">
+                                                            <div key={progCode} class="excel-filter-item">
+                                                                <lightning-input
+                                                                    type="checkbox"
+                                                                    label={progCode}
+                                                                    value={progCode}
+                                                                    data-filter-column="programCode"
+                                                                    onchange={handleFilterChangeProgramCode}
+                                                                    variant="label-inline"
+                                                                ></lightning-input>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </th>
+                                        <th class="excel-filter-header" scope="col">
+                                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                                <div class="slds-truncate" title="Functional Area">Functional Area</div>
+                                                <div class="excel-filter-icon-container">
+                                                    <template if:true={showFilterDropdowns.functionalArea}>
+                                                        <lightning-icon icon-name="utility:down" size="xx-small" class="excel-filter-icon-active"></lightning-icon>
+                                                    </template>
+                                                    <template if:false={showFilterDropdowns.functionalArea}>
+                                                        <lightning-icon icon-name="utility:filterList" size="xx-small" class={getFilterIconClass.functionalArea}></lightning-icon>
+                                                    </template>
+                                                    <button 
+                                                        class="slds-button slds-button_icon slds-button_icon-x-small excel-filter-button"
+                                                        onclick={toggleFilterDropdown}
+                                                        data-column="functionalArea"
+                                                        title="Filter"
+                                                    >
+                                                        <span class="slds-assistive-text">Filter Functional Area</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <template if:true={showFilterDropdowns.functionalArea}>
+                                                <div class="excel-filter-dropdown">
+                                                    <div class="excel-filter-dropdown-header">
+                                                        <lightning-button
+                                                            label="Select All"
+                                                            variant="bare"
+                                                            size="x-small"
+                                                            onclick={selectAllFilters}
+                                                            data-column="functionalArea"
+                                                            class="slds-m-right_x-small"
+                                                        ></lightning-button>
+                                                        <lightning-button
+                                                            label="Clear"
+                                                            variant="bare"
+                                                            size="x-small"
+                                                            onclick={clearColumnFilter}
+                                                            data-column="functionalArea"
+                                                        ></lightning-button>
+                                                    </div>
+                                                    <div class="excel-filter-dropdown-content">
+                                                        <template for:each={uniqueFunctionalAreas} for:item="funcArea">
+                                                            <div key={funcArea} class="excel-filter-item">
+                                                                <lightning-input
+                                                                    type="checkbox"
+                                                                    label={funcArea}
+                                                                    value={funcArea}
+                                                                    data-filter-column="functionalArea"
+                                                                    onchange={handleFilterChangeFunctionalArea}
+                                                                    variant="label-inline"
+                                                                ></lightning-input>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </th>
+                                        <th class="excel-filter-header" scope="col">
+                                            <div class="slds-grid slds-grid_align-spread slds-grid_vertical-align-center">
+                                                <div class="slds-truncate" title="Shop">Shop</div>
+                                                <div class="excel-filter-icon-container">
+                                                    <template if:true={showFilterDropdowns.shop}>
+                                                        <lightning-icon icon-name="utility:down" size="xx-small" class="excel-filter-icon-active"></lightning-icon>
+                                                    </template>
+                                                    <template if:false={showFilterDropdowns.shop}>
+                                                        <lightning-icon icon-name="utility:filterList" size="xx-small" class={getFilterIconClass.shop}></lightning-icon>
+                                                    </template>
+                                                    <button 
+                                                        class="slds-button slds-button_icon slds-button_icon-x-small excel-filter-button"
+                                                        onclick={toggleFilterDropdown}
+                                                        data-column="shop"
+                                                        title="Filter"
+                                                    >
+                                                        <span class="slds-assistive-text">Filter Shop</span>
+                                                    </button>
+                                                </div>
+                                            </div>
+                                            <template if:true={showFilterDropdowns.shop}>
+                                                <div class="excel-filter-dropdown">
+                                                    <div class="excel-filter-dropdown-header">
+                                                        <lightning-button
+                                                            label="Select All"
+                                                            variant="bare"
+                                                            size="x-small"
+                                                            onclick={selectAllFilters}
+                                                            data-column="shop"
+                                                            class="slds-m-right_x-small"
+                                                        ></lightning-button>
+                                                        <lightning-button
+                                                            label="Clear"
+                                                            variant="bare"
+                                                            size="x-small"
+                                                            onclick={clearColumnFilter}
+                                                            data-column="shop"
+                                                        ></lightning-button>
+                                                    </div>
+                                                    <div class="excel-filter-dropdown-content">
+                                                        <template for:each={uniqueShops} for:item="shopName">
+                                                            <div key={shopName} class="excel-filter-item">
+                                                                <lightning-input
+                                                                    type="checkbox"
+                                                                    label={shopName}
+                                                                    value={shopName}
+                                                                    data-filter-column="shop"
+                                                                    onchange={handleFilterChangeShop}
+                                                                    variant="label-inline"
+                                                                ></lightning-input>
+                                                            </div>
+                                                        </template>
+                                                    </div>
+                                                </div>
+                                            </template>
+                                        </th>
+                                        <th class="" scope="col" style="text-align: center;">
+                                            <div class="slds-truncate" title="1st Shift">1st Shift</div>
+                                        </th>
+                                        <th class="" scope="col" style="text-align: center;">
+                                            <div class="slds-truncate" title="2nd Shift">2nd Shift</div>
+                                        </th>
+                                        <th class="" scope="col" style="text-align: center;">
+                                            <div class="slds-truncate" title="3rd Shift">3rd Shift</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template for:each={filteredWorkbookData} for:item="wb">
+                                        <tr key={wb.workbookId} class="slds-hint-parent">
+                                            <td data-label="Function">
+                                                <div class="slds-truncate" title={wb.functionName}>{wb.functionName}</div>
+                                            </td>
+                                            <td data-label="Program Code">
+                                                <div class="slds-truncate" title={wb.programCode}>{wb.programCode}</div>
+                                            </td>
+                                            <td data-label="Functional Area">
+                                                <div class="slds-truncate" title={wb.functionalArea}>{wb.functionalArea}</div>
+                                            </td>
+                                            <td data-label="Shop">
+                                                <div class="slds-truncate" title={wb.shop}>{wb.shop}</div>
+                                            </td>
+                                            <td data-label="1st Shift" style="text-align: center;">
+                                                <lightning-input
+                                                    type="number"
+                                                    value={wb.currentPosition1st}
+                                                    disabled
+                                                    variant="label-hidden"
+                                                    class="read-only-input"
+                                                ></lightning-input>
+                                            </td>
+                                            <td data-label="2nd Shift" style="text-align: center;">
+                                                <template if:true={is2ndShiftEditable}>
+                                                    <lightning-input
+                                                        type="number"
+                                                        data-id={wb.workbookId}
+                                                        data-shift="2nd"
+                                                        value={wb.newShift2ndValue}
+                                                        onchange={handleShiftValueChange}
+                                                        variant="label-hidden"
+                                                        min="0"
+                                                        step="1"
+                                                        required
+                                                    ></lightning-input>
+                                                </template>
+                                                <template if:false={is2ndShiftEditable}>
+                                                    <lightning-input
+                                                        type="number"
+                                                        value={wb.currentPosition2nd}
+                                                        disabled
+                                                        variant="label-hidden"
+                                                        class="read-only-input"
+                                                    ></lightning-input>
+                                                </template>
+                                            </td>
+                                            <td data-label="3rd Shift" style="text-align: center;">
+                                                <lightning-input
+                                                    type="number"
+                                                    data-id={wb.workbookId}
+                                                    data-shift="3rd"
+                                                    value={wb.newShiftValue}
+                                                    onchange={handleShiftValueChange}
+                                                    disabled={is3rdShiftDisabled}
+                                                    variant="label-hidden"
+                                                    min="0"
+                                                    step="1"
+                                                    required
+                                                ></lightning-input>
+                                            </td>
+                                        </tr>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </template>
+
+                    <div class="slds-box slds-box_small slds-theme_info slds-m-top_medium">
+                        <p><strong>Note:</strong> Current 1st and 2nd shift values are from the latest Authorized Database (December). 
+                        Enter the crew count for the new shift for each workbook record.</p>
+                    </div>
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning-button label="Cancel" onclick={handleCloseShiftModal}></lightning-button>
+                    <lightning-button 
+                        label="Confirm" 
+                        variant="brand" 
+                        onclick={handleConfirmShiftChange}
+                    ></lightning-button>
+                </footer>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </template>
+
+</template>

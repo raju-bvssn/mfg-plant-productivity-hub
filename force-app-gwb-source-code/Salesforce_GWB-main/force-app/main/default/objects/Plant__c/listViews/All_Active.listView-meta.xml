@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListView xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>All_Active</fullName>
+    <columns>NAME</columns>
+    <columns>Auth_Plant_Code__c</columns>
+    <columns>Plant_Admin__c</columns>
+    <columns>MVP__c</columns>
+    <columns>Auth_Region__c</columns>
+    <columns>Auth_Country__c</columns>
+    <filterScope>Everything</filterScope>
+    <filters>
+        <field>Status__c</field>
+        <operation>equals</operation>
+        <value>Active</value>
+    </filters>
+    <label>All Active Plants</label>
+</ListView>

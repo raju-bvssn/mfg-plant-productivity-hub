@@ -1,0 +1,392 @@
+/* ─────────────────────────────────────────────────────────────
+   Design tokens — Figma values exposed as component custom props
+   so they can be overridden at the theme/app level if needed.
+   SLDS global hooks are used wherever a standard hook exists;
+   Figma-specific values that have no SLDS equivalent are defined
+   here so the rest of the file stays hook-driven.
+   ───────────────────────────────────────────────────────────── */
+:host {
+    /* Neutral surface / border — SLDS global hooks */
+    --pps-color-border:        var(--slds-g-color-border-1, #C9C9C9);
+    --pps-color-surface:       var(--slds-g-color-neutral-base-100, #FFFFFF);
+    --pps-color-surface-alt:   var(--slds-g-color-neutral-base-95, #F3F3F3);
+    --pps-color-text-primary:  var(--slds-g-color-neutral-base-10, #2E2E2E);
+    --pps-color-text-muted:    var(--slds-g-color-neutral-base-30, #5C5C5C);
+
+    /* Brand / title — Figma token: #001E5B */
+    --pps-color-title:         #001E5B;
+    /* Card icon circle — Figma: #5867E8 */
+    --pps-color-icon-bg:       #5867E8;
+
+    /* Target section — Figma peach palette */
+    --pps-color-target-bg:     #FEF1ED;
+    --pps-color-target-label:  #AA3001;
+
+    /* Actuals / Forecast banner — Figma violet-90 / indigo-90 */
+    --pps-color-actuals-bg:    #F2DEFE;
+    --pps-color-forecast-bg:   #E0E5F8;
+    /* Label text — violet-40 / indigo-40 */
+    --pps-color-actuals-label:  #9602C7;
+    --pps-color-forecast-label: #3A49DA;
+
+    /* Above / Below Target indicator cells */
+    --pps-color-indicator-neg-bg:  #FEF0F3;
+    --pps-color-indicator-pos-bg:  #DEF9F3;
+    --pps-color-indicator-neg:     #B60554;
+    --pps-color-indicator-pos:     #056764;
+
+    /* Header row text — Figma: base family/scale, semibold, 18px line-height */
+    --pps-header-font-family:      var(--slds-g-font-family-sans, 'SF Pro', -apple-system, sans-serif);
+    --pps-header-font-size:        var(--slds-g-font-scale-base, 14px);
+    --pps-header-font-weight:      590;
+    --pps-header-line-height:      18px;
+    --pps-header-letter-spacing:   0;
+    --pps-header-text-color:       var(--slds-g-color-neutral-base-40, #5C5C5C);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Card chrome
+   ───────────────────────────────────────────────────────────── */
+.pps-summary-card {
+    border: 1px solid var(--pps-color-border);
+    border-radius: 12px;
+    background: var(--pps-color-surface);
+    overflow: hidden;
+}
+
+.pps-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--slds-g-spacing-3, 12px) var(--slds-g-spacing-4, 16px);
+    height: 56px;
+    box-sizing: border-box;
+    background: var(--pps-color-surface);
+}
+
+.pps-card-header__title {
+    display: flex;
+    align-items: center;
+    gap: var(--slds-g-spacing-2, 8px);
+}
+
+.pps-card-icon {
+    width: 24px;
+    height: 24px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--pps-color-icon-bg);
+    border-radius: 48px;
+    color: var(--pps-color-surface);
+    flex-shrink: 0;
+}
+
+/* Title — Figma: 20px · Regular · #001E5B */
+.pps-card-title {
+    font-family: var(--slds-g-font-family-sans, 'SF Pro', -apple-system, sans-serif);
+    font-size: var(--slds-g-font-scale-3, 20px);
+    font-weight: 400;
+    line-height: 28px;
+    color: var(--pps-color-title);
+    margin: 0;
+}
+
+.pps-card-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--slds-g-spacing-1, 4px);
+}
+
+.pps-summary-body {
+    padding: 0 var(--slds-g-spacing-3, 12px) var(--slds-g-spacing-3, 12px);
+}
+
+.pps-state-row {
+    position: relative;
+    min-height: 4rem;
+    padding: var(--slds-g-spacing-4, 16px);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Debug panel
+   ───────────────────────────────────────────────────────────── */
+.pps-debug-panel {
+    border-top: 1px solid var(--slds-g-color-border-1, #e3e3e3);
+    background: var(--slds-g-color-neutral-base-98, #fafafa);
+    padding: 0.625rem 1rem 0.75rem;
+}
+
+.pps-debug-panel__header {
+    display: flex;
+    align-items: center;
+    gap: 0.375rem;
+    margin-bottom: 0.5rem;
+}
+
+.pps-debug-panel__title {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--slds-g-color-neutral-base-40, #706e6b);
+}
+
+.pps-debug-json {
+    font-family: var(--slds-g-font-family-monospace, ui-monospace, "SFMono-Regular", Consolas, monospace);
+    font-size: 0.8125rem;
+    color: var(--slds-g-color-neutral-base-10, #181818);
+    margin: 0;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Table layout
+   ───────────────────────────────────────────────────────────── */
+.pps-table-scroll {
+    overflow-x: auto;
+    width: 100%;
+    border: 1px solid var(--pps-color-border);
+    border-radius: var(--slds-g-sizing-border-radius-large, 8px);
+}
+
+.pps-summary-table {
+    width: 100%;
+    min-width: 64rem;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-family: var(--slds-g-font-family-sans, 'SF Pro', -apple-system, sans-serif);
+    font-size: var(--slds-g-font-scale-neg-1, 13px);
+    color: var(--pps-color-text-primary);
+    background: var(--pps-color-surface);
+}
+
+.pps-summary-table th,
+.pps-summary-table td {
+    padding: 5px var(--slds-g-spacing-2, 8px);
+    text-align: right;
+    vertical-align: middle;
+    border-bottom: 1px solid var(--pps-color-border);
+    border-left: 1px solid var(--pps-color-border);
+    white-space: nowrap;
+    line-height: 18px;
+    height: 36px;
+    box-sizing: border-box;
+}
+
+.pps-summary-table th:first-child,
+.pps-summary-table td:first-child {
+    border-left: none;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Column header row — bg: --pps-color-surface-alt (#F3F3F3)
+   ───────────────────────────────────────────────────────────── */
+.pps-header-row th {
+    background: var(--pps-color-surface-alt);
+    font-family: var(--pps-header-font-family);
+    font-size: var(--pps-header-font-size);
+    font-weight: var(--pps-header-font-weight);
+    line-height: var(--pps-header-line-height);
+    letter-spacing: var(--pps-header-letter-spacing);
+    vertical-align: middle;
+    color: var(--pps-header-text-color);
+}
+
+.pps-month-header {
+    text-align: center;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Row label (leftmost sticky column)
+   ───────────────────────────────────────────────────────────── */
+.pps-row-label-header,
+.pps-row-label {
+    width: 180px;
+    min-width: 160px;
+    font-weight: 400;
+    color: var(--pps-color-text-primary);
+    background: var(--pps-color-surface);
+    position: sticky;
+    left: 0;
+    z-index: 1;
+    padding-left: var(--slds-g-spacing-2, 8px);
+}
+
+.pps-summary-table th.pps-row-label-header,
+.pps-summary-table th.pps-row-label {
+    text-align: left;
+}
+
+.pps-row-label-header {
+    background: var(--pps-color-surface-alt);
+    color: var(--pps-header-text-color);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Data rows
+   ───────────────────────────────────────────────────────────── */
+.pps-data-row .pps-data-cell {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+    color: var(--pps-color-text-primary);
+    font-weight: 400;
+}
+
+.pps-data-row .pps-row-label {
+    font-family: var(--slds-g-font-family-sans, "SF Pro", -apple-system, sans-serif);
+    font-style: normal;
+    font-size: var(--slds-g-font-scale-base, 14px);
+    font-weight: 400;
+    line-height: 18px;
+    letter-spacing: 0;
+    vertical-align: middle;
+    leading-trim: none;
+    color: var(--slds-g-color-neutral-base-20, #2e2e2e);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Banner row: Target — bg: #FEF1ED · label: #AA3001
+   ───────────────────────────────────────────────────────────── */
+.pps-banner-row_target,
+.pps-banner-row_target .pps-row-label,
+.pps-banner-row_target .pps-banner-cell {
+    background: var(--pps-color-target-bg);
+}
+
+.pps-row-label_target {
+    color: var(--pps-color-target-label);
+    font-weight: 600;
+}
+
+.pps-banner-cell_target,
+.pps-banner-row_target .pps-row-label {
+    border-bottom: 1px solid var(--pps-color-border);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Banner row: Actuals (violet/90) / Forecast (indigo/90)
+   ───────────────────────────────────────────────────────────── */
+.pps-banner-row_actual-forecast .pps-row-label {
+    background: var(--pps-color-actuals-bg);
+    border-bottom: 1px solid var(--pps-color-border);
+}
+
+.pps-banner-cell_actual {
+    background: var(--pps-color-actuals-bg);
+    border-bottom: 1px solid var(--pps-color-border);
+    color: transparent;
+    text-align: center;
+}
+
+.pps-banner-cell_forecast {
+    background: var(--pps-color-forecast-bg);
+    border-bottom: 1px solid var(--pps-color-border);
+    color: transparent;
+    text-align: center;
+}
+
+.pps-banner-cell_label {
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.pps-banner-cell_label-actual {
+    color: var(--pps-color-actuals-label);
+    text-align: right;
+    padding-right: 6px;
+}
+
+.pps-banner-cell_label-forecast {
+    color: var(--pps-color-forecast-label);
+    text-align: left;
+    padding-left: 6px;
+}
+
+/* Single-phase row 4 (all Actuals or all Forecast):
+   mirror Target-row layout with left label + full-width span cell. */
+.pps-banner-row_single-phase_actual,
+.pps-banner-row_single-phase_actual .pps-row-label,
+.pps-banner-row_single-phase_actual .pps-banner-cell {
+    background: var(--pps-color-actuals-bg);
+}
+
+.pps-banner-row_single-phase_forecast,
+.pps-banner-row_single-phase_forecast .pps-row-label,
+.pps-banner-row_single-phase_forecast .pps-banner-cell {
+    background: var(--pps-color-forecast-bg);
+}
+
+.pps-row-label_single-phase {
+    font-weight: 600;
+}
+
+.pps-row-label_single-phase_actual {
+    color: var(--pps-color-actuals-label);
+}
+
+.pps-row-label_single-phase_forecast {
+    color: var(--pps-color-forecast-label);
+}
+
+.pps-banner-cell_single-phase,
+.pps-banner-row_single-phase .pps-row-label {
+    border-bottom: 1px solid var(--pps-color-border);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Above / Below Target indicator row
+   Negative: bg #FEF0F3 · text #B60554
+   Positive:  bg #DEF9F3 · text #056764
+   ───────────────────────────────────────────────────────────── */
+.pps-data-row_indicator .pps-row-label_indicator {
+    font-weight: 600;
+    color: var(--pps-color-text-primary);
+    background: var(--pps-color-surface-alt);
+}
+
+.pps-data-cell_indicator {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+}
+
+.pps-data-cell_indicator-negative {
+    background: var(--pps-color-indicator-neg-bg);
+}
+
+.pps-data-cell_indicator-positive {
+    background: var(--pps-color-indicator-pos-bg);
+}
+
+.pps-indicator {
+    display: flex;
+    width: 100%;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--slds-g-spacing-1, 4px);
+}
+
+.pps-indicator-icon {
+    font-size: 11px;
+    font-weight: 600;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.pps-data-cell_indicator-negative .pps-indicator-icon,
+.pps-data-cell_indicator-negative .pps-indicator-value {
+    color: var(--pps-color-indicator-neg);
+}
+
+.pps-data-cell_indicator-positive .pps-indicator-icon,
+.pps-data-cell_indicator-positive .pps-indicator-value {
+    color: var(--pps-color-indicator-pos);
+}
+
+.pps-indicator-value {
+    font-weight: 600;
+    font-size: var(--slds-g-font-scale-neg-1, 13px);
+    margin-left: auto;
+    text-align: right;
+}

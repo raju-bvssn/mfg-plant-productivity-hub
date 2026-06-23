@@ -1,0 +1,124 @@
+:host {
+    display: block;
+    position: relative;
+    z-index: 240;
+    --adjustment-filter-font-size: 0.8rem;
+    --adjustment-filter-gap-x: 0.48rem;
+    --adjustment-filter-gap-y: 0.34rem;
+}
+
+.filter-grid {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1fr) minmax(12rem, 1fr) minmax(12rem, 1fr) max-content auto;
+    gap: var(--adjustment-filter-gap-y) var(--adjustment-filter-gap-x);
+    align-items: end;
+    position: relative;
+    z-index: 1;
+}
+
+:host lightning-combobox {
+    --slds-c-input-text-font-size: var(--adjustment-filter-font-size);
+}
+
+:host lightning-button {
+    --slds-c-button-text-font-size: var(--adjustment-filter-font-size);
+    --slds-c-button-spacing-inline-start: 0.62rem;
+    --slds-c-button-spacing-inline-end: 0.62rem;
+}
+
+.filter-grid__field,
+.filter-grid__action {
+    min-width: 0;
+}
+
+.filter-grid__action {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+}
+
+.filter-grid__field_status {
+    align-self: stretch;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-end;
+    justify-self: end;
+}
+
+.filter-grid__status-spacer {
+    min-height: 1.1rem;
+    margin-bottom: 0.36rem;
+}
+
+.filter-grid__status-control {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.42rem;
+    min-height: 2.48rem;
+    width: auto;
+    padding: 0;
+}
+
+.filter-grid__status-text {
+    color: #5b6474;
+    font-size: var(--adjustment-filter-font-size);
+    line-height: 1.2;
+    white-space: nowrap;
+}
+
+.filter-grid__status-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    width: 2.9rem;
+    height: 1.55rem;
+    padding: 0.12rem;
+    border: 0;
+    border-radius: 999px;
+    background: #9b9b9b;
+    cursor: pointer;
+    transition: background 120ms ease;
+}
+
+.filter-grid__status-switch[disabled] {
+    cursor: default;
+    opacity: 0.65;
+}
+
+.filter-grid__status-switch_active {
+    background: #2563eb;
+}
+
+.filter-grid__status-switch-thumb {
+    width: 1.3rem;
+    height: 1.3rem;
+    border-radius: 999px;
+    background: #ffffff;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.28);
+    transition: transform 120ms ease;
+}
+
+.filter-grid__status-switch_active .filter-grid__status-switch-thumb {
+    transform: translateX(1.32rem);
+}
+
+.reset-button {
+    white-space: nowrap;
+}
+
+@media (max-width: 1180px) {
+    .filter-grid {
+        grid-template-columns: repeat(2, minmax(12rem, 1fr));
+    }
+
+    .filter-grid__action {
+        justify-content: flex-start;
+    }
+}
+
+@media (max-width: 760px) {
+    .filter-grid {
+        grid-template-columns: 1fr;
+    }
+}

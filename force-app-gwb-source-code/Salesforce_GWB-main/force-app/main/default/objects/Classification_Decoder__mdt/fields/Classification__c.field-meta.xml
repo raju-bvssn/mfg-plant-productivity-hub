@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Classification__c</fullName>
+    <description>Classification Type on Function Master/Plant Functions</description>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Classification</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Direct OTS</fullName>
+                <default>true</default>
+                <label>Direct OTS</label>
+            </value>
+            <value>
+                <fullName>Salaried</fullName>
+                <default>false</default>
+                <label>Salaried</label>
+            </value>
+            <value>
+                <fullName>Indirect Skilled</fullName>
+                <default>false</default>
+                <label>Indirect Skilled</label>
+            </value>
+            <value>
+                <fullName>Indirect OTS</fullName>
+                <default>false</default>
+                <label>Indirect OTS</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

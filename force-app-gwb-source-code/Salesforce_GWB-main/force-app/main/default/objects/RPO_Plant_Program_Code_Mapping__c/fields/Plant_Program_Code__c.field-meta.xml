@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Plant_Program_Code__c</fullName>
+    <deleteConstraint>SetNull</deleteConstraint>
+    <label>Plant Program Code</label>
+    <lookupFilter>
+        <active>true</active>
+        <filterItems>
+            <field>$Source.Plant__c</field>
+            <operation>equals</operation>
+            <valueField>Program_Master__c.Plant_Name__c</valueField>
+        </filterItems>
+        <filterItems>
+            <field>Program_Master__c.RecordType.DeveloperName</field>
+            <operation>equals</operation>
+            <value>Program_Code</value>
+        </filterItems>
+        <isOptional>false</isOptional>
+    </lookupFilter>
+    <referenceTo>Program_Master__c</referenceTo>
+    <relationshipLabel>RPO-Plant Program Code Mappings</relationshipLabel>
+    <relationshipName>RPO_Plant_Program_Codes</relationshipName>
+    <required>false</required>
+    <trackHistory>false</trackHistory>
+    <trackTrending>false</trackTrending>
+    <type>Lookup</type>
+</CustomField>

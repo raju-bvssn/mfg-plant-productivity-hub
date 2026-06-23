@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<UserAccessPolicy xmlns="http://soap.sforce.com/2006/04/metadata">
+    <booleanFilter>1 AND 2 AND 3</booleanFilter>
+    <description>Assigns NA Regional Admins to NA Regional Admins Public groups.</description>
+    <masterLabel>Assign NA Regional Admins To Group</masterLabel>
+    <order>2</order>
+    <status>Design</status>
+    <userAccessPolicyActions>
+        <action>Grant</action>
+        <target>GWB_Regional_Admins_NA</target>
+        <type>Group</type>
+    </userAccessPolicyActions>
+    <userAccessPolicyFilters>
+        <operation>equals</operation>
+        <sortOrder>1</sortOrder>
+        <target>Regional_Admin_PSG</target>
+        <type>PermissionSetGroup</type>
+    </userAccessPolicyFilters>
+    <userAccessPolicyFilters>
+        <columnName>GWB_Region__c</columnName>
+        <operation>equals</operation>
+        <sortOrder>2</sortOrder>
+        <target>User</target>
+        <type>User</type>
+        <value>NA</value>
+    </userAccessPolicyFilters>
+    <userAccessPolicyFilters>
+        <columnName>IsActive</columnName>
+        <operation>equalsIgnoreCase</operation>
+        <sortOrder>3</sortOrder>
+        <target>User</target>
+        <type>User</type>
+        <value>true</value>
+    </userAccessPolicyFilters>
+</UserAccessPolicy>

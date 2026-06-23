@@ -1,0 +1,494 @@
+<template>
+    <!-- Rule 10: Hide entire component Feb 1 – Apr 30 -->
+    <template if:false={isHiddenWindow}>
+        <lightning-card title={labels.targetGenerationComponentTitle} icon-name="standard:goals" class="draft-target-card">
+            <div slot="actions">
+                <div class="draft-top-actions">
+                    <div class="draft-top-actions__primary">
+                        <template if:true={showManagementActions}>
+                            <lightning-button
+                                label="New"
+                                variant="brand"
+                                onclick={handleOpenModal}
+                                disabled={isCreateDisabled}>
+                            </lightning-button>
+                            <lightning-button-group class="draft-button-group">
+                                <!-- Rule 7: Clone enabled only when exactly 1 child per plant is selected -->
+                                <lightning-button
+                                    label="Clone"
+                                    data-label="Clone"
+                                    onclick={handlePlaceholderAction}
+                                    disabled={isCloneDisabled}>
+                                </lightning-button>
+                                <!-- Rule 8: Update Status follows same single-per-plant logic -->
+                                <lightning-button
+                                    label="Update Status"
+                                    data-label="Update Status"
+                                    onclick={handleOpenUpdateStatus}
+                                    disabled={isUpdateStatusDisabled}>
+                                </lightning-button>
+                                <!-- Rule 5 & 8: Publish follows same single-per-plant logic; skips non-Finance-Approved -->
+                                <lightning-button
+                                    label="Publish"
+                                    onclick={handlePublishTargets}
+                                    disabled={isPublishDisabled}>
+                                </lightning-button>
+                            </lightning-button-group>
+                        </template>
+                        <!-- Rule 6: Refresh as icon, outside button group, next to Publish -->
+                        <lightning-button-icon
+                            icon-name="utility:refresh"
+                            variant="border-filled"
+                            size="medium"
+                            alternative-text="Refresh"
+                            title="Refresh targets"
+                            onclick={handleRefresh}
+                            class="refresh-icon-btn">
+                        </lightning-button-icon>
+                    </div>
+                </div>
+            </div>
+
+            <div class="slds-p-around_medium">
+                <!-- Rule 11: Banner for skipped Published/Locked targets -->
+                <template if:true={hasSkippedTargets}>
+                    <div class="skipped-targets-banner slds-m-bottom_small">
+                        <lightning-icon
+                            icon-name="utility:warning"
+                            size="x-small"
+                            alternative-text="Warning"
+                            class="skipped-targets-banner__icon">
+                        </lightning-icon>
+                        <span class="skipped-targets-banner__message">{skippedTargetsBannerMessage}</span>
+                        <button
+                            class="skipped-targets-banner__close"
+                            title="Dismiss"
+                            onclick={handleDismissSkippedBanner}>
+                            ✕
+                        </button>
+                    </div>
+                </template>
+
+                <template if:true={isLoading}>
+                    <lightning-spinner alternative-text="Loading targets" size="medium"></lightning-spinner>
+                </template>
+
+                <template if:false={isLoading}>
+                    <template if:true={hasRows}>
+                        <div class="filter-strip slds-m-bottom_medium">
+                            <lightning-combobox
+                                name="region"
+                                label="Region"
+                                value={filters.region}
+                                options={regionOptions}
+                                onchange={handleFilterChange}>
+                            </lightning-combobox>
+                            <lightning-combobox
+                                name="plant"
+                                label="Plant"
+                                value={filters.plant}
+                                options={plantOptions}
+                                onchange={handleFilterChange}>
+                            </lightning-combobox>
+                            <lightning-combobox
+                                name="sector"
+                                label="Sector"
+                                value={filters.sector}
+                                options={sectorOptions}
+                                onchange={handleFilterChange}>
+                            </lightning-combobox>
+                            <lightning-combobox
+                                name="mSchedule"
+                                label="M-Schedule"
+                                value={filters.mSchedule}
+                                options={mScheduleFilterOptions}
+                                onchange={handleFilterChange}>
+                            </lightning-combobox>
+                            <lightning-combobox
+                                name="status"
+                                label="Target Status"
+                                value={filters.status}
+                                options={statusOptions}
+                                onchange={handleFilterChange}>
+                            </lightning-combobox>
+                            <div class="filter-action-buttons">
+                                <lightning-button
+                                    label="Reset Filters"
+                                    class="reset-filters-btn"
+                                    onclick={handleResetFilters}>
+                                    <lightning-icon
+                                        icon-name="utility:refresh"
+                                        size="x-small"
+                                        alternative-text="Reset Filters"
+                                        class="reset-filters-icon">
+                                    </lightning-icon>
+                                </lightning-button>
+                                <template if:false={isExpanded}>
+                                    <lightning-button
+                                        label="Expand All Rows"
+                                        class="slds-m-left_x-small"
+                                        onclick={handleExpandAll}>
+                                    </lightning-button>
+                                </template>
+                                <template if:true={isExpanded}>
+                                    <lightning-button
+                                        label="Collapse All Rows"
+                                        class="slds-m-left_x-small"
+                                        onclick={handleCollapseAll}>
+                                    </lightning-button>
+                                </template>
+                            </div>
+                        </div>
+
+                        <div class="draft-target-intro slds-m-bottom_medium">
+                            <div class="selection-count">
+                                {selectedParentCount} selected
+                            </div>
+                        </div>
+                        <div class="table-container">
+                            <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-table_fixed-layout">
+                                <thead>
+                                    <tr class="slds-line-height_reset">
+                                        <th scope="col" class="checkbox-col">
+                                            <div class="select-all-header">
+                                                <!-- Rule 4: Header checkbox selects ALL parents + children -->
+                                                <input
+                                                    class="native-checkbox"
+                                                    type="checkbox"
+                                                    checked={allVisibleSelectableSelected}
+                                                    disabled={isSelectAllDisabled}
+                                                    onchange={handleSelectAll} />
+                                            </div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Plant">Plant</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Region">Region</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Target Name">Target Name</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Target Status">Target Status</div>
+                                        </th>
+                                        <template if:true={showGpsColumns}>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Part Type">Product Type</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Plant Program">Plant Program Name</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Functional Area">Functional Area</div>
+                                            </th>
+                                        <!--    <th scope="col">
+                                                <div class="slds-truncate" title="Line Number">Line Number</div>
+                                            </th>-->
+                                        </template>
+                                        <th scope="col" class="created-on-col">
+                                            <div class="slds-truncate" title="Target Created On">Target Created On</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <template if:true={isAddingRow}>
+                                        <tr class="parent-row add-row">
+                                            <td class="checkbox-col"></td>
+                                            <td>
+                                                <lightning-combobox
+                                                    name="plantId"
+                                                    variant="label-hidden"
+                                                    placeholder="Select Plant"
+                                                    value={newRow.plantId}
+                                                    options={filteredPlantPickerOptions}
+                                                    onchange={handleNewRowPlantChange}>
+                                                </lightning-combobox>
+                                            </td>
+                                            <td>
+                                                <div class="slds-truncate" title={newRow.region}>{newRow.region}</div>
+                                            </td>
+                                            <td>
+                                                <div class="inline-action-cell">
+                                                    <lightning-button
+                                                        label="Save"
+                                                        variant="brand"
+                                                        disabled={isSaveNewRowDisabled}
+                                                        onclick={handleSaveNewRow}>
+                                                    </lightning-button>
+                                                    <lightning-button
+                                                        label="Cancel"
+                                                        class="slds-m-left_x-small"
+                                                        onclick={handleCancelAddRow}>
+                                                    </lightning-button>
+                                                </div>
+                                            </td>
+                                            <td></td>
+                                            <template if:true={showGpsColumns}>
+                                                <td>
+                                                    <lightning-combobox
+                                                        name="plantProgramId"
+                                                        variant="label-hidden"
+                                                        placeholder="Select Plant Program"
+                                                        value={newRow.plantProgramId}
+                                                        options={plantProgramOptions}
+                                                        onchange={handleNewRowPlantProgramChange}>
+                                                    </lightning-combobox>
+                                                </td>
+                                                <td>
+                                                    <lightning-combobox
+                                                        name="functionalArea"
+                                                        variant="label-hidden"
+                                                        placeholder="Select Functional Area"
+                                                        value={newRow.functionalArea}
+                                                        options={functionalAreaOptions}
+                                                        onchange={handleNewRowFieldChange}>
+                                                    </lightning-combobox>
+                                                </td>
+                                                <!--<td>
+                                                    <lightning-combobox
+                                                        name="partType"
+                                                        variant="label-hidden"
+                                                        value={newRow.partType}
+                                                        placeholder="Select Part Type"
+                                                        options={partTypeOptions}
+                                                        onchange={handleNewRowFieldChange}>
+                                                    </lightning-combobox>
+                                                </td>
+                                                <td>
+                                                    <lightning-combobox
+                                                        name="lineNumber"
+                                                        variant="label-hidden"
+                                                        value={newRow.lineNumber}
+                                                        placeholder="Select Line Number"
+                                                        options={lineNumberOptions}
+                                                        onchange={handleNewRowFieldChange}>
+                                                    </lightning-combobox>
+                                                </td>-->
+                                            </template>
+                                            <td></td>
+                                        </tr>
+                                    </template>
+                                    <template for:each={visibleGroups} for:item="group">
+                                        <!-- Rule 4: Parent row – checkbox selects parent only -->
+                                        <tr key={group.plantSectorId} class="parent-row">
+                                            <td class="checkbox-col">
+                                                <div class="checkbox-wrapper">
+                                                    <input
+                                                        class="native-checkbox"
+                                                        type="checkbox"
+                                                        checked={group.selected}
+                                                        disabled={group.checkboxDisabled}
+                                                        data-id={group.plantSectorId}
+                                                        onchange={handleParentSelection} />
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="parent-plant-cell">
+                                                    <lightning-button-icon
+                                                        icon-name={group.expandIcon}
+                                                        alternative-text="Toggle target list"
+                                                        variant="bare"
+                                                        size="small"
+                                                        class="parent-expand-button"
+                                                        data-id={group.plantSectorId}
+                                                        onclick={toggleGroupExpansion}>
+                                                    </lightning-button-icon>
+                                                    <div class="slds-truncate" title={group.plantName}>{group.plantName}</div>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <div class="slds-truncate" title={group.region}>{group.region}</div>
+                                            </td>
+                                            <td></td>
+                                            <td></td>
+                                            <template if:true={showGpsColumns}>
+                                                <td>
+                                                    <div class="slds-truncate" title={group.productType}>{group.productType}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title={group.programCode}>{group.programCode}</div>
+                                                </td>
+                                                <td>
+                                                    <div class="slds-truncate" title={group.functionalArea}>{group.functionalArea}</div>
+                                                </td>
+                                            <!--    <td>
+                                                    <div class="slds-truncate" title={group.lineNumber}>{group.lineNumber}</div>
+                                                </td>-->
+                                            </template>
+                                            <td></td>
+                                        </tr>
+
+                                        <template if:true={group.isExpanded}>
+                                            <template if:true={group.showNoTargets}>
+                                                <tr key={group.emptyRowKey} class="child-row child-row_empty">
+                                                    <td class="checkbox-col"></td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td colspan={emptyStateColspan}>
+                                                        <span class="placeholder-text">No target records found.</span>
+                                                    </td>
+                                                </tr>
+                                            </template>
+
+                                            <template for:each={group.visibleTargets} for:item="target">
+                                                <!-- Rule 7/8: Child rows – selecting here drives Clone/Update Status/Publish -->
+                                                <tr key={target.rowKey} class="child-row">
+                                                    <td class="checkbox-col">
+                                                        <div class="checkbox-wrapper">
+                                                            <input
+                                                                class="native-checkbox"
+                                                                type="checkbox"
+                                                                checked={target.selected}
+                                                                data-group-id={group.plantSectorId}
+                                                                data-target-id={target.targetId}
+                                                                onchange={handleChildSelection} />
+                                                        </div>
+                                                    </td>
+                                                    <td></td>
+                                                    <td></td>
+                                                    <td>
+                                                        <div class="draft-action-cell">
+                                                            <button
+                                                                class="target-link"
+                                                                type="button"
+                                                                data-group-id={group.plantSectorId}
+                                                                data-target-id={target.targetId}
+                                                                onclick={handleTargetClick}
+                                                                title={target.targetName}>
+                                                                {target.targetName}
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="status-with-icon">
+                                                            <lightning-icon
+                                                                icon-name={target.targetStatusIcon}
+                                                                size="x-small"
+                                                                alternative-text={target.targetStatus}
+                                                                class={target.targetStatusIconClass}>
+                                                            </lightning-icon>
+                                                            <span class={target.targetStatusClass}>{target.targetStatus}</span>
+                                                        </div>
+                                                    </td>
+                                                    <template if:true={showGpsColumns}>
+                                                        <td>
+                                                            <div class="slds-truncate" title={group.productType}>{group.productType}</div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="slds-truncate" title={group.programCode}>{group.programCode}</div>
+                                                        </td>
+                                                        <td>
+                                                            <div class="slds-truncate" title={group.functionalArea}>{group.functionalArea}</div>
+                                                        </td>
+                                                <!--        <td>
+                                                            <div class="slds-truncate" title={group.lineNumber}>{group.lineNumber}</div>
+                                                        </td>-->
+                                                    </template>
+                                                    <td class="created-on-cell">
+                                                        <div class="slds-truncate" title={target.targetCreatedOn}>{target.targetCreatedOn}</div>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </template>
+                                    </template>
+                                </tbody>
+                            </table>
+                        </div>
+                    </template>
+
+                    <template if:false={hasRows}>
+                        <div class="slds-text-align_center slds-text-color_weak slds-p-vertical_large">
+                            No target rows found.
+                        </div>
+                    </template>
+                </template>
+            </div>
+        </lightning-card>
+
+        <!-- New / Clone modal -->
+        <template if:true={isModalOpen}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="draft-target-modal-heading" class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseModal}>
+                            <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="draft-target-modal-heading" class="slds-modal__title slds-hyphenate">
+                            {modalHeading}
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <p class="slds-text-body_regular slds-m-bottom_small">
+                            {modalHelpText}
+                        </p>
+                        <lightning-combobox
+                            name="mSchedule"
+                            label="M-Schedule Data Point"
+                            value={selectedMSchedule}
+                            options={mScheduleOptions}
+                            placeholder="Select M-Schedule Data Point"
+                            onchange={handleMScheduleChange}>
+                        </lightning-combobox>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" variant="neutral" onclick={handleCloseModal}></lightning-button>
+                        <lightning-button label={modalPrimaryLabel} variant="brand" onclick={handleCreateDraftTarget} class="slds-m-left_x-small"></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+        </template>
+
+        <!-- Update Status modal -->
+        <template if:true={isUpdateStatusOpen}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="update-status-heading" class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <button class="slds-button slds-button_icon slds-modal__close slds-button_icon-inverse" title="Close" onclick={handleCloseUpdateStatus}>
+                            <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+                            <span class="slds-assistive-text">Close</span>
+                        </button>
+                        <h2 id="update-status-heading" class="slds-modal__title slds-hyphenate">Update Status</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <lightning-combobox
+                            name="targetStatus"
+                            label="Select status"
+                            value={selectedUpdateStatus}
+                            options={statusUpdateOptions}
+                            placeholder="Select status"
+                            onchange={handleUpdateStatusChange}>
+                        </lightning-combobox>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Cancel" variant="neutral" onclick={handleCloseUpdateStatus}></lightning-button>
+                        <lightning-button label="Save" variant="brand" class="slds-m-left_x-small" onclick={handleConfirmUpdateStatus}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+        </template>
+
+        <!-- Background processing modal -->
+        <template if:true={isProcessingModalOpen}>
+            <section role="dialog" tabindex="-1" aria-modal="true" aria-labelledby="draft-processing-modal-heading" class="slds-modal slds-fade-in-open slds-modal_small">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <h2 id="draft-processing-modal-heading" class="slds-modal__title slds-hyphenate">Background Processing Started</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium">
+                        <p class="delete-copy">
+                            Target records are being processed in the background. We'll notify you as soon as they're ready.
+                        </p>
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning-button label="Okay" variant="brand" onclick={handleCloseProcessingModal}></lightning-button>
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open" role="presentation"></div>
+        </template>
+    </template>
+</template>

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Base</fullName>
+        <default>false</default>
+        <label>Base</label>
+    </customValue>
+    <customValue>
+        <fullName>Supp</fullName>
+        <default>false</default>
+        <label>Supp</label>
+    </customValue>
+    <description>Value set for Bass/Supp values</description>
+    <masterLabel>Base/Supp</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

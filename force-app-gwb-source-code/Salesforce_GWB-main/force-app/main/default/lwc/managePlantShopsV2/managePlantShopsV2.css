@@ -1,0 +1,455 @@
+.table-container {
+    max-height: 500px;
+    overflow-y: auto;
+    overflow-x: auto;
+    width: 100%;
+    position: relative;
+}
+
+/* Custom scrollbar styling for table container */
+.table-container::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+.table-container::-webkit-scrollbar-track {
+    background: #f3f2f2;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+    background: #c9c9c9;
+    border-radius: 4px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.modal-container .slds-modal__container {
+    width: 100vh !important;
+    max-width: 100vh !important;
+}
+
+.deactivation-modal-container {
+    max-width: 75rem !important;
+    width: 75rem !important;
+}
+
+.deactivation-modal-container .slds-modal__header .slds-modal__close,
+.deactivation-modal-container .slds-modal__header .slds-button_icon-inverse {
+    color: #3b3b3b !important;
+}
+
+.deactivation-modal-container .slds-modal__header .slds-modal__close svg {
+    fill: #3b3b3b !important;
+}
+
+.reparent-table th,
+.reparent-table td {
+    white-space: nowrap;
+    vertical-align: top;
+    min-width: 10rem;
+}
+
+/* Disable row highlight on hover */
+.no-row-hover tbody tr:hover > td,
+.no-row-hover tbody tr:hover > th {
+    background-color: transparent !important;
+}
+
+/* Custom smooth borders for table and cells */
+.custom-table {
+    width: max-content;
+    min-width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid var(--lwc-colorBorder, #D8DDE6);
+    border-radius: 6px;
+    /* overflow: hidden; - Removed to allow sticky header to work properly if needed, though sticky is inside container */
+}
+
+.custom-table thead th {
+    background: var(--lwc-colorBackgroundAlt, #FAFAF9);
+    border-bottom: 1px solid var(--lwc-colorBorder, #D8DDE6);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.custom-table tbody td {
+    border-bottom: 1px solid var(--lwc-colorBorder, #E5E5E5);
+}
+
+.custom-table th:not(:last-child),
+.custom-table td:not(:last-child) {
+    border-right: 1px solid var(--lwc-colorBorder, #E5E5E5);
+}
+
+.custom-table tbody tr:last-child td {
+    border-bottom: 0;
+}
+
+.custom-table thead tr:first-child th:first-child { border-top-left-radius: 6px; }
+.custom-table thead tr:first-child th:last-child { border-top-right-radius: 6px; }
+.custom-table tbody tr:last-child td:first-child { border-bottom-left-radius: 6px; }
+.custom-table tbody tr:last-child td:last-child { border-bottom-right-radius: 6px; }
+
+/* Column A styling to fit Program Code and Name */
+.program-cell {
+    min-width: 350px;
+}
+
+.program-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.875rem;
+}
+
+.program-code {
+    font-weight: 600;
+    color: var(--lwc-colorTextDefault, #181818);
+}
+
+/* Program Code column header styling */
+.program-code-header {
+    font-weight: bold;
+    font-size: 0.875rem;
+}
+
+.program-name {
+    color: var(--lwc-colorTextWeak, #706e6b);
+}
+
+/* Accordion / Expand-Collapse styles */
+.expand-collapse-btn {
+    padding: 0.125rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    border-radius: 0.25rem;
+    transition: background-color 0.15s ease;
+}
+
+.expand-collapse-btn:hover {
+    background-color: var(--lwc-colorBackgroundRowHover, #F3F2F2);
+}
+
+.expand-collapse-btn:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px #0176D3;
+}
+
+/* Child row styles */
+.child-row {
+    background-color: #fafaf9;
+}
+
+.child-row:hover {
+    background-color: #f3f2f2;
+}
+
+.child-cell {
+    border-left: 3px solid #0176D3 !important;
+}
+
+.child-indicator {
+    color: var(--lwc-colorTextWeak, #706e6b);
+}
+
+/* Excel-style filter styles */
+.excel-filter-table th.excel-filter-header {
+    position: relative;
+    padding: 0.5rem;
+}
+
+.excel-filter-icon-container {
+    display: flex;
+    align-items: center;
+    margin-left: 0.25rem;
+    position: relative;
+}
+
+.excel-filter-button {
+    padding: 0;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+}
+
+.excel-filter-button:hover {
+    background: var(--lwc-colorBackgroundRowHover, #F3F2F2);
+    border-radius: 0.25rem;
+}
+
+.excel-filter-icon-active {
+    fill: var(--lwc-colorBrand, #0176D3);
+}
+
+.excel-filter-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    border: 1px solid var(--lwc-colorBorder, #D8DDE6);
+    border-radius: 0.25rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    z-index: 1000;
+    min-width: 200px;
+    max-width: 300px;
+    max-height: 300px;
+    margin-top: 0.25rem;
+}
+
+.excel-filter-dropdown-header {
+    padding: 0.5rem;
+    border-bottom: 1px solid var(--lwc-colorBorder, #D8DDE6);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.excel-filter-dropdown-content {
+    max-height: 250px;
+    overflow-y: auto;
+    padding: 0.25rem;
+}
+
+.excel-filter-item {
+    padding: 0.25rem 0.5rem;
+}
+
+.excel-filter-item:hover {
+    background: var(--lwc-colorBackgroundRowHover, #F3F2F2);
+}
+
+/* ===== MONTHLY TOTALS HEADER ROW (from workbookMonthlyData) ===== */
+.table-scroll-container {
+    width: 100%;
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    height: 600px;
+    max-height: 600px;
+    border: 1px solid #dddbda;
+    border-radius: 0.25rem;
+}
+
+.totals-container-wrapper {
+    width: max-content;
+    min-width: 100%;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    min-height: 0;
+}
+
+.totals-header-wrapper {
+    overflow-x: visible;
+    overflow-y: hidden;
+    border-bottom: 2px solid #0176d3;
+    background-color: #ffffff;
+    margin-bottom: 0;
+    max-height: 80px;
+    width: 100%;
+    display: block;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    flex-shrink: 0;
+}
+
+.totals-header-table {
+    width: auto;
+    min-width: 100%;
+    table-layout: fixed;
+    border-collapse: collapse;
+    margin: 0;
+    display: table;
+}
+
+.totals-header-table th {
+    padding: 0.5rem;
+    border: 1px solid #dddbda;
+    vertical-align: middle;
+    text-align: center;
+    white-space: nowrap;
+    background-color: inherit;
+}
+
+.totals-header-table th:nth-child(1),
+.totals-header-table th:nth-child(2),
+.totals-header-table th:nth-child(3),
+.totals-header-table th:nth-child(4),
+.totals-header-table th:nth-child(5),
+.totals-header-table th:nth-child(6) {
+    position: sticky;
+    left: 0;
+    z-index: 101;
+    background-color: #f3f2f2;
+}
+
+.totals-header-table th:nth-child(1) { left: 0; }
+.totals-header-table th:nth-child(2) { left: 50px; }
+.totals-header-table th:nth-child(3) { left: 200px; }
+.totals-header-table th:nth-child(4) { left: 350px; }
+.totals-header-table th:nth-child(5) { left: 500px; }
+.totals-header-table th:nth-child(6) { left: 620px; }
+
+.totals-header-table th.base-col {
+    background-color: #f3f2f2;
+    border-right: 1px solid #dddbda;
+}
+
+.month-total-header {
+    background-color: #0176d3 !important;
+    color: #ffffff !important;
+    font-weight: bold;
+    text-align: center;
+    padding: 0.5rem 0.25rem !important;
+    border-left: 1px solid #ffffff;
+    border-right: 1px solid #ffffff;
+}
+
+.month-total-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    margin-bottom: 0.25rem;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.month-total-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.2;
+}
+
+.datatable-wrapper {
+    overflow-x: visible;
+    overflow-y: auto;
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    display: block;
+    position: relative;
+}
+
+.table-scroll-container::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+    display: block !important;
+}
+
+.table-scroll-container::-webkit-scrollbar-track {
+    background: #f3f2f2;
+    border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb {
+    background: #c9c9c9;
+    border-radius: 4px;
+}
+
+.table-scroll-container::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+.datatable-wrapper {
+    scrollbar-width: thin;
+    scrollbar-color: #c9c9c9 #f3f2f2;
+}
+
+.datatable-wrapper::-webkit-scrollbar {
+    width: 12px;
+    display: block !important;
+}
+
+.datatable-wrapper::-webkit-scrollbar-track {
+    background: #f3f2f2;
+    border-radius: 4px;
+}
+
+.datatable-wrapper::-webkit-scrollbar-thumb {
+    background: #c9c9c9;
+    border-radius: 4px;
+}
+
+.datatable-wrapper::-webkit-scrollbar-thumb:hover {
+    background: #a8a8a8;
+}
+
+:host ::ng-deep c-custom-data-table .slds-table thead tr {
+    position: sticky;
+    top: 80px;
+    z-index: 99;
+    background-color: #f3f2f2;
+}
+
+:host ::ng-deep c-custom-data-table .slds-table thead th {
+    background-color: #f3f2f2 !important;
+    position: sticky;
+    top: 80px;
+    z-index: 99;
+}
+
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(1),
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(2),
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(3),
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(4),
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(5),
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(6) {
+    position: sticky;
+    left: 0;
+    z-index: 100;
+    background-color: #f3f2f2 !important;
+}
+
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(1) { left: 0; }
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(2) { left: 50px; }
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(3) { left: 200px; }
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(4) { left: 350px; }
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(5) { left: 500px; }
+:host ::ng-deep c-custom-data-table .slds-table thead th:nth-child(6) { left: 620px; }
+
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(1),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(2),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(3),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(4),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(5),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(6) {
+    position: sticky;
+    left: 0;
+    z-index: 98;
+    background-color: #ffffff;
+}
+
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(1) { left: 0; }
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(2) { left: 50px; }
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(3) { left: 200px; }
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(4) { left: 350px; }
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(5) { left: 500px; }
+:host ::ng-deep c-custom-data-table .slds-table tbody tr td:nth-child(6) { left: 620px; }
+
+:host ::ng-deep c-custom-data-table .slds-table tbody tr:hover td:nth-child(1),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr:hover td:nth-child(2),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr:hover td:nth-child(3),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr:hover td:nth-child(4),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr:hover td:nth-child(5),
+:host ::ng-deep c-custom-data-table .slds-table tbody tr:hover td:nth-child(6) {
+    background-color: #fafaf9;
+}
+
+:host ::ng-deep c-custom-data-table {
+    width: max-content;
+    min-width: 100%;
+    display: block;
+}

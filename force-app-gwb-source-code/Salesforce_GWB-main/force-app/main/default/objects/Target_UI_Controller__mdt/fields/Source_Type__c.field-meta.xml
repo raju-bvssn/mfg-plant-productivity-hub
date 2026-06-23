@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Source_Type__c</fullName>
+    <fieldManageability>DeveloperControlled</fieldManageability>
+    <label>Source Type</label>
+    <required>true</required>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>false</sorted>
+            <value>
+                <fullName>Parameter</fullName>
+                <default>false</default>
+                <label>Parameter</label>
+            </value>
+            <value>
+                <fullName>Driver</fullName>
+                <default>false</default>
+                <label>Driver</label>
+            </value>
+            <value>
+                <fullName>Derived</fullName>
+                <default>false</default>
+                <label>Derived</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

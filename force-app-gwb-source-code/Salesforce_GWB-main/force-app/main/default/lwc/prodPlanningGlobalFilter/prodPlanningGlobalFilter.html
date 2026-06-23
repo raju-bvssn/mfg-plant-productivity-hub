@@ -1,0 +1,145 @@
+<template>
+    <section class="filters-wrapper">
+        <div class="filters-header">
+            <h2 class="slds-text-heading_medium">Filters</h2>
+            <div class="filters-actions">
+                <div class="slds-button-group" role="group">
+                    <!-- <lightning-button label="Cancel" onclick={handleCancel}></lightning-button> -->
+                    <lightning-button label="Reset" onclick={handleReset}></lightning-button>
+                    <lightning-button variant="brand" label="Apply" onclick={handleApply}></lightning-button>
+                </div>
+                <lightning-button-icon
+                    icon-name={collapseIconName}
+                    alternative-text={collapseAltText}
+                    title={collapseAltText}
+                    onclick={handleToggleCollapse}
+                ></lightning-button-icon>
+            </div>
+        </div>
+
+        <template if:false={isCollapsed}>
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading filter options" size="small"></lightning-spinner>
+            </template>
+
+            <template if:true={errorMessage}>
+                <div class="slds-text-color_error">{errorMessage}</div>
+            </template>
+
+            <template if:false={isLoading}>
+                <div class="filters-rows">
+                    <!-- Row 1: Plant | Shop -->
+                    <div class="filter-row">
+                        <div class="filter-col">
+                            <lightning-combobox
+                                name="plant"
+                                label="Plant"
+                                value={filters.plant}
+                                options={options.plant}
+                                onchange={handleSelectChange}
+                            ></lightning-combobox>
+                        </div>
+                        <div class="filter-col">
+                            <lightning-combobox
+                                name="shop"
+                                label="Shop"
+                                value={filters.shop}
+                                options={options.shop}
+                                disabled={isShopDisabled}
+                                onchange={handleSelectChange}
+                            ></lightning-combobox>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Year | Month | Classification | Driver -->
+                    <div class="filter-row">
+                        <div class="filter-col">
+                            <lightning-combobox
+                                name="year"
+                                label="Year"
+                                value={filters.year}
+                                options={options.year}
+                                onchange={handleSelectChange}
+                            ></lightning-combobox>
+                        </div>
+                        <div class="filter-col">
+                            <lightning-combobox
+                                name="month"
+                                label="Month"
+                                value={filters.month}
+                                options={options.month}
+                                disabled={isSummaryTabActive}
+                                onchange={handleSelectChange}
+                            ></lightning-combobox>
+                        </div>
+                        <div class="filter-col">
+                            <lightning-combobox
+                                name="classification"
+                                label="Classification"
+                                value={filters.classification}
+                                options={options.classification}
+                                onchange={handleSelectChange}
+                            ></lightning-combobox>
+                        </div>
+                        <div class="filter-col">
+                            <lightning-combobox
+                                name="driver"
+                                label="Driver"
+                                value={filters.driver}
+                                options={options.driver}
+                                onchange={handleSelectChange}
+                            ></lightning-combobox>
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Base/SUPP | Initiative Type | Initiative Status | Exclude from GWB -->
+                    <div class="filter-row">
+                        <div class="filter-col">
+                            <lightning-combobox
+                                name="baseSupp"
+                                label="Base/SUPP"
+                                value={filters.baseSupp}
+                                options={options.baseSupp}
+                                onchange={handleSelectChange}
+                            ></lightning-combobox>
+                        </div>
+                        <div class="filter-col">
+                            <lightning-combobox
+                                name="initiativeType"
+                                label="Initiative Type"
+                                value={filters.initiativeType}
+                                options={options.initiativeType}
+                                disabled={isSummaryTabActive}
+                                onchange={handleSelectChange}
+                            ></lightning-combobox>
+                        </div>
+                        <div class="filter-col">
+                            <lightning-combobox
+                                name="initiativeStatus"
+                                label="Initiative Status"
+                                value={filters.initiativeStatus}
+                                options={options.initiativeStatus}
+                                disabled={isSummaryTabActive}
+                                onchange={handleSelectChange}
+                            ></lightning-combobox>
+                        </div>
+                        <template if:false={isExcludeFromGwbLocked}>
+                            <div class="filter-col">
+                                <lightning-combobox
+                                    name="excludeFromGWB"
+                                    label="Exclude from GWB"
+                                    value={filters.excludeFromGWB}
+                                    options={options.excludeFromGWB}
+                                    onchange={handleSelectChange}
+                                ></lightning-combobox>
+                            </div>
+                        </template>
+                        <template if:true={isExcludeFromGwbLocked}>
+                            <div class="filter-col"></div>
+                        </template>
+                    </div>
+                </div>
+            </template>
+        </template>
+    </section>
+</template>

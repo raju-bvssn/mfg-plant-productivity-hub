@@ -1,0 +1,25 @@
+<template>
+    <template if:true={showApprovalHistory}>
+    <lightning-card>
+        <div class="content-container">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading approval history" size="medium"></lightning-spinner>
+            </template>
+
+            <template if:true={hasRows}>
+                <h2 class="approval-title">Initiative Approval History</h2>
+                <div class="table-scroll-container">
+                    <lightning-datatable
+                        key-field="rowKey"
+                        data={rows}
+                        columns={columns}
+                        style="--lwc-colorTextDefault: #000000; --lwc-colorTextLabel: #000000; --lwc-brandTextLink: #000000; --lwc-brandTextLinkActive: #000000; --lwc-brandTextLinkFocus: #000000; --lwc-brandTextLinkHover: #000000; --slds-g-color-neutral-base-10: #000000; --slds-g-color-neutral-base-20: #000000; --slds-g-color-neutral-base-30: #000000; --slds-c-table-color-text-default: #000000; --slds-c-table-heading-color-text: #000000; --slds-c-table-text-color: #000000; --sds-c-table-color-text-default: #000000; --sds-c-table-heading-color-text: #000000; --sds-c-table-text-color: #000000;"
+                        hide-checkbox-column>
+                    </lightning-datatable>
+                </div>
+            </template>
+
+        </div>
+    </lightning-card>
+    </template>
+</template>

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ConnectedApp xmlns="http://soap.sforce.com/2006/04/metadata">
+    <contactEmail>vbolisetti.fd61c459bf@salesforce.com</contactEmail>
+    <description>OAuth 2.0 Connected App for PlantIQ MuleSoft integration using JWT Bearer flow. Authenticates MuleSoft Salesforce Connector without username-password flow.</description>
+    <label>PlantIQ MuleSoft JWT</label>
+    <oauthConfig>
+        <callbackUrl>http://localhost</callbackUrl>
+        <certificate>MIIDYzCCAkugAwIBAgIIY++e1rf/6VowDQYJKoZIhvcNAQELBQAwYDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAk1JMRAwDgYDVQQHEwdEZXRyb2l0MQwwCgYDVQQKEwNHV0IxEDAOBgNVBAsTB1BsYW50SVExEjAQBgNVBAMTCWxvY2FsaG9zdDAeFw0yNjA2MjMxNTE1MThaFw0zNjA2MjAxNTE1MThaMGAxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJNSTEQMA4GA1UEBxMHRGV0cm9pdDEMMAoGA1UEChMDR1dCMRAwDgYDVQQLEwdQbGFudElRMRIwEAYDVQQDEwlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQChahYeDPBzu0ojxqLivx1KXnGuo0wMgE0P31MWF8fhZiznN3p6iAQfl6bjyEQydk1q9mPEUOJ+zeuKAWiYiJSYY9vMGx3w6wXM3VHQj+dPRbo0gSTBRSXt9tbnlG+1zz1C7rPg7Z8bsk5mLSou3Pnmnej2LSUJL19seps8SivuMgLfA2Q9kRtDDSmmsWrDEfhRy0/Z/GOuML6DWUM4VWAySy7mlumFOJJYBVFMzckoVvh6s/GbTzcKUVCZolklO0CuJ6itIDPO+7UCEvmJaDEBEe9v6bsYh5ynG5sy4BVmyK0ltjSf9fPtzIucniV3HCCvA1LoggzVvAwdXZhwk1SJAgMBAAGjITAfMB0GA1UdDgQWBBTz4QNPw1GSMmmLlwbcE+iviVuJWDANBgkqhkiG9w0BAQsFAAOCAQEARzoi6Ql+AB584WzYfsumsCQha2lRvQTQMi/Ca1tUopbaUghXc1y+zhZR1PXls1ZcK8NpS++LKWoh54zCuKR+00b7IZZP/kCoIQfxpQrBNAES+iLXU+R7FRB2jLWUI5bCzPebWfZBjpu7Z0GaGYy2W5ODUAHyOFTV5Vp9/RSWf25dUoUenLcGYofA8RNzLkgfRLz9WVJmz4+PNvPvRCQAwMtXbo2vVf5v4pUbXavGoHKxd8jcfaBfe038IaB77QQcmmEL01CRDJDuLetr+FDRrtyP8NsOkFcUjp9XJTIaXKsyv/PYS0M2DtkmdmS0WAAtqF5xv7ogr0veeh6VZ3WTDQ==</certificate>
+        <consumerKey>3MVG9OGq41FnYVsH2CBCnt.MO9oIDgh9yWRN_CL47MS1N1ODSOkpPGYWzHsWCdkevWKH3iYP98jIG9kMLn6fA</consumerKey>
+        <isAdminApproved>false</isAdminApproved>
+        <isClientCredentialEnabled>false</isClientCredentialEnabled>
+        <isCodeCredentialEnabled>false</isCodeCredentialEnabled>
+        <isCodeCredentialPostOnly>false</isCodeCredentialPostOnly>
+        <isConsumerSecretOptional>false</isConsumerSecretOptional>
+        <isIntrospectAllTokens>false</isIntrospectAllTokens>
+        <isNamedUserJwtEnabled>true</isNamedUserJwtEnabled>
+        <isPkceRequired>false</isPkceRequired>
+        <isRefreshTokenRotationEnabled>false</isRefreshTokenRotationEnabled>
+        <isSecretRequiredForRefreshToken>false</isSecretRequiredForRefreshToken>
+        <isSecretRequiredForTokenExchange>false</isSecretRequiredForTokenExchange>
+        <isTokenExchangeEnabled>false</isTokenExchangeEnabled>
+        <scopes>Api</scopes>
+        <scopes>RefreshToken</scopes>
+        <scopes>OfflineAccess</scopes>
+    </oauthConfig>
+    <oauthPolicy>
+        <ipRelaxation>BYPASS</ipRelaxation>
+        <isTokenExchangeFlowEnabled>false</isTokenExchangeFlowEnabled>
+        <refreshTokenPolicy>infinite</refreshTokenPolicy>
+    </oauthPolicy>
+    <permissionSetName>PlantIQ_Admin</permissionSetName>
+</ConnectedApp>

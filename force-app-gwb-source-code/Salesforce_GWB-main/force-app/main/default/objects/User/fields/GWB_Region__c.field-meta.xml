@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>GWB_Region__c</fullName>
+    <defaultValue>IF(
+    ISPICKVAL($User.GWB_Region__c, &apos;NA&apos;), 
+    &apos;NA&apos;,
+    IF(
+        ISPICKVAL($User.GWB_Region__c, &apos;EU&apos;), 
+        &apos;EU&apos;,
+        IF(
+            ISPICKVAL($User.GWB_Region__c, &apos;SA&apos;), 
+            &apos;SA&apos;,
+            IF(
+                ISPICKVAL($User.GWB_Region__c, &apos;SK&apos;), 
+                &apos;SK&apos;,
+                IF(
+																				ISPICKVAL($User.GWB_Region__c, &apos;AP&apos;),
+																				&apos;AP&apos;,
+																				&apos;&apos;
+																)
+            )
+        )
+    )
+)</defaultValue>
+    <description>Functional Description: GWB Region field for regional sharing
+Used in Integration: N
+Bi-Directional Sync: N
+User Story #: 4426226</description>
+    <label>GWB Region</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackHistory>false</trackHistory>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetName>GWB_User_Region</valueSetName>
+    </valueSet>
+</CustomField>

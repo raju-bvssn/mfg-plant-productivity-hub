@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<PermissionSetGroup xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>PSG for Plant Admins</description>
+    <hasActivationRequired>false</hasActivationRequired>
+    <label>Plant Admin PSG</label>
+    <permissionSets>EinsteinAnalyticsPlusDataExtractUser</permissionSets>
+    <permissionSets>Global_Data_View_PS</permissionSets>
+    <permissionSets>Manage_Public_List_Views_PS</permissionSets>
+    <permissionSets>Plant_Admin_PS</permissionSets>
+    <permissionSets>force__EinsteinAnalyticsPlusUser</permissionSets>
+    <status>Updated</status>
+</PermissionSetGroup>

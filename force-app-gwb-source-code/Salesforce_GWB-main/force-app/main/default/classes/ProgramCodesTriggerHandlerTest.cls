@@ -1,0 +1,3 @@
+@IsTest
+private class ProgramCodesTriggerHandlerTest {
+}

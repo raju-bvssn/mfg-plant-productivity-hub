@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>OTS</fullName>
+        <default>false</default>
+        <label>OTS</label>
+    </customValue>
+    <customValue>
+        <fullName>SK</fullName>
+        <default>false</default>
+        <label>SK</label>
+    </customValue>
+    <customValue>
+        <fullName>SAL</fullName>
+        <default>false</default>
+        <label>SAL</label>
+    </customValue>
+    <customValue>
+        <fullName>Direct OTS</fullName>
+        <default>false</default>
+        <label>Direct OTS</label>
+    </customValue>
+    <customValue>
+        <fullName>Salaried</fullName>
+        <default>false</default>
+        <label>Salaried</label>
+    </customValue>
+    <customValue>
+        <fullName>Indirect Skilled</fullName>
+        <default>false</default>
+        <label>Indirect Skilled</label>
+    </customValue>
+    <customValue>
+        <fullName>Indirect OTS</fullName>
+        <default>false</default>
+        <label>Indirect OTS</label>
+    </customValue>
+    <customValue>
+        <fullName>Total</fullName>
+        <default>false</default>
+        <label>Total</label>
+    </customValue>
+    <customValue>
+        <fullName>Skilled</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Skilled</label>
+    </customValue>
+    <masterLabel>Classification</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

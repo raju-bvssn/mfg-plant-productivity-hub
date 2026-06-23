@@ -1,12 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ConnectedApp xmlns="http://soap.sforce.com/2006/04/metadata">
     <contactEmail>vbolisetti.fd61c459bf@salesforce.com</contactEmail>
-    <description>OAuth 2.0 Connected App for the PlantIQ MuleSoft integration. Used by MuleSoft Salesforce Connector to authenticate via Username-Password flow, subscribe to PlantIQ_Target_Set__e Platform Events, execute SOQL queries, upsert GWB_Productivity_Idea__c records, and call the Einstein LLM REST API.</description>
+    <description>OAuth 2.0 Connected App for the PlantIQ MuleSoft integration. Used by MuleSoft Salesforce Connector to authenticate via JWT Bearer flow, subscribe to PlantIQ_Target_Set__e Platform Events, execute SOQL queries, upsert GWB_Productivity_Idea__c records, and call the Einstein LLM REST API.</description>
     <label>PlantIQ MuleSoft Integration</label>
     <oauthConfig>
         <callbackUrl>http://localhost</callbackUrl>
-        <certificate/>
-        <consumerKey/>
+        <certificate>MIIDYzCCAkugAwIBAgIIY++e1rf/6VowDQYJKoZIhvcNAQELBQAwYDELMAkGA1UEBhMCVVMxCzAJBgNVBAgTAk1JMRAwDgYDVQQHEwdEZXRyb2l0MQwwCgYDVQQKEwNHV0IxEDAOBgNVBAsTB1BsYW50SVExEjAQBgNVBAMTCWxvY2FsaG9zdDAeFw0yNjA2MjMxNTE1MThaFw0zNjA2MjAxNTE1MThaMGAxCzAJBgNVBAYTAlVTMQswCQYDVQQIEwJNSTEQMA4GA1UEBxMHRGV0cm9pdDEMMAoGA1UEChMDR1dCMRAwDgYDVQQLEwdQbGFudElRMRIwEAYDVQQDEwlsb2NhbGhvc3QwggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQChahYeDPBzu0ojxqLivx1KXnGuo0wMgE0P31MWF8fhZiznN3p6iAQfl6bjyEQydk1q9mPEUOJ+zeuKAWiYiJSYY9vMGx3w6wXM3VHQj+dPRbo0gSTBRSXt9tbnlG+1zz1C7rPg7Z8bsk5mLSou3Pnmnej2LSUJL19seps8SivuMgLfA2Q9kRtDDSmmsWrDEfhRy0/Z/GOuML6DWUM4VWAySy7mlumFOJJYBVFMzckoVvh6s/GbTzcKUVCZolklO0CuJ6itIDPO+7UCEvmJaDEBEe9v6bsYh5ynG5sy4BVmyK0ltjSf9fPtzIucniV3HCCvA1LoggzVvAwdXZhwk1SJAgMBAAGjITAfMB0GA1UdDgQWBBTz4QNPw1GSMmmLlwbcE+iviVuJWDANBgkqhkiG9w0BAQsFAAOCAQEARzoi6Ql+AB584WzYfsumsCQha2lRvQTQMi/Ca1tUopbaUghXc1y+zhZR1PXls1ZcK8NpS++LKWoh54zCuKR+00b7IZZP/kCoIQfxpQrBNAES+iLXU+R7FRB2jLWUI5bCzPebWfZBjpu7Z0GaGYy2W5ODUAHyOFTV5Vp9/RSWf25dUoUenLcGYofA8RNzLkgfRLz9WVJmz4+PNvPvRCQAwMtXbo2vVf5v4pUbXavGoHKxd8jcfaBfe038IaB77QQcmmEL01CRDJDuLetr+FDRrtyP8NsOkFcUjp9XJTIaXKsyv/PYS0M2DtkmdmS0WAAtqF5xv7ogr0veeh6VZ3WTDQ==</certificate>
         <isIntrospectAllTokens>false</isIntrospectAllTokens>
         <isSecretRequiredForRefreshToken>true</isSecretRequiredForRefreshToken>
         <scopes>Api</scopes>

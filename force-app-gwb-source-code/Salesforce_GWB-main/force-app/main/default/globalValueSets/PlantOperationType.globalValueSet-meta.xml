@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Operation/Repair</fullName>
+        <default>false</default>
+        <label>Operation/Repair</label>
+    </customValue>
+    <customValue>
+        <fullName>Team Leader</fullName>
+        <default>false</default>
+        <label>Team Leader</label>
+    </customValue>
+    <customValue>
+        <fullName>Absentee Replacement</fullName>
+        <default>false</default>
+        <label>Absentee Replacement</label>
+    </customValue>
+    <customValue>
+        <fullName>Tag Relief</fullName>
+        <default>false</default>
+        <label>Tag Relief</label>
+    </customValue>
+    <customValue>
+        <fullName>Skilled</fullName>
+        <default>false</default>
+        <label>Skilled</label>
+    </customValue>
+    <customValue>
+        <fullName>Other</fullName>
+        <default>false</default>
+        <label>Other</label>
+    </customValue>
+    <customValue>
+        <fullName>Direct Labor Operations</fullName>
+        <default>false</default>
+        <label>Direct Labor Operations</label>
+    </customValue>
+    <customValue>
+        <fullName>Department RO&apos;s</fullName>
+        <default>false</default>
+        <label>Department RO&apos;s</label>
+    </customValue>
+    <customValue>
+        <fullName>Team Leaders</fullName>
+        <default>false</default>
+        <label>Team Leaders</label>
+    </customValue>
+    <customValue>
+        <fullName>Union</fullName>
+        <default>false</default>
+        <label>Union</label>
+    </customValue>
+    <customValue>
+        <fullName>Indirect Labor Operations</fullName>
+        <default>false</default>
+        <label>Indirect Labor Operations</label>
+    </customValue>
+    <customValue>
+        <fullName>Repair</fullName>
+        <default>false</default>
+        <label>Repair</label>
+    </customValue>
+    <customValue>
+        <fullName>Quality Indirect Labor Operations</fullName>
+        <default>false</default>
+        <label>Quality Indirect Labor Operations</label>
+    </customValue>
+    <customValue>
+        <fullName>Summer RO&apos;s</fullName>
+        <default>false</default>
+        <label>Summer RO&apos;s</label>
+    </customValue>
+    <customValue>
+        <fullName>Quality Direct Labor Operations</fullName>
+        <default>false</default>
+        <label>Quality Direct Labor Operations</label>
+    </customValue>
+    <masterLabel>PlantOperationType</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

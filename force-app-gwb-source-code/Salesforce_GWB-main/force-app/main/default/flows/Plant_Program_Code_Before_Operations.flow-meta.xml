@@ -1,0 +1,226 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Flow xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>58.0</apiVersion>
+    <areMetricsLoggedToDataCloud>false</areMetricsLoggedToDataCloud>
+    <assignments>
+        <name>Assign_Auth_Region_From_Plant</name>
+        <label>Assign Auth Region From Plant</label>
+        <locationX>374</locationX>
+        <locationY>395</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Auth_Region__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Plant_Name__r.Auth_Region__c</elementReference>
+            </value>
+        </assignmentItems>
+        <connector>
+            <targetReference>Parent_Program_Code_Master_Exist</targetReference>
+        </connector>
+    </assignments>
+    <assignments>
+        <name>Assign_Program_Code_and_Product_Type</name>
+        <label>Assign Program Code and Product Type</label>
+        <locationX>242</locationX>
+        <locationY>611</locationY>
+        <assignmentItems>
+            <assignToReference>$Record.Search_Identifier__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>searchIdentifier</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Program_Code__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Program_Code_Master__r.ProgramCode__c</elementReference>
+            </value>
+        </assignmentItems>
+        <assignmentItems>
+            <assignToReference>$Record.Product_Type__c</assignToReference>
+            <operator>Assign</operator>
+            <value>
+                <elementReference>$Record.Program_Code_Master__r.Product_Type__c</elementReference>
+            </value>
+        </assignmentItems>
+    </assignments>
+    <decisions>
+        <name>Bypass_Flow</name>
+        <label>Bypass Flow ?</label>
+        <locationX>176</locationX>
+        <locationY>287</locationY>
+        <defaultConnector>
+            <targetReference>Assign_Auth_Region_From_Plant</targetReference>
+        </defaultConnector>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes_Bypass</name>
+            <conditionLogic>and</conditionLogic>
+            <conditions>
+                <leftValueReference>$Setup.GWB_Switch__c.Bypass_Flows__c</leftValueReference>
+                <operator>EqualTo</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <decisions>
+        <name>Parent_Program_Code_Master_Exist</name>
+        <label>Parent Program Code Master Exist ?</label>
+        <locationX>374</locationX>
+        <locationY>503</locationY>
+        <defaultConnectorLabel>No</defaultConnectorLabel>
+        <rules>
+            <name>Yes</name>
+            <conditionLogic>1 AND (2 OR 3 OR 4)</conditionLogic>
+            <conditions>
+                <leftValueReference>$Record.Program_Code_Master__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>false</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Search_Identifier__c</leftValueReference>
+                <operator>IsNull</operator>
+                <rightValue>
+                    <booleanValue>true</booleanValue>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Program_Code__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Program_Code_Master__r.ProgramCode__c</elementReference>
+                </rightValue>
+            </conditions>
+            <conditions>
+                <leftValueReference>$Record.Product_Type__c</leftValueReference>
+                <operator>NotEqualTo</operator>
+                <rightValue>
+                    <elementReference>$Record.Program_Code_Master__r.Product_Type__c</elementReference>
+                </rightValue>
+            </conditions>
+            <connector>
+                <targetReference>Assign_Program_Code_and_Product_Type</targetReference>
+            </connector>
+            <label>Yes</label>
+        </rules>
+    </decisions>
+    <description>Plant Program Code Before Operations</description>
+    <environments>Default</environments>
+    <formulas>
+        <name>searchIdentifier</name>
+        <dataType>String</dataType>
+        <expression>IF(
+    ISBLANK($Record.Plant_Name__r.Name), 
+    &quot;&quot;, 
+    $Record.Plant_Name__r.Name
+) 
+
+&amp; 
+
+IF(
+    ISBLANK($Record.Sector__c), 
+    &quot;&quot;, 
+    IF(
+        ISBLANK($Record.Plant_Name__r.Name), 
+        &quot;&quot;,
+        &quot;-&quot;
+    ) &amp; $Record.Sector__c
+) 
+
+&amp; 
+
+IF(
+    ISBLANK(TEXT($Record.Product_Type__c)), 
+    &quot;&quot;, 
+    IF(
+        AND(
+            ISBLANK($Record.Plant_Name__r.Name), 
+            ISBLANK(TEXT($Record.Program_Code_Master__r.Auth_Sector__c))
+        ), 
+        &quot;&quot;, 
+        &quot;-&quot;
+    ) &amp; TEXT($Record.Product_Type__c) 
+) 
+
+&amp; 
+
+IF(
+    ISBLANK($Record.Program_Code_Master__r.ProgramCode__c), 
+    &quot;&quot;, 
+    IF(
+        AND(
+            ISBLANK($Record.Plant_Name__r.Name), 
+            ISBLANK(TEXT($Record.Program_Code_Master__r.Auth_Sector__c)), 
+            ISBLANK($Record.Program_Code_Master__r.ProgramCode__c)
+        ),
+        &quot;&quot;, 
+        &quot;-&quot;
+    ) &amp; ($Record.Program_Code_Master__r.ProgramCode__c) 
+)</expression>
+    </formulas>
+    <interviewLabel>Plant Program Code Before Operations</interviewLabel>
+    <label>Plant Program Code Before Operations</label>
+    <processMetadataValues>
+        <name>BuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>CanvasMode</name>
+        <value>
+            <stringValue>AUTO_LAYOUT_CANVAS</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>GptId</name>
+        <value>
+            <stringValue>4d1b2821-282a-4865-b97d-a46140204959</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>GptLlmIds</name>
+        <value>
+            <stringValue>[&quot;b07590a9-279f-459d-b75d-5cd945a73b70&quot;]</stringValue>
+        </value>
+    </processMetadataValues>
+    <processMetadataValues>
+        <name>OriginBuilderType</name>
+        <value>
+            <stringValue>LightningFlowBuilder</stringValue>
+        </value>
+    </processMetadataValues>
+    <processType>AutoLaunchedFlow</processType>
+    <start>
+        <locationX>50</locationX>
+        <locationY>0</locationY>
+        <connector>
+            <targetReference>Bypass_Flow</targetReference>
+        </connector>
+        <filterLogic>and</filterLogic>
+        <filters>
+            <field>Plant_Name__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>false</booleanValue>
+            </value>
+        </filters>
+        <filters>
+            <field>Auth_Region__c</field>
+            <operator>IsNull</operator>
+            <value>
+                <booleanValue>true</booleanValue>
+            </value>
+        </filters>
+        <object>Program_Master__c</object>
+        <recordTriggerType>CreateAndUpdate</recordTriggerType>
+        <triggerType>RecordBeforeSave</triggerType>
+    </start>
+    <status>Active</status>
+</Flow>

@@ -1,0 +1,61 @@
+<template>
+    <div class="filter-grid slds-m-bottom_medium">
+        <div class="filter-grid__field">
+            <lightning-combobox
+                name="month"
+                label="Month"
+                value={selectedMonth}
+                options={monthOptions}
+                disabled={disabled}
+                onchange={handleChange}>
+            </lightning-combobox>
+        </div>
+        <div class="filter-grid__field">
+            <lightning-combobox
+                name="classification"
+                label="Classification"
+                value={selectedClassification}
+                options={classificationOptions}
+                disabled={disabled}
+                onchange={handleChange}>
+            </lightning-combobox>
+        </div>
+        <div class="filter-grid__field">
+            <lightning-combobox
+                name="driver"
+                label="Driver"
+                value={selectedDriver}
+                options={driverOptions}
+                disabled={disabled}
+                onchange={handleChange}>
+            </lightning-combobox>
+        </div>
+        <template if:true={showBalanceStatusFilter}>
+            <div class="filter-grid__field filter-grid__field_status">
+                <div class="filter-grid__status-spacer" aria-hidden="true"></div>
+                <div class="filter-grid__status-control">
+                    <span class="filter-grid__status-text">Mismatch changes only</span>
+                    <button
+                        type="button"
+                        class={balanceStatusSwitchClass}
+                        role="switch"
+                        aria-checked={isBalanceStatusMismatchOnly}
+                        aria-label="Mismatch changes only"
+                        disabled={disabled}
+                        onclick={handleBalanceStatusToggle}>
+                        <span class="filter-grid__status-switch-thumb" aria-hidden="true"></span>
+                    </button>
+                </div>
+            </div>
+        </template>
+        <div class="filter-grid__action">
+            <lightning-button
+                class="reset-button"
+                label="Reset Filters"
+                variant="outline-brand"
+                disabled={disabled}
+                onclick={handleReset}>
+            </lightning-button>
+        </div>
+    </div>
+</template>

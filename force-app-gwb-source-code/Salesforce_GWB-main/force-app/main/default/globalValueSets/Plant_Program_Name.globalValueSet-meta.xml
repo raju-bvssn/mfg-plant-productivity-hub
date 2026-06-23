@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>C234</fullName>
+        <default>false</default>
+        <label>C234</label>
+    </customValue>
+    <customValue>
+        <fullName>Electric</fullName>
+        <default>false</default>
+        <label>Electric</label>
+    </customValue>
+    <customValue>
+        <fullName>Gas</fullName>
+        <default>false</default>
+        <label>Gas</label>
+    </customValue>
+    <customValue>
+        <fullName>CSS</fullName>
+        <default>false</default>
+        <label>CSS</label>
+    </customValue>
+    <customValue>
+        <fullName>GenV</fullName>
+        <default>false</default>
+        <label>GenV</label>
+    </customValue>
+    <customValue>
+        <fullName>Ultium</fullName>
+        <default>false</default>
+        <label>Ultium</label>
+    </customValue>
+    <customValue>
+        <fullName>Polymers</fullName>
+        <default>false</default>
+        <label>Polymers</label>
+    </customValue>
+    <customValue>
+        <fullName>Press</fullName>
+        <default>false</default>
+        <label>Press</label>
+    </customValue>
+    <customValue>
+        <fullName>All</fullName>
+        <default>false</default>
+        <label>All</label>
+    </customValue>
+    <customValue>
+        <fullName>Mid Size SUV</fullName>
+        <default>false</default>
+        <label>Mid Size SUV</label>
+    </customValue>
+    <customValue>
+        <fullName>ELECTRIC SUBS</fullName>
+        <default>false</default>
+        <label>ELECTRIC SUBS</label>
+    </customValue>
+    <customValue>
+        <fullName>BEV+</fullName>
+        <default>false</default>
+        <label>BEV+</label>
+    </customValue>
+    <customValue>
+        <fullName>eLCV</fullName>
+        <default>false</default>
+        <label>eLCV</label>
+    </customValue>
+    <customValue>
+        <fullName>Gen2</fullName>
+        <default>false</default>
+        <label>Gen2</label>
+    </customValue>
+    <customValue>
+        <fullName>PowerCube</fullName>
+        <default>false</default>
+        <label>PowerCube</label>
+    </customValue>
+    <customValue>
+        <fullName>TBO Module</fullName>
+        <default>false</default>
+        <label>TBO Module</label>
+    </customValue>
+    <customValue>
+        <fullName>TBO Pack</fullName>
+        <default>false</default>
+        <label>TBO Pack</label>
+    </customValue>
+    <customValue>
+        <fullName>8sp</fullName>
+        <default>false</default>
+        <label>8sp</label>
+    </customValue>
+    <customValue>
+        <fullName>DMAX Diesel</fullName>
+        <default>false</default>
+        <label>DMAX Diesel</label>
+    </customValue>
+    <customValue>
+        <fullName>Gen V</fullName>
+        <default>false</default>
+        <label>Gen V</label>
+    </customValue>
+    <customValue>
+        <fullName>Gen V Comp Assist</fullName>
+        <default>false</default>
+        <label>Gen V Comp Assist</label>
+    </customValue>
+    <customValue>
+        <fullName>Gen 6</fullName>
+        <default>false</default>
+        <label>Gen 6</label>
+    </customValue>
+    <customValue>
+        <fullName>HFV6</fullName>
+        <default>false</default>
+        <label>HFV6</label>
+    </customValue>
+    <customValue>
+        <fullName>LT6</fullName>
+        <default>false</default>
+        <label>LT6</label>
+    </customValue>
+    <customValue>
+        <fullName>SGE</fullName>
+        <default>false</default>
+        <label>SGE</label>
+    </customValue>
+    <customValue>
+        <fullName>BET</fullName>
+        <default>false</default>
+        <label>BET</label>
+    </customValue>
+    <customValue>
+        <fullName>BET/BEV</fullName>
+        <default>false</default>
+        <label>BET/BEV</label>
+    </customValue>
+    <customValue>
+        <fullName>BEV</fullName>
+        <default>false</default>
+        <label>BEV</label>
+    </customValue>
+    <customValue>
+        <fullName>Car</fullName>
+        <default>false</default>
+        <label>Car</label>
+    </customValue>
+    <customValue>
+        <fullName>Enclosures</fullName>
+        <default>false</default>
+        <label>Enclosures</label>
+    </customValue>
+    <customValue>
+        <fullName>Full Size Truck/SUV</fullName>
+        <default>false</default>
+        <label>Full Size Truck/SUV</label>
+    </customValue>
+    <customValue>
+        <fullName>Mid Size Truck</fullName>
+        <default>false</default>
+        <label>Mid Size Truck</label>
+    </customValue>
+    <customValue>
+        <fullName>Mid Size Truck / Van</fullName>
+        <default>false</default>
+        <label>Mid Size Truck / Van</label>
+    </customValue>
+    <customValue>
+        <fullName>Van</fullName>
+        <default>false</default>
+        <label>Van</label>
+    </customValue>
+    <masterLabel>Plant Program Name</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

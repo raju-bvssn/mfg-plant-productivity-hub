@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Austin</fullName>
+        <default>false</default>
+        <label>Austin</label>
+    </customValue>
+    <customValue>
+        <fullName>Mexico</fullName>
+        <default>false</default>
+        <label>Mexico</label>
+    </customValue>
+    <customValue>
+        <fullName>Milford</fullName>
+        <default>false</default>
+        <label>Milford</label>
+    </customValue>
+    <customValue>
+        <fullName>Oshawa</fullName>
+        <default>false</default>
+        <label>Oshawa</label>
+    </customValue>
+    <customValue>
+        <fullName>Warren</fullName>
+        <default>false</default>
+        <label>Warren</label>
+    </customValue>
+    <masterLabel>Plants</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>

@@ -1,14 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+<mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
+      xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
       xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xsi:schemaLocation="
-        http://www.mulesoft.org/schema/mule/core      https://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/sfdc      https://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
-        http://www.mulesoft.org/schema/mule/http      https://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-        http://www.mulesoft.org/schema/mule/ee/core   https://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+        http://www.mulesoft.org/schema/mule/core         http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/salesforce   http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+        http://www.mulesoft.org/schema/mule/http         http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/tls          http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
 
     <!--
         PlantIQ MCP Server — implements MCP JSON-RPC 2.0 protocol.
@@ -31,17 +33,29 @@
           plantiq_trigger_recommendation — manually kick off orchestration for an HQ Target
     -->
 
-    <!-- HTTP Listener for MCP server -->
+    <!-- HTTPS Listener for MCP server -->
     <http:listener-config name="MCP_HTTP_Config">
-        <http:listener-connection host="${http.listener.host}" port="${mcp.listener.port}"/>
+        <http:listener-connection host="${http.listener.host}" port="${mcp.listener.port}" protocol="HTTPS">
+            <tls:context>
+                <tls:key-store type="jks" path="${tls.keystore.path}"
+                    alias="plantiq"
+                    keyPassword="${tls.keystore.keyPassword}"
+                    password="${tls.keystore.password}"/>
+            </tls:context>
+        </http:listener-connection>
     </http:listener-config>
+
+    <!-- Loopback HTTP request config for triggering the main recommendation flow -->
+    <http:request-config name="PlantIQ_Trigger_HTTP_Config">
+        <http:request-connection host="localhost" port="${http.listener.port}"/>
+    </http:request-config>
 
     <!-- =========================================================
          HEALTH CHECK
     ========================================================== -->
 
     <flow name="mcp-health-flow">
-        <http:listener path="/mcp/v1/health" method="GET" config-ref="MCP_HTTP_Config"/>
+        <http:listener path="/mcp/v1/health" config-ref="MCP_HTTP_Config"/>
         <ee:transform>
             <ee:message>
                 <ee:set-payload><![CDATA[
@@ -60,8 +74,12 @@
          MAIN MCP JSON-RPC DISPATCHER
     ========================================================== -->
 
-    <flow name="mcp-dispatcher-flow">
-        <http:listener path="/mcp/v1" method="POST" config-ref="MCP_HTTP_Config"/>
+    <!-- [STUDIO:"plantiq-mcp-serverFlow"]<flow name="plantiq-mcp-serverFlow" doc:id="ec891405-e97b-4f16-b289-d78d3692eb4b" >
+		<http:listener doc:name="Listener" doc:id="b9c63b82-7e21-4837-86f4-ee9cfd9c5416" />
+		<http:request method="GET" doc:name="Request" doc:id="cf92d2f1-ccb1-4018-9216-ea66665bf190" />
+	</flow> [STUDIO] -->
+	<flow name="mcp-dispatcher-flow">
+        <http:listener path="/mcp/v1" config-ref="MCP_HTTP_Config"/>
 
         <!-- Validate API key from header -->
         <choice>
@@ -87,7 +105,7 @@
         <set-variable variableName="mcpId"      value="#[payload.id]"/>
 
         <logger level="INFO"
-            message="#['[MCP] Request method=' ++ vars.mcpMethod ++ ' id=' ++ (vars.mcpId as String default 'null')]"/>
+            message="#['[MCP] Request method=' ++ (vars.mcpMethod default '?') ++ ' id=' ++ ((vars.mcpId default 'null') as String)]"/>
 
         <choice>
             <!-- initialize: session handshake -->
@@ -130,13 +148,13 @@
                             {
                                 jsonrpc: "2.0",
                                 id: vars.mcpId default null,
-                                error: { code: -32603, message: "Internal error: " ++ error.description }
+                                error: { code: -32603, message: "Internal error: " ++ (error.description default "unknown") }
                             }
                         ]]></ee:set-payload>
                     </ee:message>
                 </ee:transform>
                 <logger level="ERROR"
-                    message="#['[MCP] Error processing ' ++ (vars.mcpMethod default '?') ++ ': ' ++ error.description]"/>
+                    message="#['[MCP] Error: ' ++ (vars.mcpMethod default '?')]"/>
             </on-error-continue>
         </error-handler>
     </flow>
@@ -320,28 +338,28 @@
         <set-variable variableName="quarter"
             value="#[vars.toolArgs.quarter default '2025-Q3']"/>
 
-        <sfdc:query config-ref="Salesforce_Config">
-            <sfdc:salesforce-query><![CDATA[
+        <salesforce:query config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[
                 SELECT Plant__r.Name, Plant__r.Plant_Code__c,
                        SUM(Target_FTE__c) totalTarget,
                        SUM(Approved_FTE_Coverage__c) totalApproved,
                        SUM(Gap_To_Target__c) totalGap
                 FROM GWB_HQ_Target__c
-                WHERE Quarter__c = ':vars.quarter'
+                WHERE Quarter__c = ':quarter'
                 GROUP BY Plant__r.Name, Plant__r.Plant_Code__c
                 ORDER BY Plant__r.Plant_Code__c ASC
-            ]]></sfdc:salesforce-query>
-        </sfdc:query>
+            ]]></salesforce:salesforce-query>
+            <salesforce:parameters>#[{'quarter': vars.quarter}]</salesforce:parameters>
+        </salesforce:query>
         <set-variable variableName="plantGaps" value="#[payload]"/>
-
-        <sfdc:query config-ref="Salesforce_Config">
-            <sfdc:salesforce-query><![CDATA[
+		<salesforce:query config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[
                 SELECT SUM(FTE_Impact__c) totalFTE, SUM(Dollar_Impact__c) totalDollar,
                        COUNT(Id) ideaCount
                 FROM GWB_Productivity_Idea__c
                 WHERE Status__c IN ('Pending Approval', 'Approved')
-            ]]></sfdc:salesforce-query>
-        </sfdc:query>
+            ]]></salesforce:salesforce-query>
+        </salesforce:query>
 
         <ee:transform>
             <ee:message>
@@ -389,31 +407,33 @@
     <sub-flow name="tool-get-plant-status-subflow">
         <set-variable variableName="plantCode" value="#[vars.toolArgs.plant_code]"/>
 
-        <sfdc:query config-ref="Salesforce_Config">
-            <sfdc:salesforce-query><![CDATA[
+        <salesforce:query config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[
                 SELECT Name, Quarter__c, Target_FTE__c, Approved_FTE_Coverage__c,
                        Gap_To_Target__c, Production_Context__c,
                        Plant_Shop__r.Name, Plant_Shop__r.Shop_Type__c
                 FROM GWB_HQ_Target__c
-                WHERE Plant__r.Plant_Code__c = ':vars.plantCode'
+                WHERE Plant__r.Plant_Code__c = ':plantCode'
                 ORDER BY Quarter__c DESC
                 LIMIT 5
-            ]]></sfdc:salesforce-query>
-        </sfdc:query>
+            ]]></salesforce:salesforce-query>
+            <salesforce:parameters>#[{'plantCode': vars.plantCode}]</salesforce:parameters>
+        </salesforce:query>
         <set-variable variableName="targets" value="#[payload]"/>
 
-        <sfdc:query config-ref="Salesforce_Config">
-            <sfdc:salesforce-query><![CDATA[
+        <salesforce:query config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[
                 SELECT Name, Status__c, FTE_Impact__c, Dollar_Impact__c,
                        Confidence_Score__c, Effort__c, AI_Generated__c,
                        Plant_Function__r.Plant_Shop__r.Name
                 FROM GWB_Productivity_Idea__c
-                WHERE Plant_Function__r.Plant_Shop__r.Plant__r.Plant_Code__c = ':vars.plantCode'
+                WHERE Plant_Function__r.Plant_Shop__r.Plant__r.Plant_Code__c = ':plantCode'
                 AND Status__c IN ('Pending Approval', 'Approved')
                 ORDER BY Confidence_Score__c DESC NULLS LAST
                 LIMIT 10
-            ]]></sfdc:salesforce-query>
-        </sfdc:query>
+            ]]></salesforce:salesforce-query>
+            <salesforce:parameters>#[{'plantCode': vars.plantCode}]</salesforce:parameters>
+        </salesforce:query>
         <set-variable variableName="ideas" value="#[payload]"/>
 
         <ee:transform>
@@ -471,20 +491,21 @@
         <set-variable variableName="quarterFilter"
             value="#[if (vars.toolArgs.quarter != null) ' AND Plant_Function__r.Plant_Shop__r.Plant__r.GWB_HQ_Target__c.Quarter__c = \'' ++ vars.toolArgs.quarter ++ '\'' else '']"/>
 
-        <sfdc:query config-ref="Salesforce_Config">
-            <sfdc:salesforce-query><![CDATA[
+        <salesforce:query config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[
                 SELECT Id, Name, Status__c, FTE_Impact__c, Dollar_Impact__c,
                        Confidence_Score__c, Effort__c, AI_Generated__c,
                        Assumptions__c, Benchmark_Evidence__c, Required_Validations__c,
                        Plant_Function__r.Name, Plant_Function__r.Plant_Shop__r.Name,
                        CreatedDate
                 FROM GWB_Productivity_Idea__c
-                WHERE Plant_Function__r.Plant_Shop__r.Plant__r.Plant_Code__c = ':vars.plantCode'
+                WHERE Plant_Function__r.Plant_Shop__r.Plant__r.Plant_Code__c = ':plantCode'
                 AND Status__c = 'Pending Approval'
                 ORDER BY Confidence_Score__c DESC NULLS LAST
                 LIMIT 20
-            ]]></sfdc:salesforce-query>
-        </sfdc:query>
+            ]]></salesforce:salesforce-query>
+            <salesforce:parameters>#[{'plantCode': vars.plantCode}]</salesforce:parameters>
+        </salesforce:query>
 
         <ee:transform>
             <ee:message>
@@ -536,29 +557,14 @@
         <set-variable variableName="shopType"
             value="#[vars.toolArgs.shop_type default '']"/>
 
-        <sfdc:query config-ref="Salesforce_Config">
-            <sfdc:salesforce-query><![CDATA[
-                SELECT Id, Name, Idea_Category__c, Description__c,
-                       Typical_FTE_Min__c, Typical_FTE_Max__c, Typical_Effort__c,
-                       Requires_Safety_Review__c, Requires_Quality_Review__c,
-                       Requires_Finance_Approval__c
-                FROM GWB_Idea_Library__c
-                WHERE Name LIKE '%:vars.ideaName%'
-                LIMIT 1
-            ]]></sfdc:salesforce-query>
-        </sfdc:query>
+        <salesforce:query config-ref="Salesforce_Config">
+            <salesforce:salesforce-query>#["SELECT Id, Name, Idea_Category__c, Description__c, Typical_FTE_Min__c, Typical_FTE_Max__c, Typical_Effort__c, Requires_Safety_Review__c, Requires_Quality_Review__c, Requires_Finance_Approval__c FROM GWB_Idea_Library__c WHERE Name LIKE '%" ++ vars.ideaName ++ "%' LIMIT 1"]</salesforce:salesforce-query>
+        </salesforce:query>
         <set-variable variableName="ideaLib" value="#[payload[0] default {}]"/>
 
-        <sfdc:query config-ref="Salesforce_Config">
-            <sfdc:salesforce-query><![CDATA[
-                SELECT Plant__r.Name, Plant__r.Plant_Code__c, Shop_Type__c,
-                       Achieved_FTE__c, Quarter__c, Production_Context__c, Notes__c
-                FROM GWB_Plant_Benchmark__c
-                WHERE Idea_Library__r.Name LIKE '%:vars.ideaName%'
-                ORDER BY Achieved_FTE__c DESC NULLS LAST
-                LIMIT 10
-            ]]></sfdc:salesforce-query>
-        </sfdc:query>
+        <salesforce:query config-ref="Salesforce_Config">
+            <salesforce:salesforce-query>#["SELECT Plant__r.Name, Plant__r.Plant_Code__c, Shop_Type__c, Achieved_FTE__c, Quarter__c, Production_Context__c, Notes__c FROM GWB_Plant_Benchmark__c WHERE Idea_Library__r.Name LIKE '%" ++ vars.ideaName ++ "%' ORDER BY Achieved_FTE__c DESC NULLS LAST LIMIT 10"]</salesforce:salesforce-query>
+        </salesforce:query>
 
         <ee:transform>
             <ee:message>
@@ -617,15 +623,16 @@
         <set-variable variableName="approverName" value="#[vars.toolArgs.approver_name]"/>
 
         <!-- Guardrail: idea must exist and be in Pending Approval state -->
-        <sfdc:query config-ref="Salesforce_Config">
-            <sfdc:salesforce-query><![CDATA[
+        <salesforce:query config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[
                 SELECT Id, Name, Status__c, FTE_Impact__c, Dollar_Impact__c
                 FROM GWB_Productivity_Idea__c
-                WHERE Id = ':vars.ideaId'
+                WHERE Id = ':ideaId'
                 AND Status__c = 'Pending Approval'
                 LIMIT 1
-            ]]></sfdc:salesforce-query>
-        </sfdc:query>
+            ]]></salesforce:salesforce-query>
+            <salesforce:parameters>#[{'ideaId': vars.ideaId}]</salesforce:parameters>
+        </salesforce:query>
 
         <choice>
             <when expression="#[sizeOf(payload) == 0]">
@@ -650,13 +657,13 @@
                 <set-variable variableName="ideaRecord" value="#[payload[0]]"/>
 
                 <!-- Update status to Approved -->
-                <sfdc:update type="GWB_Productivity_Idea__c" config-ref="Salesforce_Config">
-                    <sfdc:records><![CDATA[
+                <salesforce:update type="GWB_Productivity_Idea__c" config-ref="Salesforce_Config">
+                    <salesforce:records><![CDATA[
                         %dw 2.0 output application/java
                         ---
                         [{ Id: vars.ideaId, Status__c: "Approved" }]
-                    ]]></sfdc:records>
-                </sfdc:update>
+                    ]]></salesforce:records>
+                </salesforce:update>
 
                 <ee:transform>
                     <ee:message>
@@ -701,15 +708,16 @@
         <set-variable variableName="triggerTargetId" value="#[vars.toolArgs.target_id]"/>
 
         <!-- Validate target exists -->
-        <sfdc:query config-ref="Salesforce_Config">
-            <sfdc:salesforce-query><![CDATA[
+        <salesforce:query config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[
                 SELECT Id, Name, Quarter__c, Target_FTE__c, Gap_To_Target__c,
                        Plant__r.Plant_Code__c, Plant_Shop__r.Name
                 FROM GWB_HQ_Target__c
-                WHERE Id = ':vars.triggerTargetId'
+                WHERE Id = ':targetId'
                 LIMIT 1
-            ]]></sfdc:salesforce-query>
-        </sfdc:query>
+            ]]></salesforce:salesforce-query>
+            <salesforce:parameters>#[{'targetId': vars.triggerTargetId}]</salesforce:parameters>
+        </salesforce:query>
 
         <choice>
             <when expression="#[sizeOf(payload) == 0]">
@@ -730,20 +738,26 @@
             <otherwise>
                 <set-variable variableName="triggerTarget" value="#[payload[0]]"/>
 
-                <!-- Publish Platform Event to trigger the existing orchestration flow -->
-                <sfdc:publish-event config-ref="Salesforce_Config" type="PlantIQ_Target_Set__e">
-                    <sfdc:message><![CDATA[
-                        %dw 2.0 output application/java
-                        var t = vars.triggerTarget
-                        ---
-                        {
-                            Target_Id__c:   vars.triggerTargetId,
-                            Plant_Code__c:  t.'Plant__r.Plant_Code__c',
-                            Shop_Name__c:   t.'Plant_Shop__r.Name',
-                            Quarter__c:     t.Quarter__c
-                        }
-                    ]]></sfdc:message>
-                </sfdc:publish-event>
+                <!-- Trigger recommendation via local HTTP endpoint (avoids streaming auth issues) -->
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0 output application/json
+                            var t = vars.triggerTarget
+                            ---
+                            {
+                                targetId:  vars.triggerTargetId,
+                                plantCode: (t.Plant__r.Plant_Code__c default t.'Plant__r.Plant_Code__c') default "",
+                                shopName:  (t.Plant_Shop__r.Name default t.'Plant_Shop__r.Name') default "",
+                                quarter:   t.Quarter__c default ""
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+
+                <http:request method="POST" path="/plantiq/recommend" config-ref="PlantIQ_Trigger_HTTP_Config">
+                    <http:headers><![CDATA[#[{"Content-Type": "application/json"}]]]></http:headers>
+                </http:request>
 
                 <ee:transform>
                     <ee:message>
@@ -758,14 +772,11 @@
                                     content: [{
                                         'type': "text",
                                         text: write({
-                                            triggered:   true,
-                                            targetId:    vars.triggerTargetId,
-                                            targetName:  t.Name,
-                                            plantCode:   t.'Plant__r.Plant_Code__c',
-                                            shop:        t.'Plant_Shop__r.Name',
-                                            quarter:     t.Quarter__c,
-                                            gapFTE:      t.Gap_To_Target__c,
-                                            message:     "Recommendation orchestration triggered. A new PlantIQ idea will be created and posted to Slack."
+                                            triggered:  true,
+                                            targetId:   vars.triggerTargetId,
+                                            targetName: t.Name,
+                                            gapFTE:     t.Gap_To_Target__c,
+                                            message:    "Recommendation orchestration triggered via HTTP. A new PlantIQ idea will be created and posted to Slack."
                                         }, "application/json")
                                     }]
                                 }

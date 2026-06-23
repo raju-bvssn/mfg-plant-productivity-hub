@@ -1,0 +1,195 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomField xmlns="http://soap.sforce.com/2006/04/metadata">
+    <fullName>Auth_Site_Name__c</fullName>
+    <label>Auth Site Name</label>
+    <required>false</required>
+    <trackFeedHistory>false</trackFeedHistory>
+    <trackTrending>false</trackTrending>
+    <type>Picklist</type>
+    <valueSet>
+        <restricted>true</restricted>
+        <valueSetDefinition>
+            <sorted>true</sorted>
+            <value>
+                <fullName>Arlington</fullName>
+                <default>false</default>
+                <label>Arlington</label>
+            </value>
+            <value>
+                <fullName>Bay City</fullName>
+                <default>false</default>
+                <label>Bay City</label>
+            </value>
+            <value>
+                <fullName>Bedford</fullName>
+                <default>false</default>
+                <label>Bedford</label>
+            </value>
+            <value>
+                <fullName>Bowling Green</fullName>
+                <default>false</default>
+                <label>Bowling Green</label>
+            </value>
+            <value>
+                <fullName>Brownstown</fullName>
+                <default>false</default>
+                <label>Brownstown</label>
+            </value>
+            <value>
+                <fullName>CAMI</fullName>
+                <default>false</default>
+                <label>CAMI</label>
+            </value>
+            <value>
+                <fullName>Defiance</fullName>
+                <default>false</default>
+                <label>Defiance</label>
+            </value>
+            <value>
+                <fullName>Factory Zero</fullName>
+                <default>false</default>
+                <label>Factory Zero</label>
+            </value>
+            <value>
+                <fullName>Fairfax</fullName>
+                <default>false</default>
+                <label>Fairfax</label>
+            </value>
+            <value>
+                <fullName>Flint</fullName>
+                <default>false</default>
+                <label>Flint</label>
+            </value>
+            <value>
+                <fullName>Flint Metal</fullName>
+                <default>false</default>
+                <label>Flint Metal</label>
+            </value>
+            <value>
+                <fullName>Fort Wayne</fullName>
+                <default>false</default>
+                <label>Fort Wayne</label>
+            </value>
+            <value>
+                <fullName>Grand Rapids</fullName>
+                <default>false</default>
+                <label>Grand Rapids</label>
+            </value>
+            <value>
+                <fullName>Kokomo</fullName>
+                <default>false</default>
+                <label>Kokomo</label>
+            </value>
+            <value>
+                <fullName>Lansing Delta Township</fullName>
+                <default>false</default>
+                <label>Lansing Delta Township</label>
+            </value>
+            <value>
+                <fullName>Lansing Grand River</fullName>
+                <default>false</default>
+                <label>Lansing Grand River</label>
+            </value>
+            <value>
+                <fullName>Lansing Regional</fullName>
+                <default>false</default>
+                <label>Lansing Regional</label>
+            </value>
+            <value>
+                <fullName>Lockport</fullName>
+                <default>false</default>
+                <label>Lockport</label>
+            </value>
+            <value>
+                <fullName>Marion</fullName>
+                <default>false</default>
+                <label>Marion</label>
+            </value>
+            <value>
+                <fullName>Moraine (DMAX)</fullName>
+                <default>false</default>
+                <label>Moraine (DMAX)</label>
+            </value>
+            <value>
+                <fullName>Orion</fullName>
+                <default>false</default>
+                <label>Orion</label>
+            </value>
+            <value>
+                <fullName>Oshawa</fullName>
+                <default>false</default>
+                <label>Oshawa</label>
+            </value>
+            <value>
+                <fullName>Parma</fullName>
+                <default>false</default>
+                <label>Parma</label>
+            </value>
+            <value>
+                <fullName>Pontiac</fullName>
+                <default>false</default>
+                <label>Pontiac</label>
+            </value>
+            <value>
+                <fullName>Ramos Arizpe</fullName>
+                <default>false</default>
+                <label>Ramos Arizpe</label>
+            </value>
+            <value>
+                <fullName>Rochester</fullName>
+                <default>false</default>
+                <label>Rochester</label>
+            </value>
+            <value>
+                <fullName>Romulus</fullName>
+                <default>false</default>
+                <label>Romulus</label>
+            </value>
+            <value>
+                <fullName>Saginaw</fullName>
+                <default>false</default>
+                <label>Saginaw</label>
+            </value>
+            <value>
+                <fullName>San Luis Potosi</fullName>
+                <default>false</default>
+                <label>San Luis Potosi</label>
+            </value>
+            <value>
+                <fullName>Silao</fullName>
+                <default>false</default>
+                <label>Silao</label>
+            </value>
+            <value>
+                <fullName>Spring Hill</fullName>
+                <default>false</default>
+                <label>Spring Hill</label>
+            </value>
+            <value>
+                <fullName>St. Catharines</fullName>
+                <default>false</default>
+                <label>St. Catharines</label>
+            </value>
+            <value>
+                <fullName>Toledo</fullName>
+                <default>false</default>
+                <label>Toledo</label>
+            </value>
+            <value>
+                <fullName>Toluca</fullName>
+                <default>false</default>
+                <label>Toluca</label>
+            </value>
+            <value>
+                <fullName>Tonawanda</fullName>
+                <default>false</default>
+                <label>Tonawanda</label>
+            </value>
+            <value>
+                <fullName>Wentzville</fullName>
+                <default>false</default>
+                <label>Wentzville</label>
+            </value>
+        </valueSetDefinition>
+    </valueSet>
+</CustomField>

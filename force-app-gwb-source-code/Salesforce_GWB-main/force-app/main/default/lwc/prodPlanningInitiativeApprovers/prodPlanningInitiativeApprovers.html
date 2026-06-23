@@ -1,0 +1,87 @@
+<template>
+    <div class="initiative-overlay">
+        <section role="dialog" tabindex="-1" aria-modal="true" aria-label="Change Request" class="initiative-modal-shell">
+            <button class="slds-button slds-button_icon slds-modal__close initiative-close-btn" title="Close" onclick={handleClose}>
+                <lightning-icon icon-name="utility:close" alternative-text="Close" size="small"></lightning-icon>
+            </button>
+            <div class="initiative-modal-container">
+                <div class="modal-header">
+                    <h2 class="modal-title">Change Request</h2>
+                </div>
+
+                <div class="modal-content">
+                    <h3 class="request-title">{reportTitle}</h3>
+                    <p class="section-heading">Approvers</p>
+                    <p class="helper-text">
+                        Select up to four users as approvers for this Change Request.
+                    </p>
+                    <template if:true={selectionErrorMessage}>
+                        <div class="selection-error" role="alert">{selectionErrorMessage}</div>
+                    </template>
+
+                    <div class="slds-grid slds-wrap slds-gutters_small">
+                        <div class="slds-col slds-size_1-of-1">
+                            <lightning-record-picker
+                                label="Approver 1"
+                                object-api-name="User"
+                                value={approver1Value}
+                                display-info={recordPickerDisplayInfo}
+                                matching-info={recordPickerMatchingInfo}
+                                filter={recordPickerFilter}
+                                disabled={isApprover1Disabled}
+                                data-index="0"
+                                onchange={handleApproverChange}>
+                            </lightning-record-picker>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-m-top_small">
+                            <lightning-record-picker
+                                label="Approver 2"
+                                object-api-name="User"
+                                value={approver2Value}
+                                display-info={recordPickerDisplayInfo}
+                                matching-info={recordPickerMatchingInfo}
+                                filter={recordPickerFilter}
+                                disabled={isApprover2Disabled}
+                                data-index="1"
+                                onchange={handleApproverChange}>
+                            </lightning-record-picker>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-m-top_small">
+                            <lightning-record-picker
+                                label="Approver 3"
+                                object-api-name="User"
+                                value={approver3Value}
+                                display-info={recordPickerDisplayInfo}
+                                matching-info={recordPickerMatchingInfo}
+                                filter={recordPickerFilter}
+                                disabled={isApprover3Disabled}
+                                data-index="2"
+                                onchange={handleApproverChange}>
+                            </lightning-record-picker>
+                        </div>
+                        <div class="slds-col slds-size_1-of-1 slds-m-top_small">
+                            <lightning-record-picker
+                                label="Approver 4"
+                                object-api-name="User"
+                                value={approver4Value}
+                                display-info={recordPickerDisplayInfo}
+                                matching-info={recordPickerMatchingInfo}
+                                filter={recordPickerFilter}
+                                disabled={isApprover4Disabled}
+                                data-index="3"
+                                onchange={handleApproverChange}>
+                            </lightning-record-picker>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal-footer">
+                    <div class="footer-actions">
+                        <button class="footer-btn footer-btn-outline" onclick={handleCancel}>Cancel</button>
+                        <button class="footer-btn footer-btn-outline" onclick={handleSubmitForApproval}>Submit for Approval</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+</template>

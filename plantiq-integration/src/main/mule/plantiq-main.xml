@@ -1,59 +1,74 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <mule xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
-      xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
       xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-      xmlns:sfdc="http://www.mulesoft.org/schema/mule/sfdc"
-      xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="
-        http://www.mulesoft.org/schema/mule/core           https://www.mulesoft.org/schema/mule/core/current/mule.xsd
-        http://www.mulesoft.org/schema/mule/sfdc           https://www.mulesoft.org/schema/mule/sfdc/current/mule-sfdc.xsd
-        http://www.mulesoft.org/schema/mule/http           https://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-        http://www.mulesoft.org/schema/mule/ee/core        https://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+      xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core         http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/salesforce   http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+        http://www.mulesoft.org/schema/mule/http         http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/ee/core      http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 
     <!-- =========================================================
          GLOBAL CONFIGURATIONS
     ========================================================== -->
 
-    <!-- Salesforce connector — OAuth username-password flow -->
-    <sfdc:sfdc-config name="Salesforce_Config">
-        <sfdc:basic-connection
-            username="${salesforce.username}"
-            password="${salesforce.password}"
-            securityToken="${salesforce.token}"/>
-    </sfdc:sfdc-config>
+    <!-- Salesforce connector — OAuth2 JWT Bearer flow (no username-password flow required) -->
+    <salesforce:sfdc-config name="Salesforce_Config">
+        <salesforce:jwt-connection
+            consumerKey="${salesforce.consumerKey}"
+            keyStore="${salesforce.keystore.path}"
+            storePassword="${salesforce.keystore.password}"
+            certificateAlias="${salesforce.keystore.alias}"
+            principal="${salesforce.username}"
+            tokenEndpoint="${salesforce.tokenEndpoint}"/>
+    </salesforce:sfdc-config>
 
-    <!-- HTTP connector for Einstein LLM REST -->
+    <!-- HTTP listener for incoming trigger (Salesforce Flow → MuleSoft or curl) -->
+    <http:listener-config name="PlantIQ_HTTP_Trigger_Config">
+        <http:listener-connection host="${http.listener.host}" port="${http.listener.port}"/>
+    </http:listener-config>
+
+    <!-- HTTP connector for Salesforce REST (Einstein LLM + Platform Events) -->
     <http:request-config name="Salesforce_HTTP_Config" basePath="/services/data/v62.0">
         <http:request-connection host="${salesforce.instance}" protocol="HTTPS" port="443"/>
     </http:request-config>
 
+    <!-- HTTP connector for Salesforce login endpoint (token retrieval) -->
+    <http:request-config name="Salesforce_Login_HTTP_Config">
+        <http:request-connection host="login.salesforce.com" protocol="HTTPS" port="443"/>
+    </http:request-config>
+
     <!-- HTTP connector for Slack webhook -->
     <http:request-config name="Slack_HTTP_Config">
-        <http:request-connection host="hooks.slack.com" protocol="HTTPS" port="443"/>
+        <http:request-connection host="${slack.webhook.host}" protocol="HTTPS" port="443"/>
     </http:request-config>
 
     <!-- =========================================================
          MAIN FLOW: Subscribe to Platform Event → Orchestrate
     ========================================================== -->
 
+    <configuration-properties doc:name="Configuration properties" doc:id="b2f17f4f-6539-48c2-b98e-beefee0f0a37" file="application.properties" />
     <flow name="plantiq-recommendation-flow">
 
-        <!-- Subscribe to Salesforce Platform Event published by the Salesforce Flow -->
-        <salesforce:replay-channel-listener doc:name="Replay channel listener" doc:id="c8c723eb-604f-4dcf-908e-e7c523945672" config-ref="Salesforce_Config" streamingChannel="/event/PlantIQ_Target_Set__e" replayOption="FROM_LAST_REPLAY_ID" />
+        <!-- HTTP trigger: POST /plantiq/recommend
+             Body: { "targetId": "...", "plantCode": "...", "shopName": "...", "quarter": "..." }
+             Triggered by Salesforce Flow (Named Credential) or curl during demo -->
+        <http:listener config-ref="PlantIQ_HTTP_Trigger_Config" path="/plantiq/recommend" allowedMethods="POST"/>
 
         <logger level="INFO"
-            message="#['[PlantIQ] Platform Event received — Target ID: ' ++ payload.payload.Target_Id__c]"/>
+            message="#['[PlantIQ] HTTP trigger received — Target ID: ' ++ payload.targetId]"/>
 
-        <!-- Store the target ID from the event payload for use throughout the flow -->
+        <!-- Store fields from the JSON request body -->
         <set-variable variableName="targetId"
-            value="#[payload.payload.Target_Id__c]"/>
+            value="#[payload.targetId]"/>
         <set-variable variableName="plantCode"
-            value="#[payload.payload.Plant_Code__c]"/>
+            value="#[payload.plantCode]"/>
         <set-variable variableName="shopName"
-            value="#[payload.payload.Shop_Name__c]"/>
+            value="#[payload.shopName]"/>
         <set-variable variableName="quarter"
-            value="#[payload.payload.Quarter__c]"/>
+            value="#[payload.quarter]"/>
 
         <!-- AgentFabric: start audit run -->
         <flow-ref name="agentfabric-audit-start-subflow"/>
@@ -87,11 +102,43 @@ http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mu
         <logger level="INFO"
             message="#['[PlantIQ] Orchestration complete — Idea ID: ' ++ vars.ideaId]"/>
 
+        <!-- Return success response to caller -->
+        <ee:transform>
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    status: "ok",
+    ideaId: vars.ideaId,
+    targetId: vars.targetId
+}]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
+output application/java
+---
+200]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
         <error-handler>
             <on-error-continue type="ANY">
                 <flow-ref name="agentfabric-audit-error-subflow"/>
-                <logger level="ERROR"
-                    message="#['[PlantIQ] Orchestration failed for target ' ++ vars.targetId ++ ': ' ++ error.description]"/>
+                <ee:transform>
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+{
+    status: "error",
+    errorType: error.errorType.identifier,
+    message: error.description default "unknown",
+    targetId: vars.targetId default "unknown"
+}]]></ee:set-payload>
+                    </ee:message>
+                </ee:transform>
+                <logger level="ERROR" message="#[output application/json --- payload]"/>
             </on-error-continue>
         </error-handler>
     </flow>

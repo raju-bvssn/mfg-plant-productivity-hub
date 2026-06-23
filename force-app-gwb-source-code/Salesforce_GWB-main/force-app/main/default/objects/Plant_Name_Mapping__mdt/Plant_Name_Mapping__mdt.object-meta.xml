@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CustomObject xmlns="http://soap.sforce.com/2006/04/metadata">
+    <description>Centralized decoder for mapping various source system identifiers (Assembly M-Schedule, GPS M-Schedule, POMS, GMOS, APS) to the master Salesforce Plant Name.</description>
+    <label>Plant Name Mapping</label>
+    <pluralLabel>Plant Name Mappings</pluralLabel>
+    <visibility>Public</visibility>
+</CustomObject>

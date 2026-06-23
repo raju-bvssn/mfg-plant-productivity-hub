@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SharingRules xmlns="http://soap.sforce.com/2006/04/metadata">
+    <sharingCriteriaRules>
+        <fullName>Initiative_Region_GMIO_Access</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>Initiative Region GMIO Access</label>
+        <sharedTo>
+            <group>GWB_Regional_Admins_IO</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>Region__c</field>
+            <operation>equals</operation>
+            <value>GMIO</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Exclude_From_GWB__c</field>
+            <operation>notEqual</operation>
+            <value>True</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>Initiative_Region_GMNA_Access</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>Initiative Region GMNA Access</label>
+        <sharedTo>
+            <group>GWB_Regional_Admins_NA</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>Region__c</field>
+            <operation>equals</operation>
+            <value>GMNA</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Exclude_From_GWB__c</field>
+            <operation>notEqual</operation>
+            <value>True</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+    <sharingCriteriaRules>
+        <fullName>Initiative_Region_GMSA_Access</fullName>
+        <accessLevel>Edit</accessLevel>
+        <label>Initiative Region GMSA Access</label>
+        <sharedTo>
+            <group>GWB_Regional_Admins_SA</group>
+        </sharedTo>
+        <criteriaItems>
+            <field>Region__c</field>
+            <operation>equals</operation>
+            <value>GMSA</value>
+        </criteriaItems>
+        <criteriaItems>
+            <field>Exclude_From_GWB__c</field>
+            <operation>notEqual</operation>
+            <value>True</value>
+        </criteriaItems>
+        <includeRecordsOwnedByAll>true</includeRecordsOwnedByAll>
+    </sharingCriteriaRules>
+</SharingRules>

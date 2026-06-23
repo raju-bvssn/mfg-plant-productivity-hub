@@ -1,0 +1,801 @@
+<template>
+    <lightning-card class="workbench-card">
+        <div class="container-bg">
+            <template if:true={header}>
+                <section class="header-bar">
+                    <lightning-icon
+                        icon-name="utility:target"
+                        size="small"
+                        class="section-title-icon section-title-icon_target"
+                        alternative-text="Target">
+                    </lightning-icon>
+                    <div class="title-lockup">
+                        <span class="eyebrow">Target</span>
+                        <h2 class="target-title">{targetPageTitle}</h2>
+                    </div>
+                    <template if:true={cloneActionGroupVisible}>
+                        <div class="header-meta">
+                            <lightning-button-group>
+                                <template if:true={showStandardHeaderActions}>
+                                    <lightning-button
+                                        class="top-action-btn"
+                                        label="Save"
+                                        variant="brand-outline"
+                                        onclick={handleSave}
+                                        disabled={disableSave}>
+                                    </lightning-button>
+                                    <template if:true={showCloneButton}>
+                                        <lightning-button
+                                            class="top-action-btn"
+                                            label="Clone"
+                                            variant="brand-outline"
+                                            onclick={handleCreateDraft}
+                                            disabled={disableCreateDraft}>
+                                        </lightning-button>
+                                    </template>
+                                </template>
+                                <template if:true={showStatusUpdateAction}>
+                                    <lightning-button
+                                        class="top-action-btn"
+                                        label="Update Status"
+                                        variant="brand-outline"
+                                        onclick={handleOpenStatusModal}
+                                        disabled={disableStatusUpdate}>
+                                    </lightning-button>
+                                </template>
+                                <template if:true={showStandardHeaderActions}>
+                                    <lightning-button
+                                        class="top-action-btn"
+                                        label="Publish"
+                                        variant="brand-outline"
+                                        onclick={handleReadyForPublish}
+                                        disabled={readyForPublishDisabled}>
+                                    </lightning-button>
+                                </template>
+                            </lightning-button-group>
+                        </div>
+                    </template>
+                </section>
+
+                <section class="target-detail-row">
+                    <article class="target-detail-item">
+                        <span class="target-detail-item__label">Region</span>
+                        <span class="target-detail-item__value">{targetRegion}</span>
+                    </article>
+                    <article class="target-detail-item">
+                        <span class="target-detail-item__label">Target Status</span>
+                        <span class="target-detail-item__value">{targetStatus}</span>
+                    </article>
+                </section>
+            </template>
+        <div class="screen-shell workbench">
+            <template if:true={isLoading}>
+                <lightning-spinner alternative-text="Loading dynamic target screen"></lightning-spinner>
+            </template>
+
+            <template if:true={errorMessage}>
+                <div class="error-banner">{errorMessage}</div>
+            </template>
+            <template if:true={statusMessage}>
+                <div class="status-banner">{statusMessage}</div>
+            </template>
+            <template if:true={showNoConfigurationMessage}>
+                <div class="status-banner">{configurationMessage}</div>
+            </template>
+            <template if:true={commentMenuOpen}>
+                <div class="cell-comment-menu-backdrop" onclick={handleDismissCommentMenu}></div>
+                <div class="cell-comment-menu" style={commentMenuStyle}>
+                    <template if:true={showJustificationActionInContextMenu}>
+                        <button class="cell-comment-menu__action" onclick={handleOpenJustificationFromMenu}>{justificationMenuActionLabel}</button>
+                    </template>
+                    <button class="cell-comment-menu__action" onclick={handleOpenCommentModal}>{commentMenuPrimaryActionLabel}</button>
+                    <button class="cell-comment-menu__action cell-comment-menu__action_secondary" onclick={handleDismissCommentMenu}>Close</button>
+                </div>
+            </template>
+
+            <template if:true={statusModalOpen}>
+                <section class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1" aria-modal="true" aria-label="Update Status">
+                    <div class="slds-modal__container status-modal-container">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close" title="Close status update" onclick={handleCloseStatusModal}>
+                                <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Close"></lightning-icon>
+                            </button>
+                            <h2 class="slds-text-heading_medium">Update Status</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium">
+                            <lightning-combobox
+                                label="Status"
+                                value={selectedStatusValue}
+                                options={statusOptions}
+                                onchange={handleStatusValueChange}>
+                            </lightning-combobox>
+                        </div>
+                        <footer class="slds-modal__footer">
+                            <lightning-button label="Cancel" onclick={handleCloseStatusModal}></lightning-button>
+                            <lightning-button class="slds-m-left_small" label="Update" variant="brand" onclick={handleSaveStatusUpdate} disabled={disableStatusUpdateSave}></lightning-button>
+                        </footer>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open" onclick={handleCloseStatusModal}></div>
+            </template>
+
+            <template if:true={cloneModalOpen}>
+                <template if:true={showCloneButton}>
+                    <section class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1" aria-modal="true" aria-label="Clone Target">
+                        <div class="slds-modal__container status-modal-container">
+                            <header class="slds-modal__header">
+                                <button class="slds-button slds-button_icon slds-modal__close" title="Close clone modal" onclick={handleCloseCloneModal}>
+                                    <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Close"></lightning-icon>
+                                </button>
+                                <h2 class="slds-text-heading_medium">Clone Target</h2>
+                            </header>
+                            <div class="slds-modal__content slds-p-around_medium">
+                                <p class="slds-m-bottom_small">Choose the M-Schedule to apply to the cloned target.</p>
+                                <lightning-combobox
+                                    label="M-Schedule Data Point"
+                                    value={selectedCloneVersion}
+                                    options={mScheduleOptions}
+                                    placeholder="Select M-Schedule Data Point"
+                                    onchange={handleCloneVersionChange}>
+                                </lightning-combobox>
+                            </div>
+                            <footer class="slds-modal__footer">
+                                <lightning-button label="Cancel" onclick={handleCloseCloneModal}></lightning-button>
+                                <lightning-button class="slds-m-left_small" label="Clone" variant="brand" onclick={handleConfirmCreateDraft} disabled={disableCloneConfirm}></lightning-button>
+                            </footer>
+                        </div>
+                    </section>
+                    <div class="slds-backdrop slds-backdrop_open" onclick={handleCloseCloneModal}></div>
+                </template>
+            </template>
+
+            <div class="workbench-tabs">
+                <nav class="workbench-tabs__nav" role="tablist">
+                    <button class={inputTabClass} data-tab="input" onclick={handleViewTabChange} role="tab">Input</button>
+                    <button class={summaryTabClass} data-tab="summary" onclick={handleViewTabChange} role="tab">Summary</button>
+                    <template if:true={showAdjustmentsTab}>
+                        <button class={adjustmentsTabClass} data-tab="adjustments" onclick={handleViewTabChange} role="tab">Adjustments</button>
+                    </template>
+                </nav>
+            </div>
+
+            <template if:true={isInputTab}>
+                <template if:true={hasActiveBudget}>
+                    <section class="selector-bar">
+                        <div class="selector-bar__sticky">
+                            <div class="target-input-heading">Target Input</div>
+                            <div class="selector-grid_target">
+                                <lightning-combobox
+                                    label="Classification"
+                                    value={selectedClassificationFilter}
+                                    options={classificationFilterOptions}
+                                    onchange={handleClassificationFilterChange}>
+                                </lightning-combobox>
+                                <lightning-combobox
+                                    label="Driver"
+                                    value={selectedDriverFilter}
+                                    options={driverFilterOptions}
+                                    onchange={handleDriverFilterChange}>
+                                </lightning-combobox>
+                                <div class="target-filter-actions">
+                                    <lightning-button class="filter-action-btn" label="Reset Filters" variant="brand-outline" onclick={handleResetFilters}></lightning-button>
+                                    <lightning-button class="filter-action-btn" label="Expand All" variant="brand-outline" onclick={handleExpandAll}></lightning-button>
+                                    <lightning-button class="filter-action-btn" label="Collapse All" variant="brand-outline" onclick={handleCollapseAll}></lightning-button>
+                                </div>
+                            </div>
+                        </div>
+                    </section>
+                    <section class="kpi-strip">
+                        <template for:each={kpiTiles} for:item="tile">
+                            <article key={tile.key} class={tile.className}>
+                                <span class="kpi-card__label">
+                                    <span>{tile.label}</span>
+                                    <template if:true={tile.formulaText}>
+                                        <lightning-helptext content={tile.formulaText}></lightning-helptext>
+                                    </template>
+                                </span>
+                                <span class="kpi-card__value">{tile.value}</span>
+                            </article>
+                        </template>
+                    </section>
+
+                    <template if:true={showNonDriverSection}>
+                        <section class="section-shell">
+                            <div class="section-header">
+                                <span class="section-header__title-group">
+                                    <span>1. {opPlanSection.name}</span>
+                                </span>
+                                <button class="section-header__collapse" type="button" data-name="nonDriver" onclick={handleSectionToggle}>{nonDriverSectionToggleLabel}</button>
+                            </div>
+                            <template if:true={nonDriverOpen}>
+                                <div class="table-shell">
+                                    <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-no-row-hover budget-grid non-driver-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-index">#</th>
+                                                <th class="col-indicator">Performance Indicator</th>
+                                                <template for:each={monthColumns} for:item="monthColumn">
+                                                    <th key={monthColumn.key} class="col-month">{monthColumn.label}</th>
+                                                </template>
+                                                <th class="col-total">Total Year</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={nonDriverRenderRows} for:item="row">
+                                                <tr key={row.renderKey} class={row.rowClass}>
+                                                    <td class="cell-index">{row.rowNumber}</td>
+                                                    <th scope="row" class="cell-indicator">
+                                                        <span class="row-label">
+                                                            <span>{row.driver}</span>
+                                                            <template if:true={row.formulaText}>
+                                                                <lightning-helptext content={row.formulaText}></lightning-helptext>
+                                                            </template>
+                                                        </span>
+                                                    </th>
+                                                    <template for:each={row.cells} for:item="cell">
+                                                        <td key={cell.key}
+                                                            class={cell.cellClass}
+                                                            data-table-name={cell.tableName}
+                                                            data-row-key={cell.rowKey}
+                                                            data-row-label={cell.rowLabel}
+                                                            data-month-key={cell.monthKey}
+                                                            data-classification={cell.classification}
+                                                            data-section-name={cell.sectionName}
+                                                            data-supports-justification={cell.supportsJustification}
+                                                            oncontextmenu={handleCellContextMenu}>
+                                                            <template if:true={cell.vacationMarker}>
+                                                                <span class={cell.vacationMarker.className}>{cell.vacationMarker.label}</span>
+                                                            </template>
+                                                            <template if:true={cell.showCommentIndicator}>
+                                                                <button
+                                                                    class={cell.commentButtonClass}
+                                                                    title="Open comments"
+                                                                    data-table-name={cell.tableName}
+                                                                    data-row-key={cell.rowKey}
+                                                                    data-row-label={cell.rowLabel}
+                                                                    data-month-key={cell.monthKey}
+                                                                    data-classification={cell.classification}
+                                                                    data-section-name={cell.sectionName}
+                                                                    data-supports-justification={cell.supportsJustification}
+                                                                    onclick={handleCellCommentClick}>
+                                                                    <lightning-icon icon-name="utility:comments" size="xx-small" class={cell.commentIconClass}></lightning-icon>
+                                                                </button>
+                                                            </template>
+                                                            <template if:true={cell.editable}>
+                                                                <input
+                                                                    type="number"
+                                                                    class="grid-input slds-input"
+                                                                    value={cell.inputValue}
+                                                                    step={cell.inputStep}
+                                                                    data-row-key={row.key}
+                                                                    data-section-name={opPlanSection.name}
+                                                                    data-month-key={cell.monthKey}
+                                                                    onfocus={handleCellFocus}
+                                                                    onwheel={handleGridInputWheel}
+                                                                    oninput={handleInputChange}
+                                                                    onchange={handleInputChange}
+                                                                    onblur={handleInputChange}>
+                                                            </template>
+                                                            <template if:false={cell.editable}>
+                                                                <span class="grid-value">{cell.displayValue}</span>
+                                                            </template>
+                                                        </td>
+                                                    </template>
+                                                    <td class="cell-total">
+                                                        <span class="cell-total-wrap">
+                                                            <span>{row.summaryValue}</span>
+                                                            <template if:true={row.yearTotalFormulaText}>
+                                                                <lightning-helptext content={row.yearTotalFormulaText}></lightning-helptext>
+                                                            </template>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                        </section>
+                    </template>
+
+                    <template if:true={showDriverSection}>
+                        <section class="kpi-strip kpi-strip_driver">
+                            <template for:each={manpowerKpiTiles} for:item="tile">
+                                <article key={tile.key} class={tile.className}>
+                                    <span class="kpi-card__label">
+                                        <span>{tile.label}</span>
+                                        <template if:true={tile.formulaText}>
+                                            <lightning-helptext content={tile.formulaText}></lightning-helptext>
+                                        </template>
+                                    </span>
+                                    <span class="kpi-card__value">{tile.value}</span>
+                                </article>
+                            </template>
+                        </section>
+                        <section class="section-shell">
+                            <div class="section-header">
+                                <span class="section-header__title-group">
+                                    <span>2. {headcountSection.name}</span>
+                                </span>
+                                <button class="section-header__collapse" type="button" data-name="driver" onclick={handleSectionToggle}>{driverSectionToggleLabel}</button>
+                            </div>
+                            <template if:true={driverOpen}>
+                                <div class="table-shell">
+                                    <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-no-row-hover budget-grid base-position-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-index">#</th>
+                                                <th class="col-indicator">Driver</th>
+                                                <th class="col-classification">Classification</th>
+                                                <template for:each={monthColumns} for:item="monthColumn">
+                                                    <th key={monthColumn.key} class="col-month">{monthColumn.label}</th>
+                                                </template>
+                                                <th class="col-total">
+                                                    <span class="avg-total-header">
+                                                        Avg / Total
+                                                        <lightning-helptext
+                                                            content="Shows the yearly summary for the row. Percent rows, Total Manpower rows, and configured average rows use the Jan-Dec average. Other rows use the Jan-Dec total.">
+                                                        </lightning-helptext>
+                                                    </span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={driverRenderRows} for:item="row">
+                                                <tr key={row.renderKey} class={row.rowClass}>
+                                                    <template if:true={row.showDriverGroup}>
+                                                        <td class="cell-index" rowspan={row.driverRowSpan}>{row.displayRowNumber}</td>
+                                                        <th scope="row" class="cell-indicator" rowspan={row.driverRowSpan}>
+                                                            <span class="row-label">
+                                                                <span>{row.driver}</span>
+                                                                <template if:true={row.formulaText}>
+                                                                    <lightning-helptext content={row.formulaText}></lightning-helptext>
+                                                                </template>
+                                                            </span>
+                                                        </th>
+                                                    </template>
+                                                    <td class={row.classificationClass}>
+                                                        <span class="classification-total-wrap">
+                                                            <span>{row.classification}</span>
+                                                            <template if:true={row.classificationFormulaText}>
+                                                                <lightning-helptext content={row.classificationFormulaText}></lightning-helptext>
+                                                            </template>
+                                                        </span>
+                                                    </td>
+                                                    <template for:each={row.cells} for:item="cell">
+                                                        <td key={cell.key}
+                                                            class={cell.cellClass}
+                                                            data-table-name={cell.tableName}
+                                                            data-row-key={cell.rowKey}
+                                                            data-row-label={cell.rowLabel}
+                                                            data-month-key={cell.monthKey}
+                                                            data-classification={cell.classification}
+                                                            data-section-name={cell.sectionName}
+                                                            data-supports-justification={cell.supportsJustification}
+                                                            oncontextmenu={handleCellContextMenu}>
+                                                            <template if:true={cell.vacationMarker}>
+                                                                <span class={cell.vacationMarker.className}>{cell.vacationMarker.label}</span>
+                                                            </template>
+                                                            <template if:true={cell.showCommentIndicator}>
+                                                                <button class={cell.commentButtonClass}
+                                                                    title="Open comments"
+                                                                    data-table-name={cell.tableName}
+                                                                    data-row-key={cell.rowKey}
+                                                                    data-row-label={cell.rowLabel}
+                                                                    data-month-key={cell.monthKey}
+                                                                    data-classification={cell.classification}
+                                                                    data-section-name={cell.sectionName}
+                                                                    data-supports-justification={cell.supportsJustification}
+                                                                    onclick={handleCellCommentClick}>
+                                                                    <lightning-icon icon-name="utility:comments" size="xx-small" class={cell.commentIconClass}></lightning-icon>
+                                                                </button>
+                                                            </template>
+                                                            <template if:true={cell.editable}>
+                                                                <input
+                                                                    type="number"
+                                                                    class="grid-input slds-input"
+                                                                    value={cell.inputValue}
+                                                                    step={cell.inputStep}
+                                                                    data-row-key={row.key}
+                                                                    data-section-name={headcountSection.name}
+                                                                    data-month-key={cell.monthKey}
+                                                                    onfocus={handleCellFocus}
+                                                                    onwheel={handleGridInputWheel}
+                                                                    oninput={handleInputChange}
+                                                                    onchange={handleInputChange}
+                                                                    onblur={handleInputChange}>
+                                                            </template>
+                                                            <template if:false={cell.editable}>
+                                                                <span class="grid-value">{cell.displayValue}</span>
+                                                            </template>
+                                                        </td>
+                                                    </template>
+                                                    <td class="cell-total">
+                                                        <span class="cell-total-wrap">
+                                                            <span>{row.summaryValue}</span>
+                                                            <template if:true={row.yearTotalFormulaText}>
+                                                                <lightning-helptext content={row.yearTotalFormulaText}></lightning-helptext>
+                                                            </template>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                        </section>
+                    </template>
+
+                    <template if:true={showHoursSection}>
+                        <section class="kpi-strip kpi-strip_hours">
+                            <template for:each={hoursKpiTiles} for:item="tile">
+                                <article key={tile.key} class={tile.className}>
+                                    <span class="kpi-card__label">
+                                        <span>{tile.label}</span>
+                                        <template if:true={tile.formulaText}>
+                                            <lightning-helptext content={tile.formulaText}></lightning-helptext>
+                                        </template>
+                                    </span>
+                                    <span class="kpi-card__value">{tile.value}</span>
+                                </article>
+                            </template>
+                        </section>
+                        <section class="section-shell">
+                            <div class="section-header">
+                                <span class="section-header__title-group">
+                                    <span>3. {hoursSection.name}</span>
+                                </span>
+                                <button class="section-header__collapse" type="button" data-name="hours" onclick={handleSectionToggle}>{hoursSectionToggleLabel}</button>
+                            </div>
+                            <template if:true={hoursOpen}>
+                                <div class="table-shell">
+                                    <table class="slds-table slds-table_bordered slds-table_cell-buffer slds-no-row-hover budget-grid hour-calculation-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="col-index">#</th>
+                                                <th class="col-indicator">Output</th>
+                                                <th class="col-classification">Classification</th>
+                                                <template for:each={monthColumns} for:item="monthColumn">
+                                                    <th key={monthColumn.key} class="col-month">{monthColumn.label}</th>
+                                                </template>
+                                                <th class="col-total">
+                                                    <span class="avg-total-header">
+                                                        Avg / Total
+                                                        <lightning-helptext
+                                                            content="Shows the yearly summary for the row. Percent rows, Total Manpower rows, and configured average rows use the Jan-Dec average. Other rows use the Jan-Dec total.">
+                                                        </lightning-helptext>
+                                                    </span>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={hourCalculationRows} for:item="row">
+                                                <tr key={row.renderKey} class={row.rowClass}>
+                                                    <template if:true={row.showDriverGroup}>
+                                                        <td class="cell-index" rowspan={row.driverRowSpan}>{row.displayRowNumber}</td>
+                                                        <th scope="row" class="cell-indicator" rowspan={row.driverRowSpan}>
+                                                            <span class="row-label">
+                                                                <span>{row.driver}</span>
+                                                                <template if:true={row.formulaText}>
+                                                                    <lightning-helptext content={row.formulaText}></lightning-helptext>
+                                                                </template>
+                                                            </span>
+                                                        </th>
+                                                    </template>
+                                                    <td class={row.classificationClass}>
+                                                        <span class="classification-total-wrap">
+                                                            <span>{row.classification}</span>
+                                                            <template if:true={row.classificationFormulaText}>
+                                                                <lightning-helptext content={row.classificationFormulaText}></lightning-helptext>
+                                                            </template>
+                                                        </span>
+                                                    </td>
+                                                    <template for:each={row.cells} for:item="cell">
+                                                        <td key={cell.key}
+                                                            class={cell.cellClass}
+                                                            data-table-name={cell.tableName}
+                                                            data-row-key={cell.rowKey}
+                                                            data-row-label={cell.rowLabel}
+                                                            data-month-key={cell.monthKey}
+                                                            data-classification={cell.classification}
+                                                            data-section-name={cell.sectionName}
+                                                            data-supports-justification={cell.supportsJustification}
+                                                            oncontextmenu={handleCellContextMenu}>
+                                                            <template if:true={cell.vacationMarker}>
+                                                                <span class={cell.vacationMarker.className}>{cell.vacationMarker.label}</span>
+                                                            </template>
+                                                            <template if:true={cell.showCommentIndicator}>
+                                                                <button class={cell.commentButtonClass}
+                                                                    title="Open comments"
+                                                                    data-table-name={cell.tableName}
+                                                                    data-row-key={cell.rowKey}
+                                                                    data-row-label={cell.rowLabel}
+                                                                    data-month-key={cell.monthKey}
+                                                                    data-classification={cell.classification}
+                                                                    data-section-name={cell.sectionName}
+                                                                    data-supports-justification={cell.supportsJustification}
+                                                                    onclick={handleCellCommentClick}>
+                                                                    <lightning-icon icon-name="utility:comments" size="xx-small" class={cell.commentIconClass}></lightning-icon>
+                                                                </button>
+                                                            </template>
+                                                            <template if:true={cell.editable}>
+                                                                <input
+                                                                    type="number"
+                                                                    class="grid-input slds-input"
+                                                                    value={cell.inputValue}
+                                                                    step={cell.inputStep}
+                                                                    data-row-key={row.key}
+                                                                    data-section-name={hoursSection.name}
+                                                                    data-month-key={cell.monthKey}
+                                                                    onfocus={handleCellFocus}
+                                                                    onwheel={handleGridInputWheel}
+                                                                    oninput={handleInputChange}
+                                                                    onchange={handleInputChange}
+                                                                    onblur={handleInputChange}>
+                                                            </template>
+                                                            <template if:false={cell.editable}>
+                                                                <span class="grid-value">{cell.displayValue}</span>
+                                                            </template>
+                                                        </td>
+                                                    </template>
+                                                    <td class="cell-total">
+                                                        <span class="cell-total-wrap">
+                                                            <span>{row.summaryValue}</span>
+                                                            <template if:true={row.yearTotalFormulaText}>
+                                                                <lightning-helptext content={row.yearTotalFormulaText}></lightning-helptext>
+                                                            </template>
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </template>
+                        </section>
+                    </template>
+                </template>
+                <template if:false={hasActiveBudget}>
+                    <section class="empty-state">
+                        <h3>No matching budget selected</h3>
+                        <p>Select a valid budget to view and edit target rows.</p>
+                    </section>
+                </template>
+                <div class="bottom-actions">
+                    <lightning-button label="Cancel" onclick={handleCancel} disabled={disableSave}></lightning-button>
+                    <lightning-button label="Save" variant="brand-outline" onclick={handleSave} disabled={disableSave}></lightning-button>
+                </div>
+            </template>
+
+            <template if:true={isSummaryTab}>
+                <template if:true={hasActiveBudget}>
+                    <section class="summary-tab-shell">
+                        <header class="summary-tab-header">
+                            <h3 class="summary-tab-title">Target Summary Totals</h3>
+                        </header>
+                        <section class="summary-total-cards">
+                            <template for:each={summaryHeroCards} for:item="card">
+                                <article key={card.key} class={card.className}>
+                                    <span class="summary-total-card__label">
+                                        <span>{card.label}</span>
+                                        <template if:true={card.formulaText}>
+                                            <lightning-helptext content={card.formulaText}></lightning-helptext>
+                                        </template>
+                                    </span>
+                                    <span class="summary-total-card__year">{card.year}</span>
+                                    <span class="summary-total-card__value">{card.value}</span>
+                                </article>
+                            </template>
+                        </section>
+                        <section class="summary-panels">
+                            <article class="summary-sheet">
+                                <header class="summary-sheet__header">
+                                    <div class="section-header__title-group"><span>Op Plan</span></div>
+                                </header>
+                                <div class="summary-sheet__body">
+                                    <table class="summary-sheet__table">
+                                        <thead>
+                                            <tr>
+                                                <th>&nbsp;</th>
+                                                <th>YE</th>
+                                                <th>CY Average</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={summaryOpPlanRows} for:item="row">
+                                                <tr key={row.key}>
+                                                    <th scope="row">
+                                                        <span class="summary-row-label">
+                                                            <span>{row.label}</span>
+                                                            <template if:true={row.formulaText}>
+                                                                <lightning-helptext content={row.formulaText}></lightning-helptext>
+                                                            </template>
+                                                        </span>
+                                                    </th>
+                                                    <td>{row.yearEnd}</td>
+                                                    <td>{row.average}</td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+                            <article class="summary-sheet">
+                                <header class="summary-sheet__header">
+                                    <div class="section-header__title-group"><span>Hours</span></div>
+                                </header>
+                                <div class="summary-sheet__body">
+                                    <table class="summary-sheet__table">
+                                        <thead>
+                                            <tr>
+                                                <th>&nbsp;</th>
+                                                <th>YE</th>
+                                                <th>CY Average</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={summaryHoursRows} for:item="row">
+                                                <tr key={row.key}>
+                                                    <th scope="row">
+                                                        <span class="summary-row-label">
+                                                            <span>{row.label}</span>
+                                                            <template if:true={row.formulaText}>
+                                                                <lightning-helptext content={row.formulaText}></lightning-helptext>
+                                                            </template>
+                                                        </span>
+                                                    </th>
+                                                    <td>{row.yearEnd}</td>
+                                                    <td>{row.average}</td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+                            <article class="summary-sheet">
+                                <header class="summary-sheet__header">
+                                    <div class="section-header__title-group"><span>Headcount</span></div>
+                                </header>
+                                <div class="summary-sheet__body">
+                                    <table class="summary-sheet__table">
+                                        <thead>
+                                            <tr>
+                                                <th>&nbsp;</th>
+                                                <th>YE</th>
+                                                <th>CY Average</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <template for:each={summaryHeadcountRows} for:item="row">
+                                                <tr key={row.key}>
+                                                    <th scope="row">
+                                                        <span class="summary-row-label">
+                                                            <span>{row.label}</span>
+                                                            <template if:true={row.formulaText}>
+                                                                <lightning-helptext content={row.formulaText}></lightning-helptext>
+                                                            </template>
+                                                        </span>
+                                                    </th>
+                                                    <td>{row.yearEnd}</td>
+                                                    <td>{row.average}</td>
+                                                </tr>
+                                            </template>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </article>
+                        </section>
+                    </section>
+                </template>
+            </template>
+
+            <template if:true={isAdjustmentsTab}>
+                <c-gwb-plant-position-adjustment-master
+                    embedded
+                    record-id={recordId}
+                    target-name={targetPageTitle}
+                    plant-name={targetPlant}
+                    region-name={targetRegion}
+                    schedule-label={targetMSchedule}
+                    sector-label={targetSector}
+                    initial-status={targetStatus}
+                    onstatuschange={handleAdjustmentStatusChange}>
+                </c-gwb-plant-position-adjustment-master>
+            </template>
+            <template if:true={commentModalOpen}>
+                <section class="slds-modal slds-fade-in-open" role="dialog" tabindex="-1" aria-modal="true" aria-label="Cell Comments">
+                    <div class="slds-modal__container comment-modal-container">
+                        <header class="slds-modal__header">
+                            <button class="slds-button slds-button_icon slds-modal__close" title="Close comments" onclick={handleCloseCommentModal}>
+                                <lightning-icon icon-name="utility:close" size="x-small" alternative-text="Close"></lightning-icon>
+                            </button>
+                            <h2 class="slds-text-heading_medium">{commentModalTitle}</h2>
+                        </header>
+                        <div class="slds-modal__content slds-p-around_medium">
+                            <template if:true={hasSelectedCommentCell}>
+                                <div class="slds-m-bottom_small slds-grid slds-wrap slds-gutters_x-small">
+                                    <template for:each={selectedCommentContextItems} for:item="item">
+                                        <div key={item.key} class="slds-col">
+                                            <span class="slds-badge comment-context-badge">{item.label}: {item.value}</span>
+                                        </div>
+                                    </template>
+                                </div>
+                            </template>
+                            <div class="comment-modal-grid">
+                                <section class="slds-box slds-theme_default slds-p-around_small">
+                                    <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
+                                        <div>
+                                            <p class="slds-text-title_caps">Activity</p>
+                                            <h3 class="slds-text-heading_small">{commentActivityTitle}</h3>
+                                        </div>
+                                    </div>
+                                    <template if:true={hasSelectedCellComments}>
+                                        <div class="comment-list">
+                                            <template for:each={selectedCellComments} for:item="comment">
+                                                <article key={comment.id} class="slds-box slds-p-around_small slds-m-bottom_x-small">
+                                                    <div class="slds-grid slds-grid_align-spread slds-m-bottom_x-small">
+                                                        <div>
+                                                            <div class="slds-text-body_regular slds-text-title_bold">{comment.authorName}</div>
+                                                            <div class="slds-text-body_small slds-text-color_weak">{comment.createdDateLabel}</div>
+                                                        </div>
+                                                        <template if:true={canComposeComments}>
+                                                            <button class="slds-button slds-button_reset slds-text-link" data-comment-id={comment.id} data-comment-text={comment.commentText} onclick={handleEditComment}>Edit</button>
+                                                        </template>
+                                                    </div>
+                                                    <p class="slds-text-body_regular slds-m-bottom_x-small">{comment.commentText}</p>
+                                                </article>
+                                            </template>
+                                        </div>
+                                    </template>
+                                    <template if:false={hasSelectedCellComments}>
+                                        <div class="slds-box slds-theme_shade slds-text-align_center slds-text-color_weak slds-text-body_small">
+                                            {commentPanelEmptyText}
+                                        </div>
+                                    </template>
+                                </section>
+                                <template if:true={canComposeComments}>
+                                    <section class="slds-box slds-theme_default slds-p-around_small">
+                                        <div class="slds-m-bottom_x-small">
+                                            <p class="slds-text-title_caps">Compose</p>
+                                            <h3 class="slds-text-heading_small">{commentComposerTitle}</h3>
+                                        </div>
+                                        <template if:true={isEditingExistingComment}>
+                                            <div class="slds-notify slds-notify_alert slds-theme_info slds-m-bottom_small" role="alert">
+                                                <span class="slds-assistive-text">info</span>
+                                                <h2>Editing an existing comment for this cell.</h2>
+                                            </div>
+                                        </template>
+                                        <lightning-textarea
+                                            label={commentInputLabel}
+                                            value={commentDraft}
+                                            onchange={handleCommentDraftChange}
+                                            placeholder={commentInputPlaceholder}>
+                                        </lightning-textarea>
+                                        <div class="comment-draft-meta slds-m-top_x-small slds-m-bottom_x-small slds-text-body_small slds-text-color_weak">
+                                            <span class="comment-draft-meta__helper">{commentDraftHelperText}</span>
+                                            <span class="comment-draft-meta__count">{commentDraftLength} chars</span>
+                                        </div>
+                                        <div class="slds-grid slds-grid_align-end">
+                                            <lightning-button label={commentPrimaryActionLabel} variant="brand" onclick={handleSaveComment} disabled={disableCommentSave}></lightning-button>
+                                        </div>
+                                    </section>
+                                </template>
+                                <template if:false={canComposeComments}>
+                                    <section class="slds-box slds-theme_default slds-p-around_small">
+                                        <p class="slds-text-title_caps slds-m-bottom_x-small">Read Only</p>
+                                        <div class="slds-box slds-theme_shade slds-text-align_center slds-text-color_weak slds-text-body_small">
+                                            Comments can be viewed on published targets, but new comments cannot be added.
+                                        </div>
+                                    </section>
+                                </template>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open" onclick={handleCloseCommentModal}></div>
+            </template>
+        </div>
+        </div>
+    </lightning-card>
+</template>

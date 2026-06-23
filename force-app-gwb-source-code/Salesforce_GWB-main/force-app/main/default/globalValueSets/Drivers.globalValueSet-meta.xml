@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<GlobalValueSet xmlns="http://soap.sforce.com/2006/04/metadata">
+    <customValue>
+        <fullName>Productivity</fullName>
+        <default>false</default>
+        <label>Productivity</label>
+    </customValue>
+    <customValue>
+        <fullName>LMS</fullName>
+        <default>false</default>
+        <label>LMS</label>
+    </customValue>
+    <customValue>
+        <fullName>Mfg Opt</fullName>
+        <default>false</default>
+        <label>Mfg Opt</label>
+    </customValue>
+    <customValue>
+        <fullName>ARC</fullName>
+        <default>false</default>
+        <label>ARC</label>
+    </customValue>
+    <customValue>
+        <fullName>Op Plan</fullName>
+        <default>false</default>
+        <label>Op Plan</label>
+    </customValue>
+    <customValue>
+        <fullName>Content</fullName>
+        <default>false</default>
+        <label>Content</label>
+    </customValue>
+    <customValue>
+        <fullName>Sourcing</fullName>
+        <default>false</default>
+        <label>Sourcing</label>
+    </customValue>
+    <customValue>
+        <fullName>Vacation Replacement</fullName>
+        <default>false</default>
+        <label>Vacation Replacement</label>
+    </customValue>
+    <customValue>
+        <fullName>Launch</fullName>
+        <default>false</default>
+        <label>Launch</label>
+    </customValue>
+    <customValue>
+        <fullName>Containment</fullName>
+        <default>false</default>
+        <label>Containment</label>
+    </customValue>
+    <customValue>
+        <fullName>Other/Excess</fullName>
+        <default>false</default>
+        <label>Other/Excess</label>
+    </customValue>
+    <customValue>
+        <fullName>Placeholder</fullName>
+        <default>false</default>
+        <label>Placeholder</label>
+    </customValue>
+    <customValue>
+        <fullName>Shift Change</fullName>
+        <default>false</default>
+        <isActive>false</isActive>
+        <label>Shift Change</label>
+    </customValue>
+    <masterLabel>Drivers</masterLabel>
+    <sorted>false</sorted>
+</GlobalValueSet>
