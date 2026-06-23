@@ -435,7 +435,7 @@
         </ee:transform>
 
         <http:request method="POST"
-            path="${slack.webhook.path}"
+            path="${secure::slack.webhook.path}"
             config-ref="Slack_HTTP_Config">
             <http:headers><![CDATA[#[{"Content-Type": "application/json"}]]]></http:headers>
         </http:request>

@@ -20,9 +20,9 @@
     <!-- Salesforce connector — OAuth2 JWT Bearer flow (no username-password flow required) -->
     <salesforce:sfdc-config name="Salesforce_Config">
         <salesforce:jwt-connection
-            consumerKey="${salesforce.consumerKey}"
+            consumerKey="${secure::salesforce.consumerKey}"
             keyStore="${salesforce.keystore.path}"
-            storePassword="${salesforce.keystore.password}"
+            storePassword="${secure::salesforce.keystore.password}"
             certificateAlias="${salesforce.keystore.alias}"
             principal="${salesforce.username}"
             tokenEndpoint="${salesforce.tokenEndpoint}"/>

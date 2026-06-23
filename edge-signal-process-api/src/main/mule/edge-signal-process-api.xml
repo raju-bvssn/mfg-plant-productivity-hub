@@ -26,14 +26,14 @@
         <anypoint-mq:connection
             url="${anypoint.mq.url}"
             clientId="${anypoint.mq.clientId}"
-            clientSecret="${anypoint.mq.clientSecret}" />
+            clientSecret="${secure::anypoint.mq.clientSecret}" />
     </anypoint-mq:config>
 
     <salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config">
         <salesforce:jwt-connection
-            consumerKey="${salesforce.consumerKey}"
+            consumerKey="${secure::salesforce.consumerKey}"
             keyStore="${salesforce.keystore.path}"
-            storePassword="${salesforce.keystore.password}"
+            storePassword="${secure::salesforce.keystore.password}"
             certificateAlias="${salesforce.keystore.alias}"
             principal="${salesforce.username}"
             tokenEndpoint="${salesforce.tokenEndpoint}" />

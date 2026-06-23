@@ -39,8 +39,8 @@
             <tls:context>
                 <tls:key-store type="jks" path="${tls.keystore.path}"
                     alias="plantiq"
-                    keyPassword="${tls.keystore.keyPassword}"
-                    password="${tls.keystore.password}"/>
+                    keyPassword="${secure::tls.keystore.keyPassword}"
+                    password="${secure::tls.keystore.password}"/>
             </tls:context>
         </http:listener-connection>
     </http:listener-config>
@@ -83,7 +83,7 @@
 
         <!-- Validate API key from header -->
         <choice>
-            <when expression="#[attributes.headers['x-api-key'] != p('mcp.api.key')]">
+            <when expression="#[attributes.headers['x-api-key'] != p('secure::mcp.api.key')]">
                 <ee:transform>
                     <ee:message>
                         <ee:set-payload><![CDATA[
