@@ -10,7 +10,7 @@ salesforce:
   keystore:
     # Absolute path required by Salesforce JWT connector.
     # plantiq-keystore.p12 must be present in the Mule runtime conf/ directory.
-    path: "${mule.home}/conf/plantiq-keystore.p12"
+    path: "plantiq-keystore.p12"
     password: "plantiq123"
     alias: "plantiq"
 

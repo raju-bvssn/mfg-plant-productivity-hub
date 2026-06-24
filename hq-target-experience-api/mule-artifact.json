@@ -6,7 +6,8 @@
         "id": "mule",
         "attributes": {
             "exportedResources": [
-                "api/hq-target-experience-api.yaml"
+                "api/hq-target-experience-api.yaml",
+                "plantiq-keystore.p12"
             ]
         }
     }
