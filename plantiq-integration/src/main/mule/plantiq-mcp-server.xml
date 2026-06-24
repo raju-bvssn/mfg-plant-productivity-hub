@@ -5,12 +5,11 @@
       xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
       xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
-      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xsi:schemaLocation="
         http://www.mulesoft.org/schema/mule/core         http://www.mulesoft.org/schema/mule/core/current/mule.xsd
         http://www.mulesoft.org/schema/mule/salesforce   http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
         http://www.mulesoft.org/schema/mule/http         http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-        http://www.mulesoft.org/schema/mule/tls          http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+        http://www.mulesoft.org/schema/mule/ee/core      http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
 
     <!--
         PlantIQ MCP Server — implements MCP JSON-RPC 2.0 protocol.
@@ -33,16 +32,9 @@
           plantiq_trigger_recommendation — manually kick off orchestration for an HQ Target
     -->
 
-    <!-- HTTPS Listener for MCP server -->
+    <!-- HTTP Listener for MCP server (TLS terminated at CloudHub 2.0 ingress gateway) -->
     <http:listener-config name="MCP_HTTP_Config">
-        <http:listener-connection host="${http.listener.host}" port="${mcp.listener.port}" protocol="HTTPS">
-            <tls:context>
-                <tls:key-store type="jks" path="${tls.keystore.path}"
-                    alias="plantiq"
-                    keyPassword="${secure::tls.keystore.keyPassword}"
-                    password="${secure::tls.keystore.password}"/>
-            </tls:context>
-        </http:listener-connection>
+        <http:listener-connection host="${http.listener.host}" port="${mcp.listener.port}"/>
     </http:listener-config>
 
     <!-- Loopback HTTP request config for triggering the main recommendation flow -->

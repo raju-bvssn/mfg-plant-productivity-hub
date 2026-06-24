@@ -13,7 +13,7 @@
 
 	<properties>
 		<app.runtime>4.6.0</app.runtime>
-		<mule.maven.plugin.version>4.3.0</mule.maven.plugin.version>
+		<mule.maven.plugin.version>4.6.1</mule.maven.plugin.version>
 	</properties>
 
 	<build>

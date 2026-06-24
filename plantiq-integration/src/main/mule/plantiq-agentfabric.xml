@@ -3,12 +3,10 @@
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
-      xmlns:tls="http://www.mulesoft.org/schema/mule/tls"
       xsi:schemaLocation="
         http://www.mulesoft.org/schema/mule/core     http://www.mulesoft.org/schema/mule/core/current/mule.xsd
         http://www.mulesoft.org/schema/mule/ee/core  http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
-        http://www.mulesoft.org/schema/mule/http     http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
-        http://www.mulesoft.org/schema/mule/tls      http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+        http://www.mulesoft.org/schema/mule/http     http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
 
     <!--
         PlantIQ AgentFabric — Governance and Observability Layer
@@ -27,16 +25,9 @@
         To register agents: import agentfabric/agent-definitions.yaml into the console.
     -->
 
-    <!-- HTTPS listener for AgentFabric management API (internal only) -->
+    <!-- HTTP listener for AgentFabric management API (TLS terminated at CloudHub 2.0 ingress gateway) -->
     <http:listener-config name="AgentFabric_HTTP_Config">
-        <http:listener-connection host="${http.listener.host}" port="${agentfabric.listener.port}" protocol="HTTPS">
-            <tls:context>
-                <tls:key-store type="jks" path="${tls.keystore.path}"
-                    alias="plantiq"
-                    keyPassword="${secure::tls.keystore.keyPassword}"
-                    password="${secure::tls.keystore.password}"/>
-            </tls:context>
-        </http:listener-connection>
+        <http:listener-connection host="${http.listener.host}" port="${agentfabric.listener.port}"/>
     </http:listener-config>
 
     <!-- =========================================================

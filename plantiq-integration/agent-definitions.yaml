@@ -1,0 +1,100 @@
+apiVersion: agentfabric/v1
+kind: AgentManifest
+metadata:
+  name: plantiq-agents
+  description: PlantIQ manufacturing productivity agents for GM plant FTE optimization
+  owner: gwb-hackathon-team
+  version: "1.0.0"
+  tags:
+    - manufacturing
+    - productivity
+    - gm
+    - plantiq
+
+agents:
+  - id: plantiq-autonomous
+    name: PlantIQ-Autonomous
+    type: orchestration
+    description: >
+      Autonomous agent that subscribes to PlantIQ_Target_Set__e Salesforce Platform Events,
+      runs a 6-step recommendation chain (plant context → idea matching → benchmark scoring
+      → Einstein LLM → Salesforce upsert → Slack notification), and creates
+      GWB_Productivity_Idea__c records automatically.
+    trigger:
+      type: platform-event
+      channel: /event/PlantIQ_Target_Set__e
+    steps:
+      - id: retrieve-plant-context
+        description: SOQL query for plant, shop, and HQ Target data from Salesforce
+      - id: match-idea-library
+        description: SOQL query matching GWB_Idea_Library__c records to the signal type
+      - id: score-benchmarks
+        description: DataWeave 2.0 benchmark scoring transform (replaces ScoreBenchmarksAction Apex)
+      - id: call-einstein-llm
+        description: REST call to Salesforce Einstein Generative AI prompt template PlantIQ_Recommendation
+      - id: create-productivity-idea
+        description: Upsert GWB_Productivity_Idea__c record via Salesforce connector
+      - id: post-to-slack
+        description: POST recommendation summary to Slack webhook #plant-productivity
+    auditSubflow: agentfabric-audit-start-subflow
+    observability:
+      logLevel: INFO
+      metricsEnabled: true
+    status: active
+
+  - id: plantiq-interactive
+    name: PlantIQ-Interactive
+    type: mcp-server
+    description: >
+      Interactive MCP JSON-RPC 2.0 server for Agentforce and Slack Q&A.
+      Allows manufacturing engineers and plant managers to query FTE gaps,
+      review pending productivity ideas, examine benchmark evidence, approve ideas,
+      and trigger recommendation runs — all via natural language through Agentforce.
+    trigger:
+      type: http
+      endpoint: /mcp/v1
+      protocol: http
+      port: 8082
+      auth:
+        type: api-key
+        header: x-api-key
+    tools:
+      - name: plantiq_get_gap_summary
+        description: Cross-plant FTE gap summary and total pipeline value for the current quarter
+        type: read
+      - name: plantiq_get_plant_status
+        description: Single plant FTE gap, approved coverage, top pending idea, approved idea count
+        type: read
+      - name: plantiq_get_pending_ideas
+        description: Pending-approval ideas with FTE impact, confidence scores, benchmark evidence
+        type: read
+      - name: plantiq_get_benchmark_evidence
+        description: Cross-plant benchmark evidence explaining why an idea was recommended
+        type: read
+      - name: plantiq_approve_idea
+        description: Approves a GWB_Productivity_Idea__c record (requires explicit user confirmation)
+        type: write
+        requiresConfirmation: true
+      - name: plantiq_trigger_recommendation
+        description: Manually triggers PlantIQ recommendation orchestration for an HQ Target
+        type: write
+        requiresConfirmation: true
+    guardrails:
+      - id: write-tool-id-validation
+        description: idea_id and target_id must be valid 18-character Salesforce IDs
+        enforcedOn: [plantiq_approve_idea, plantiq_trigger_recommendation]
+      - id: approver-name-required
+        description: approver_name must be non-empty for approval actions
+        enforcedOn: [plantiq_approve_idea]
+      - id: record-state-validation
+        description: Idea must be in Pending Approval status before approval is allowed
+        enforcedOn: [plantiq_approve_idea]
+    healthEndpoint: /mcp/v1/health
+    status: active
+
+network:
+  ingressGateway: agent-network-ingress-gw-eqlyx7.yn5ue6.usa-e1.cloudhub.io
+  egressGateway: agent-network-egress-gw-eqlyx7.internal-yn5ue6.usa-e1.cloudhub.io
+  privateSpace: ps-use1-ai-productivity-advisor-sbx
+  mcpPublicEndpoint: https://agent-network-ingress-gw-eqlyx7.yn5ue6.usa-e1.cloudhub.io/mcp/v1
+  agentfabricStatusEndpoint: https://agent-network-ingress-gw-eqlyx7.yn5ue6.usa-e1.cloudhub.io/agentfabric/status
