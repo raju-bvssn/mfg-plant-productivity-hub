@@ -3,6 +3,7 @@
       xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
       xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+      xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="
@@ -13,15 +14,21 @@
         http://www.mulesoft.org/schema/mule/http
             http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
         http://www.mulesoft.org/schema/mule/salesforce
-            http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+            http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+        http://www.mulesoft.org/schema/mule/secure-properties
+            http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
 
     <!-- =========================================================
          Global Configurations
     ========================================================== -->
 
-    <configuration-properties
-        doc:name="Configuration properties"
-        file="config.yaml" />
+    <secure-properties:config
+        name="Secure_Properties_Config"
+        file="config.yaml"
+        key="${secure.key}"
+        doc:name="Secure Properties Config">
+        <secure-properties:encrypt algorithm="AES" mode="CBC"/>
+    </secure-properties:config>
 
     <!--
         API Gateway Autodiscovery
@@ -53,6 +60,7 @@
             tokenEndpoint="${salesforce.tokenEndpoint}" />
     </salesforce:sfdc-config>
 
+     <configuration-properties doc:name="Configuration properties" doc:id="c925be58-f25b-4a9e-af61-5c34618ce801" file="config.yaml" />
     <!-- =========================================================
          POST /hq-targets
          Receives JSON, validates, resolves Plant ID, maps fields,
