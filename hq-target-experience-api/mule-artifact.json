@@ -1,0 +1,13 @@
+{
+    "name": "hq-target-experience-api",
+    "minMuleVersion": "4.9.0",
+    "javaSpecificationVersions": ["17"],
+    "classLoaderModelLoaderDescriptor": {
+        "id": "mule",
+        "attributes": {
+            "exportedResources": [
+                "api/hq-target-experience-api.yaml"
+            ]
+        }
+    }
+}

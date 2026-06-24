@@ -1,0 +1,274 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns="http://www.mulesoft.org/schema/mule/core"
+      xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+      xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+      xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="
+        http://www.mulesoft.org/schema/mule/core       http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+        http://www.mulesoft.org/schema/mule/ee/core    http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+        http://www.mulesoft.org/schema/mule/http       http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd">
+
+    <!--
+        POST /hq-targets
+        Creates a GWB_HQ_Target__c record from a JSON request body.
+
+        Flow:
+          1. Validate required fields (name, plantCode, targetFte)
+          2. Look up GWB_Plant__c.Id by Plant_Code__c
+          3. Map request → SF sObject via hq-target-to-sf.dwl
+          4. salesforce:create GWB_HQ_Target__c
+          5. Return 201 + created record ID
+    -->
+    <flow name="create-hq-target-flow" doc:name="POST /hq-targets">
+
+        <http:listener
+            doc:name="POST /hq-targets"
+            config-ref="PlantIQ_HTTP_Trigger_Config"
+            path="/hq-targets"
+            allowedMethods="POST"/>
+
+        <logger
+            doc:name="Request received"
+            level="INFO"
+            message='#["[HQ Target API] POST /hq-targets — plant=" ++ (payload.plantCode default "?") ++ " targetFte=" ++ ((payload.targetFte default "?") as String)]'/>
+
+        <!-- Stash original request so sub-flows can restore payload after SOQL calls -->
+        <set-variable
+            doc:name="Stash original payload"
+            variableName="originalPayload"
+            value="#[payload]"/>
+
+        <!-- ── STEP 1: Validate required fields ────────────────── -->
+        <flow-ref doc:name="Validate request" name="validate-hq-target-request-subflow"/>
+
+        <!-- ── STEP 2: Resolve Plant__c ID from Plant_Code__c ───── -->
+        <flow-ref doc:name="Lookup Plant ID" name="lookup-plant-id-subflow"/>
+
+        <!-- ── STEP 3: Map JSON → GWB_HQ_Target__c sObject ──────── -->
+        <ee:transform doc:name="Map to GWB_HQ_Target__c">
+            <ee:message>
+                <ee:set-payload resource="hq-target-to-sf.dwl"/>
+            </ee:message>
+        </ee:transform>
+
+        <!-- ── STEP 4: Insert record into Salesforce ────────────── -->
+        <salesforce:create
+            doc:name="SF Create — GWB_HQ_Target__c"
+            config-ref="Salesforce_Config"
+            type="GWB_HQ_Target__c"/>
+
+        <!-- ── STEP 5: Return 201 with created record ID ─────────── -->
+        <ee:transform doc:name="Build 201 response">
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0
+                    output application/json
+                    ---
+                    {
+                        id:      payload[0].id,
+                        success: payload[0].successful,
+                        message: "GWB_HQ_Target__c record created successfully"
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
+output application/java --- 201]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+
+        <logger
+            doc:name="Success"
+            level="INFO"
+            message='#["[HQ Target API] Created GWB_HQ_Target__c id=" ++ (payload.id default "?")]'/>
+
+        <!-- ── Error handler ────────────────────────────────────── -->
+        <error-handler>
+            <on-error-continue doc:name="Validation error (400)" type="APP:VALIDATION">
+                <ee:transform doc:name="400 Bad Request">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0
+                            output application/json
+                            ---
+                            {
+                                code:    "BAD_REQUEST",
+                                message: error.description
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
+output application/java --- 400]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="WARN"
+                    message='#["[HQ Target API] 400 — " ++ error.description]'/>
+            </on-error-continue>
+
+            <on-error-continue doc:name="Not found error (404)" type="APP:NOT_FOUND">
+                <ee:transform doc:name="404 Not Found">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0
+                            output application/json
+                            ---
+                            {
+                                code:    "NOT_FOUND",
+                                message: error.description
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
+output application/java --- 404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="WARN"
+                    message='#["[HQ Target API] 404 — " ++ error.description]'/>
+            </on-error-continue>
+
+            <on-error-continue doc:name="Any other error (500)" type="ANY">
+                <ee:transform doc:name="500 Internal Error">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[
+                            %dw 2.0
+                            output application/json
+                            ---
+                            {
+                                code:    "INTERNAL_ERROR",
+                                message: error.description default "Unexpected error"
+                            }
+                        ]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
+output application/java --- 500]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+                <logger level="ERROR"
+                    message='#["[HQ Target API] 500 — " ++ (error.description default "unknown")]'/>
+            </on-error-continue>
+        </error-handler>
+
+    </flow>
+
+    <!-- =========================================================
+         SUB-FLOW: Validate required fields
+    ========================================================== -->
+    <sub-flow name="validate-hq-target-request-subflow" doc:name="Validate HQ Target request">
+
+        <ee:transform doc:name="Check required fields">
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0
+                    output application/java
+
+                    var req   = payload
+                    var valid = ["Q1 2026", "Q2 2026", "Q3 2026", "Q4 2026"]
+
+                    var missingName = req.name == null or req.name == ""
+                    var missingPlant = req.plantCode == null or req.plantCode == ""
+                    var missingFte   = req.targetFte == null
+
+                    var invalidFte   = not missingFte and req.targetFte <= 0
+                    var invalidQuarter = req.quarter != null
+                                        and not (valid contains req.quarter)
+                    var invalidApproved = req.approvedFteCoverage != null
+                                         and req.approvedFteCoverage < 0
+
+                    var errors = [
+                        if (missingName)       "name is required"              else null,
+                        if (missingPlant)      "plantCode is required"         else null,
+                        if (missingFte)        "targetFte is required"         else null,
+                        if (invalidFte)        "targetFte must be greater than 0" else null,
+                        if (invalidQuarter)    "quarter must be one of: " ++ (valid joinBy ", ") else null,
+                        if (invalidApproved)   "approvedFteCoverage must be >= 0" else null
+                    ] filter ($ != null)
+                    ---
+                    {
+                        valid: sizeOf(errors) == 0,
+                        errors: errors
+                    }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+
+        <!-- Stash the validation result, then restore original payload -->
+        <set-variable
+            doc:name="Stash validation result"
+            variableName="validationResult"
+            value="#[payload]"/>
+        <set-payload
+            doc:name="Restore original payload"
+            value="#[vars.originalPayload]"/>
+
+        <choice doc:name="Valid?">
+            <when expression="#[vars.validationResult.valid == false]">
+                <raise-error
+                    doc:name="Raise validation error"
+                    type="APP:VALIDATION"
+                    description="#[vars.validationResult.errors joinBy ' | ']"/>
+            </when>
+        </choice>
+
+    </sub-flow>
+
+    <!-- =========================================================
+         SUB-FLOW: Lookup GWB_Plant__c.Id by Plant_Code__c
+    ========================================================== -->
+    <sub-flow name="lookup-plant-id-subflow" doc:name="Lookup Plant ID by Plant_Code__c">
+
+        <!-- Stash the original request payload so it survives the SOQL call -->
+        <set-variable
+            doc:name="Stash request payload"
+            variableName="originalPayload"
+            value="#[payload]"/>
+        <set-variable
+            doc:name="Set plantCode var"
+            variableName="plantCode"
+            value="#[payload.plantCode]"/>
+
+        <salesforce:query
+            doc:name="SOQL — GWB_Plant__c by Plant_Code__c"
+            config-ref="Salesforce_Config">
+            <salesforce:salesforce-query><![CDATA[
+                SELECT Id
+                FROM   GWB_Plant__c
+                WHERE  Plant_Code__c = ':plantCode'
+                AND    Active__c     = true
+                LIMIT  1
+            ]]></salesforce:salesforce-query>
+            <salesforce:parameters><![CDATA[#[{ plantCode: vars.plantCode }]]]></salesforce:parameters>
+        </salesforce:query>
+
+        <choice doc:name="Plant found?">
+            <when expression="#[sizeOf(payload) == 0]">
+                <raise-error
+                    doc:name="Raise not-found error"
+                    type="APP:NOT_FOUND"
+                    description="#['Plant with code ' ++ vars.plantCode ++ ' not found or is inactive']"/>
+            </when>
+        </choice>
+
+        <set-variable
+            doc:name="Set plantId"
+            variableName="plantId"
+            value="#[payload[0].Id]"/>
+
+        <!-- Restore original request payload -->
+        <set-payload
+            doc:name="Restore original payload"
+            value="#[vars.originalPayload]"/>
+
+        <logger
+            doc:name="Plant resolved"
+            level="INFO"
+            message='#["[HQ Target API] Resolved plantCode=" ++ vars.plantCode ++ " → plantId=" ++ vars.plantId]'/>
+
+    </sub-flow>
+
+</mule>
