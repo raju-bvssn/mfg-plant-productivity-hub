@@ -2,8 +2,10 @@
 <mule xmlns="http://www.mulesoft.org/schema/mule/core"
       xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
       xmlns:http="http://www.mulesoft.org/schema/mule/http"
+      xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
       xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
       xmlns:secure-properties="http://www.mulesoft.org/schema/mule/secure-properties"
+      xmlns:api-gateway="http://www.mulesoft.org/schema/mule/api-gateway"
       xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:schemaLocation="
@@ -13,10 +15,14 @@
             http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
         http://www.mulesoft.org/schema/mule/http
             http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+        http://www.mulesoft.org/schema/mule/mule-apikit
+            http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd
         http://www.mulesoft.org/schema/mule/salesforce
             http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
         http://www.mulesoft.org/schema/mule/secure-properties
-            http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd">
+            http://www.mulesoft.org/schema/mule/secure-properties/current/mule-secure-properties.xsd
+        http://www.mulesoft.org/schema/mule/api-gateway
+            http://www.mulesoft.org/schema/mule/api-gateway/current/mule-api-gateway.xsd">
 
     <!-- =========================================================
          Global Configurations
@@ -30,13 +36,9 @@
         <secure-properties:encrypt algorithm="AES" mode="CBC"/>
     </secure-properties:config>
 
-    <!--
-        API Gateway Autodiscovery
-        Links this app to API Manager instance 20986802 (Sandbox).
-        At runtime, pass: -Danypoint.platform.client_id=<env-client-id>
-                          -Danypoint.platform.client_secret=<env-client-secret>
-        The api.id property (config.yaml) is read by the Gateway agent on startup.
-    -->
+    <configuration-properties
+        doc:name="Configuration properties"
+        file="config.yaml" />
 
     <!-- HTTP Listener -->
     <http:listener-config
@@ -47,44 +49,151 @@
             port="${http.listener.port}" />
     </http:listener-config>
 
-    <!-- Salesforce — JWT Bearer (same Connected App as edge-signal-process-api) -->
+    <!-- APIkit Router Config — points at the OAS 3.0 spec -->
+    <apikit:config
+        name="HQ_Target_APIkit_Config"
+        api="api/hq-target-experience-api.yaml"
+        outboundHeadersMapName="outboundHeaders"
+        httpStatusVarName="httpStatus"
+        doc:name="APIkit Config" />
+
+    <!-- Salesforce — JWT Bearer -->
     <salesforce:sfdc-config
         doc:name="Salesforce Config"
         name="Salesforce_Config">
         <salesforce:jwt-connection
-            consumerKey="${salesforce.consumerKey}"
+            consumerKey="${secure::salesforce.consumerKey}"
             keyStore="${salesforce.keystore.path}"
-            storePassword="${salesforce.keystore.password}"
+            storePassword="${secure::salesforce.keystore.password}"
             certificateAlias="${salesforce.keystore.alias}"
             principal="${salesforce.username}"
             tokenEndpoint="${salesforce.tokenEndpoint}" />
     </salesforce:sfdc-config>
 
-     <configuration-properties doc:name="Configuration properties" doc:id="c925be58-f25b-4a9e-af61-5c34618ce801" file="config.yaml" />
+    <!-- API Gateway Autodiscovery -->
+    <api-gateway:autodiscovery
+        apiId="${api.id}"
+        flowRef="hq-target-experience-api-main"
+        ignoreBasePath="true"
+        doc:name="API Autodiscovery" />
+
     <!-- =========================================================
-         POST /hq-targets
+         Main Router Flow
+    ========================================================== -->
+    <flow name="hq-target-experience-api-main" doc:name="Main Router">
+
+        <http:listener
+            doc:name="HTTP Listener"
+            config-ref="HQ_Target_HTTP_Config"
+            path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+
+        <apikit:router
+            doc:name="APIkit Router"
+            config-ref="HQ_Target_APIkit_Config" />
+
+        <error-handler>
+            <on-error-propagate type="APIKIT:BAD_REQUEST" logException="false">
+                <ee:transform doc:name="400 Bad Request">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "BAD_REQUEST", message: error.description }]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 400]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_FOUND" logException="false">
+                <ee:transform doc:name="404 Not Found">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "NOT_FOUND", message: error.description }]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:METHOD_NOT_ALLOWED" logException="false">
+                <ee:transform doc:name="405 Method Not Allowed">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "METHOD_NOT_ALLOWED", message: error.description }]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 405]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:NOT_ACCEPTABLE" logException="false">
+                <ee:transform doc:name="406 Not Acceptable">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "NOT_ACCEPTABLE", message: error.description }]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 406]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APIKIT:UNSUPPORTED_MEDIA_TYPE" logException="false">
+                <ee:transform doc:name="415 Unsupported Media Type">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "UNSUPPORTED_MEDIA_TYPE", message: error.description }]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 415]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APP:VALIDATION" logException="false">
+                <ee:transform doc:name="400 Validation Error">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "BAD_REQUEST", message: error.description }]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 400]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="APP:NOT_FOUND" logException="false">
+                <ee:transform doc:name="404 App Not Found">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "NOT_FOUND", message: error.description }]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 404]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+            <on-error-propagate type="ANY" logException="true">
+                <ee:transform doc:name="500 Internal Error">
+                    <ee:message>
+                        <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "INTERNAL_ERROR", message: error.description default "Unexpected server error" }]]></ee:set-payload>
+                    </ee:message>
+                    <ee:variables>
+                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 500]]></ee:set-variable>
+                    </ee:variables>
+                </ee:transform>
+            </on-error-propagate>
+        </error-handler>
+
+    </flow>
+
+    <!-- =========================================================
+         POST /hq-targets — createHqTarget
          Receives JSON, validates, resolves Plant ID, maps fields,
          inserts GWB_HQ_Target__c, returns 201 + new record ID.
     ========================================================== -->
-    <flow name="post-hq-target-flow" doc:name="POST /hq-targets">
-
-        <http:listener
-            doc:name="POST /hq-targets"
-            config-ref="HQ_Target_HTTP_Config"
-            path="/hq-targets"
-            allowedMethods="POST">
-            <http:response statusCode="#[vars.httpStatus default 200]">
-                <http:headers><![CDATA[#[{"Content-Type": "application/json"}]]]></http:headers>
-            </http:response>
-            <http:error-response statusCode="#[vars.httpStatus default 500]">
-                <http:headers><![CDATA[#[{"Content-Type": "application/json"}]]]></http:headers>
-            </http:error-response>
-        </http:listener>
+    <flow name="post:\hq-targets:application\json:HQ_Target_APIkit_Config" doc:name="POST /hq-targets">
 
         <logger
             doc:name="Request received"
             level="INFO"
-            message='#["[HQ-Target-API] ▶ POST /hq-targets received | plant=" ++ ((payload.plantCode default "?") as String) ++ " | targetFte=" ++ ((payload.targetFte default "?") as String) ++ " | quarter=" ++ ((payload.quarter default "?") as String)]' />
+            message='#["[HQ-Target-API] ▶ POST /hq-targets | plant=" ++ ((payload.plantCode default "?") as String) ++ " | targetFte=" ++ ((payload.targetFte default "?") as String) ++ " | quarter=" ++ ((payload.quarter default "?") as String)]' />
 
         <!-- Stash original JSON — sub-flows replace payload with SOQL results -->
         <set-variable
@@ -92,17 +201,13 @@
             variableName="originalRequest"
             value="#[payload]" />
 
-        <!-- ── STEP 1: Validate required fields ──────────────── -->
-        <flow-ref
-            doc:name="Validate request"
-            name="validate-hq-target-subflow" />
+        <!-- STEP 1: Validate required fields -->
+        <flow-ref doc:name="Validate request" name="validate-hq-target-subflow" />
 
-        <!-- ── STEP 2: Resolve GWB_Plant__c.Id by Plant_Code__c ── -->
-        <flow-ref
-            doc:name="Lookup Plant ID"
-            name="lookup-plant-id-subflow" />
+        <!-- STEP 2: Resolve GWB_Plant__c.Id by Plant_Code__c -->
+        <flow-ref doc:name="Lookup Plant ID" name="lookup-plant-id-subflow" />
 
-        <!-- ── STEP 3: Map JSON → GWB_HQ_Target__c sObject ──── -->
+        <!-- STEP 3: Map JSON → GWB_HQ_Target__c sObject -->
         <ee:transform doc:name="Map request to GWB_HQ_Target__c">
             <ee:message>
                 <ee:set-payload><![CDATA[
@@ -112,36 +217,24 @@
                     var req           = vars.originalRequest
                     var validQuarters = ["Q1 2026", "Q2 2026", "Q3 2026", "Q4 2026"]
 
-                    // Clamp to 1 decimal place
                     fun roundFte(n) =
                         if (n == null) null
                         else ((n * 10) as Number {class: "java.lang.Long"}) / 10.0
 
-                    // Return null for blank strings
                     fun safeText(s) =
                         if (s == null or s == "") null else s
 
-                    // Return null if quarter not in allowed picklist values
                     fun safeQuarter(q) =
                         if (q != null and (validQuarters contains q)) q else null
 
                     ---
                     [{
-                        // Standard Name field
                         Name:                     req.name,
-
-                        // Picklist — validated; null suppresses the field so SF default applies
                         Quarter__c:               safeQuarter(req.quarter default null),
-
-                        // Lookup IDs resolved in prior sub-flows
                         Plant__c:                 vars.plantId,
                         Plant_Shop__c:            req.plantShopId default null,
-
-                        // FTE numbers — clamped to 1 decimal; Gap_To_Target__c is a formula, never set here
                         Target_FTE__c:            roundFte(req.targetFte),
                         Approved_FTE_Coverage__c: roundFte(req.approvedFteCoverage default 0.0),
-
-                        // Free-text context for Agentforce prompt template
                         Production_Context__c:    safeText(req.productionContext default null)
                     }]
                 ]]></ee:set-payload>
@@ -151,15 +244,15 @@
         <logger
             doc:name="Mapped sObject"
             level="INFO"
-            message='#["[HQ-Target-API] ✔ Mapped sObject | Name=" ++ ((payload[0].Name default "?") as String) ++ " | Plant__c=" ++ ((vars.plantId default "?") as String) ++ " | Target_FTE__c=" ++ ((payload[0].Target_FTE__c default 0) as String) ++ " | Quarter__c=" ++ ((payload[0].Quarter__c default "null") as String)]' />
+            message='#["[HQ-Target-API] ✔ Mapped sObject | Name=" ++ ((payload[0].Name default "?") as String) ++ " | Plant__c=" ++ ((vars.plantId default "?") as String) ++ " | Target_FTE__c=" ++ ((payload[0].Target_FTE__c default 0) as String)]' />
 
-        <!-- ── STEP 4: Insert into Salesforce ────────────────── -->
+        <!-- STEP 4: Insert into Salesforce -->
         <salesforce:create
-            doc:name="SF Create — GWB_HQ_Target__c"
+            doc:name="SF Create GWB_HQ_Target__c"
             config-ref="Salesforce_Config"
             type="GWB_HQ_Target__c" />
 
-        <!-- ── STEP 5: Build 201 response ────────────────────── -->
+        <!-- STEP 5: Build 201 response -->
         <ee:transform doc:name="Build 201 response">
             <ee:message>
                 <ee:set-payload><![CDATA[
@@ -174,102 +267,105 @@
                 ]]></ee:set-payload>
             </ee:message>
             <ee:variables>
-                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
-output application/java --- 201]]></ee:set-variable>
+                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 201]]></ee:set-variable>
             </ee:variables>
         </ee:transform>
 
         <logger
             doc:name="Success"
             level="INFO"
-            message='#["[HQ-Target-API] ✅ GWB_HQ_Target__c created successfully | id=" ++ ((payload.id default "?") as String) ++ " | plant=" ++ ((vars.originalRequest.plantCode default "?") as String) ++ " | targetFte=" ++ ((vars.originalRequest.targetFte default 0) as String) ++ " | quarter=" ++ ((vars.originalRequest.quarter default "?") as String)]' />
-
-        <!-- ── Error handler ──────────────────────────────────── -->
-        <error-handler>
-
-            <on-error-continue
-                doc:name="Validation error → 400"
-                type="APP:VALIDATION"
-                logException="false">
-                <ee:transform doc:name="400 Bad Request">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[
-                            %dw 2.0
-                            output application/json
-                            ---
-                            { code: "BAD_REQUEST", message: error.description }
-                        ]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
-output application/java --- 400]]></ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-                <logger
-                    doc:name="400 log"
-                    level="WARN"
-                    message='#["[HQ-Target-API] ⚠ 400 Bad Request | " ++ error.description]' />
-            </on-error-continue>
-
-            <on-error-continue
-                doc:name="Plant not found → 404"
-                type="APP:NOT_FOUND"
-                logException="false">
-                <ee:transform doc:name="404 Not Found">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[
-                            %dw 2.0
-                            output application/json
-                            ---
-                            { code: "NOT_FOUND", message: error.description }
-                        ]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
-output application/java --- 404]]></ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-                <logger
-                    doc:name="404 log"
-                    level="WARN"
-                    message='#["[HQ-Target-API] ⚠ 404 Not Found | " ++ error.description]' />
-            </on-error-continue>
-
-            <on-error-continue
-                doc:name="Any other error → 500"
-                type="ANY"
-                logException="true">
-                <ee:transform doc:name="500 Internal Error">
-                    <ee:message>
-                        <ee:set-payload><![CDATA[
-                            %dw 2.0
-                            output application/json
-                            ---
-                            {
-                                code:    "INTERNAL_ERROR",
-                                message: error.description default "Unexpected server error"
-                            }
-                        ]]></ee:set-payload>
-                    </ee:message>
-                    <ee:variables>
-                        <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0
-output application/java --- 500]]></ee:set-variable>
-                    </ee:variables>
-                </ee:transform>
-                <logger
-                    doc:name="500 log"
-                    level="ERROR"
-                    message='#["[HQ-Target-API] ❌ 500 Internal Error | " ++ (error.description default "unknown")]' />
-            </on-error-continue>
-
-        </error-handler>
+            message='#["[HQ-Target-API] ✅ GWB_HQ_Target__c created | id=" ++ ((payload.id default "?") as String) ++ " | plant=" ++ ((vars.originalRequest.plantCode default "?") as String)]' />
 
     </flow>
 
     <!-- =========================================================
+         GET /hq-targets — listHqTargets (stub)
+    ========================================================== -->
+    <flow name="get:\hq-targets:HQ_Target_APIkit_Config" doc:name="GET /hq-targets">
+        <ee:transform doc:name="501 Not Implemented">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "NOT_IMPLEMENTED", message: "GET /hq-targets is not yet implemented" }]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 501]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+    </flow>
+
+    <!-- =========================================================
+         GET /hq-targets/{id} — getHqTarget (stub)
+    ========================================================== -->
+    <flow name="get:\hq-targets\(id):HQ_Target_APIkit_Config" doc:name="GET /hq-targets/{id}">
+        <ee:transform doc:name="501 Not Implemented">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "NOT_IMPLEMENTED", message: "GET /hq-targets/{id} is not yet implemented" }]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 501]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+    </flow>
+
+    <!-- =========================================================
+         PATCH /hq-targets/{id} — updateHqTarget (stub)
+    ========================================================== -->
+    <flow name="patch:\hq-targets\(id):application\json:HQ_Target_APIkit_Config" doc:name="PATCH /hq-targets/{id}">
+        <ee:transform doc:name="501 Not Implemented">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "NOT_IMPLEMENTED", message: "PATCH /hq-targets/{id} is not yet implemented" }]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 501]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+    </flow>
+
+    <!-- =========================================================
+         DELETE /hq-targets/{id} — deleteHqTarget (stub)
+    ========================================================== -->
+    <flow name="delete:\hq-targets\(id):HQ_Target_APIkit_Config" doc:name="DELETE /hq-targets/{id}">
+        <ee:transform doc:name="501 Not Implemented">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "NOT_IMPLEMENTED", message: "DELETE /hq-targets/{id} is not yet implemented" }]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 501]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+    </flow>
+
+    <!-- =========================================================
+         GET /hq-targets/by-plant/{plantCode} — listHqTargetsByPlant (stub)
+    ========================================================== -->
+    <flow name="get:\hq-targets\by-plant\(plantCode):HQ_Target_APIkit_Config" doc:name="GET /hq-targets/by-plant/{plantCode}">
+        <ee:transform doc:name="501 Not Implemented">
+            <ee:message>
+                <ee:set-payload><![CDATA[%dw 2.0 output application/json --- { code: "NOT_IMPLEMENTED", message: "GET /hq-targets/by-plant/{plantCode} is not yet implemented" }]]></ee:set-payload>
+            </ee:message>
+            <ee:variables>
+                <ee:set-variable variableName="httpStatus"><![CDATA[%dw 2.0 output application/java --- 501]]></ee:set-variable>
+            </ee:variables>
+        </ee:transform>
+    </flow>
+
+    <!-- =========================================================
+         GET /health — healthCheck
+    ========================================================== -->
+    <flow name="get:\health:HQ_Target_APIkit_Config" doc:name="GET /health">
+        <ee:transform doc:name="Health response">
+            <ee:message>
+                <ee:set-payload><![CDATA[
+                    %dw 2.0
+                    output application/json
+                    ---
+                    { status: "ok", version: "1.0.0", apiId: "${api.id}" }
+                ]]></ee:set-payload>
+            </ee:message>
+        </ee:transform>
+    </flow>
+
+    <!-- =========================================================
          SUB-FLOW: Validate required fields
-         Input:  vars.originalRequest
-         Raises: APP:VALIDATION with all error messages joined
     ========================================================== -->
     <sub-flow name="validate-hq-target-subflow" doc:name="Validate HQ Target request">
 
@@ -283,14 +379,14 @@ output application/java --- 500]]></ee:set-variable>
                     var valid = ["Q1 2026", "Q2 2026", "Q3 2026", "Q4 2026"]
 
                     var errors = [
-                        if (req.name    == null or req.name    == "") "name is required"           else null,
-                        if (req.plantCode == null or req.plantCode == "") "plantCode is required"  else null,
-                        if (req.targetFte == null)                  "targetFte is required"        else null,
-                        if (req.targetFte != null and req.targetFte <= 0) "targetFte must be > 0"  else null,
-                        if (req.quarter != null and not (valid contains req.quarter))
-                            ("quarter must be one of: " ++ (valid joinBy ", "))                    else null,
+                        if (req.name      == null or req.name      == "") "name is required"          else null,
+                        if (req.plantCode == null or req.plantCode == "") "plantCode is required"      else null,
+                        if (req.targetFte == null)                        "targetFte is required"      else null,
+                        if (req.targetFte != null and req.targetFte <= 0) "targetFte must be > 0"     else null,
+                        if (req.quarter   != null and not (valid contains req.quarter))
+                            ("quarter must be one of: " ++ (valid joinBy ", "))                        else null,
                         if (req.approvedFteCoverage != null and req.approvedFteCoverage < 0)
-                            "approvedFteCoverage must be >= 0"                                     else null
+                            "approvedFteCoverage must be >= 0"                                         else null
                     ] filter ($ != null)
                     ---
                     { valid: sizeOf(errors) == 0, errors: errors }
@@ -303,7 +399,6 @@ output application/java --- 500]]></ee:set-variable>
             variableName="validationResult"
             value="#[payload]" />
 
-        <!-- Restore original request payload before raising -->
         <set-payload
             doc:name="Restore original request"
             value="#[vars.originalRequest]" />
@@ -320,15 +415,12 @@ output application/java --- 500]]></ee:set-variable>
         <logger
             doc:name="Validation passed"
             level="INFO"
-            message='#["[HQ-Target-API] ✔ Validation passed | plant=" ++ (vars.originalRequest.plantCode default "?")]' />
+            message='#["[HQ-Target-API] ✔ Validation passed | plant=" ++ ((vars.originalRequest.plantCode default "?") as String)]' />
 
     </sub-flow>
 
     <!-- =========================================================
          SUB-FLOW: Resolve GWB_Plant__c.Id from Plant_Code__c
-         Input:  vars.originalRequest
-         Output: vars.plantId (String)
-         Raises: APP:NOT_FOUND if plant not found or inactive
     ========================================================== -->
     <sub-flow name="lookup-plant-id-subflow" doc:name="Lookup GWB_Plant__c by Plant_Code__c">
 
@@ -338,7 +430,7 @@ output application/java --- 500]]></ee:set-variable>
             value="#[vars.originalRequest.plantCode]" />
 
         <salesforce:query
-            doc:name="SOQL — GWB_Plant__c by Plant_Code__c"
+            doc:name="SOQL GWB_Plant__c by Plant_Code__c"
             config-ref="Salesforce_Config">
             <salesforce:salesforce-query><![CDATA[
                 SELECT Id, Name
@@ -364,7 +456,6 @@ output application/java --- 500]]></ee:set-variable>
             variableName="plantId"
             value="#[payload[0].Id]" />
 
-        <!-- Restore original request -->
         <set-payload
             doc:name="Restore original request"
             value="#[vars.originalRequest]" />
@@ -380,29 +471,5 @@ output application/java --- 500]]></ee:set-variable>
             message="#[vars.plantResolvedLog]" />
 
     </sub-flow>
-
-    <!-- =========================================================
-         GET /health — liveness probe (no auth required)
-    ========================================================== -->
-    <flow name="health-check-flow" doc:name="GET /health">
-
-        <http:listener
-            doc:name="GET /health"
-            config-ref="HQ_Target_HTTP_Config"
-            path="/health"
-            allowedMethods="GET" />
-
-        <ee:transform doc:name="Health response">
-            <ee:message>
-                <ee:set-payload><![CDATA[
-                    %dw 2.0
-                    output application/json
-                    ---
-                    { status: "ok", version: "1.0.0", apiId: "20986802" }
-                ]]></ee:set-payload>
-            </ee:message>
-        </ee:transform>
-
-    </flow>
 
 </mule>

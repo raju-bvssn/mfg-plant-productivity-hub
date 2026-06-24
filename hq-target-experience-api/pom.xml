@@ -3,8 +3,8 @@
 
 	<modelVersion>4.0.0</modelVersion>
 
-	<groupId>com.salesforce.gwb</groupId>
-	<artifactId>hq-target-experience-api</artifactId>
+	<groupId>364ee0be-9e1b-4b19-aa99-356dc3e65f9d</groupId>
+	<artifactId>hq-target-experience-api-app</artifactId>
 	<version>1.0.0-SNAPSHOT</version>
 	<packaging>mule-application</packaging>
 
@@ -25,6 +25,26 @@
 				<extensions>true</extensions>
 				<configuration>
 					<classifier>mule-application</classifier>
+					<cloudhub2Deployment>
+						<uri>https://anypoint.mulesoft.com</uri>
+						<provider>MC</provider>
+						<environment>Sandbox</environment>
+								<businessGroupId>364ee0be-9e1b-4b19-aa99-356dc3e65f9d</businessGroupId>
+						<target>ps-use1-ai-productivity-advisor-sbx</target>
+						<muleVersion>4.9.0</muleVersion>
+						<releaseChannel>LTS</releaseChannel>
+						<javaVersion>17</javaVersion>
+						<replicas>1</replicas>
+						<vCores>0.1</vCores>
+						<applicationName>hq-target-experience-api-app</applicationName>
+						<username>${anypoint.username}</username>
+						<password>${anypoint.password}</password>
+						<properties>
+							<secure.key>PlantIQSecureKey</secure.key>
+							<anypoint.platform.client_id>71e0a1b9b1554d5d9caa971d89120819</anypoint.platform.client_id>
+							<anypoint.platform.client_secret>523896e641104b47906A78D7fAd1c301</anypoint.platform.client_secret>
+						</properties>
+					</cloudhub2Deployment>
 				</configuration>
 			</plugin>
 		</plugins>
@@ -55,6 +75,14 @@
 			<classifier>mule-plugin</classifier>
 		</dependency>
 
+		<!-- APIkit Module -->
+		<dependency>
+			<groupId>org.mule.modules</groupId>
+			<artifactId>mule-apikit-module</artifactId>
+			<version>1.11.1</version>
+			<classifier>mule-plugin</classifier>
+		</dependency>
+
 		<!-- MUnit (testing) -->
 		<dependency>
 			<groupId>com.mulesoft.munit</groupId>
@@ -71,6 +99,15 @@
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
+
+	<distributionManagement>
+		<repository>
+			<id>anypoint-exchange-v3-sreenath</id>
+			<name>Anypoint Exchange V3</name>
+			<url>https://maven.anypoint.mulesoft.com/api/v3/organizations/364ee0be-9e1b-4b19-aa99-356dc3e65f9d/maven</url>
+			<layout>default</layout>
+		</repository>
+	</distributionManagement>
 
 	<repositories>
 		<repository>

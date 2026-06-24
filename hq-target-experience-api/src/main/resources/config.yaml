@@ -4,14 +4,14 @@ http:
     port: "8081"
 
 salesforce:
-  consumerKey: "3MVG9OGq41FnYVsH2CBCnt.MO9oIDgh9yWRN_CL47MS1N1ODSOkpPGYWzHsWCdkevWKH3iYP98jIG9kMLn6fA"
+  consumerKey: "![Jz55ByYyrpTzcwrCW+pz2riLN8LD/QtUhzeBPpH5+J/7OOLlbKKBkaEDcw2ek7ZFRmGVnU0xyeVSmMcXv50c6C7Mi1/l504p1McdX8Cx3CoAn4N94GO1PowNmN+tGSWi]"
   username: "vbolisetti.fd61c459bf@salesforce.com"
   tokenEndpoint: "https://login.salesforce.com/services/oauth2/token"
   keystore:
     # Absolute path required by Salesforce JWT connector.
     # plantiq-keystore.p12 must be present in the Mule runtime conf/ directory.
     path: "plantiq-keystore.p12"
-    password: "plantiq123"
+    password: "![tLzrR1D+b4mt7afvjUNfwA==]"
     alias: "plantiq"
 
 api:
