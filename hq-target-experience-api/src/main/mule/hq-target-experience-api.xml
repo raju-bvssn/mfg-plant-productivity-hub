@@ -84,7 +84,7 @@
         <logger
             doc:name="Request received"
             level="INFO"
-            message='#["[HQ-Target-API] ▶ POST /hq-targets received | plant=" ++ (payload.plantCode default "?") ++ " | targetFte=" ++ ((payload.targetFte default "?") as String) ++ " | quarter=" ++ (payload.quarter default "?")]' />
+            message='#["[HQ-Target-API] ▶ POST /hq-targets received | plant=" ++ ((payload.plantCode default "?") as String) ++ " | targetFte=" ++ ((payload.targetFte default "?") as String) ++ " | quarter=" ++ ((payload.quarter default "?") as String)]' />
 
         <!-- Stash original JSON — sub-flows replace payload with SOQL results -->
         <set-variable
@@ -151,7 +151,7 @@
         <logger
             doc:name="Mapped sObject"
             level="INFO"
-            message='#["[HQ-Target-API] ✔ Mapped sObject | Name=" ++ (payload[0].Name default "?") ++ " | Plant__c=" ++ (vars.plantId default "?") ++ " | Target_FTE__c=" ++ ((payload[0].Target_FTE__c default 0) as String) ++ " | Quarter__c=" ++ (payload[0].Quarter__c default "null")]' />
+            message='#["[HQ-Target-API] ✔ Mapped sObject | Name=" ++ ((payload[0].Name default "?") as String) ++ " | Plant__c=" ++ ((vars.plantId default "?") as String) ++ " | Target_FTE__c=" ++ ((payload[0].Target_FTE__c default 0) as String) ++ " | Quarter__c=" ++ ((payload[0].Quarter__c default "null") as String)]' />
 
         <!-- ── STEP 4: Insert into Salesforce ────────────────── -->
         <salesforce:create
@@ -167,8 +167,8 @@
                     output application/json
                     ---
                     {
-                        id:      payload[0].id,
-                        success: payload[0].successful,
+                        id:      payload.items[0].payload.id,
+                        success: payload.items[0].payload.success,
                         message: "GWB_HQ_Target__c record created successfully"
                     }
                 ]]></ee:set-payload>
@@ -182,7 +182,7 @@ output application/java --- 201]]></ee:set-variable>
         <logger
             doc:name="Success"
             level="INFO"
-            message='#["[HQ-Target-API] ✅ GWB_HQ_Target__c created successfully | id=" ++ (payload.id default "?") ++ " | plant=" ++ (vars.originalRequest.plantCode default "?") ++ " | targetFte=" ++ ((vars.originalRequest.targetFte default 0) as String) ++ " | quarter=" ++ (vars.originalRequest.quarter default "?")]' />
+            message='#["[HQ-Target-API] ✅ GWB_HQ_Target__c created successfully | id=" ++ ((payload.id default "?") as String) ++ " | plant=" ++ ((vars.originalRequest.plantCode default "?") as String) ++ " | targetFte=" ++ ((vars.originalRequest.targetFte default 0) as String) ++ " | quarter=" ++ ((vars.originalRequest.quarter default "?") as String)]' />
 
         <!-- ── Error handler ──────────────────────────────────── -->
         <error-handler>
@@ -259,7 +259,7 @@ output application/java --- 500]]></ee:set-variable>
                 <logger
                     doc:name="500 log"
                     level="ERROR"
-                    message='#["[HQ-Target-API] ❌ 500 Internal Error | " ++ (error.description default "unknown") ++ " | plant=" ++ (vars.originalRequest.plantCode default "?")]' />
+                    message='#["[HQ-Target-API] ❌ 500 Internal Error | " ++ (error.description default "unknown")]' />
             </on-error-continue>
 
         </error-handler>
@@ -369,10 +369,15 @@ output application/java --- 500]]></ee:set-variable>
             doc:name="Restore original request"
             value="#[vars.originalRequest]" />
 
+        <set-variable
+            doc:name="Plant resolved log"
+            variableName="plantResolvedLog"
+            value='#[%dw 2.0 output application/java --- "[HQ-Target-API] ✔ Plant resolved | code=" ++ (vars.plantCode as String) ++ " → id=" ++ (vars.plantId as String)]' />
+
         <logger
             doc:name="Plant resolved"
             level="INFO"
-            message='#["[HQ-Target-API] ✔ Plant resolved | code=" ++ vars.plantCode ++ " → id=" ++ vars.plantId]' />
+            message="#[vars.plantResolvedLog]" />
 
     </sub-flow>
 
