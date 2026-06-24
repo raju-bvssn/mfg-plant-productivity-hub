@@ -235,6 +235,7 @@
                         Plant_Shop__c:            req.plantShopId default null,
                         Target_FTE__c:            roundFte(req.targetFte),
                         Approved_FTE_Coverage__c: roundFte(req.approvedFteCoverage default 0.0),
+                        Gap_To_Target__c:         roundFte(req.gapToTarget default null),
                         Production_Context__c:    safeText(req.productionContext default null)
                     }]
                 ]]></ee:set-payload>
