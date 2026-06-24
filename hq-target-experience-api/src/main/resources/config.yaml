@@ -1,14 +1,18 @@
-anypoint:
-  mq:
-    url: "https://mq-us-east-1.anypoint.mulesoft.com/api/v1/organizations/364ee0be-9e1b-4b19-aa99-356dc3e65f9d/environments/b1dde627-2fcb-43d5-bc27-6369b2c2031b"
-    clientId: "e918df404907439e86908c943e30a673"
-    clientSecret: "![a1hRWsyv6AEkZEZWnFs5OLlzCFkaWq8qCdJjqwSZ7cfB6g6+SpUI/TQyFr2Ug5wb]"
+http:
+  listener:
+    host: "0.0.0.0"
+    port: "8081"
 
 salesforce:
   consumerKey: "![Jz55ByYyrpTzcwrCW+pz2riLN8LD/QtUhzeBPpH5+J/7OOLlbKKBkaEDcw2ek7ZFRmGVnU0xyeVSmMcXv50c6C7Mi1/l504p1McdX8Cx3CoAn4N94GO1PowNmN+tGSWi]"
   username: "vbolisetti.fd61c459bf@salesforce.com"
   tokenEndpoint: "https://login.salesforce.com/services/oauth2/token"
   keystore:
+    # Absolute path required by Salesforce JWT connector.
+    # plantiq-keystore.p12 must be present in the Mule runtime conf/ directory.
     path: "plantiq-keystore.p12"
     password: "![tLzrR1D+b4mt7afvjUNfwA==]"
     alias: "plantiq"
+
+api:
+  id: "20986802"
